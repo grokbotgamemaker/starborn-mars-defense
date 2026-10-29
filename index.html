@@ -2063,7 +2063,7 @@ function labStatRows(row){const L=labS();let h='';const g=labPct('gy'),sh=labPct
 TRE.gate={nm:'Psion',ic:'🔮',lv:TRT,br:[['🔥','Psi Assault'],['🛡️','Shields'],['🔮','Tech']],t:[
 [['mfb','Plasma Orb','Psi-casts explode: 50% splash damage, radius 22'],['mward','Shield Matrix','Each cast adds a door shield of 2% max HP, up to 6% (wards fail below 10% door HP)'],['mhex','Cryo Hex','Psi-casts slow 25% for 2.5s (bosses 10%)']],
 [['mchn','Chain Lightning','Psi-casts arc to 3 more enemies for 50%'],['mmend','Nanite Repair','Each cast repairs 1% of door max HP (wards fail below 10% door HP)'],['mweak','Weakness Field','Psi-cast targets take +12% dmg from all sources for 4s (stacks with all amps)']],
-[['mpyro','Plasma Mastery','+30% psi-cast damage'],['mthorn','Tesla Fence','Up to 12 enemies at the door take 10% psi-cast damage every second'],['mquick','Quick Cast','−25% psi-cast cooldown']],
+[['mpyro','Plasma Mastery','+30% psi-cast damage'],['mthorn','Arc Fence','Up to 12 enemies at the door take 10% psi-cast damage every second'],['mquick','Quick Cast','−25% psi-cast cooldown']],
 [['mmet','Orbital Strike','Every 4th cast calls a meteor: 200% damage r34, stuns 0.6s (not bosses)'],['maeg','Aegis','Door takes −15% damage (shares the 50% door cap)'],['mwarp','Time Warp','Every 4th cast: enemies within 100 of the door are 30% slower for 3s (bosses 15%)']],
 [['msurge','Psi Surge','Psi-casts can crit with your crit chance and crit damage'],['mbless','Nanite Steel','Troopers +25% damage; each cast heals troopers 5%'],['mcoin','Matter Printer','Non-bosses slain by psi-casts drop +50% credits']],
 [['mtwin','Twin Cast','Each cast also fires at a 2nd target for 50%'],['mbast','Bastion','Shield +4% per cast, holds up to 15% (10% without Ward Sigil)'],['msiph','Energy Siphon','Each psi-cast kill makes the next cast 0.6s sooner']],
@@ -3187,7 +3187,7 @@ function artWallT(g,t,ban){const P=SBT(t),h=12+Math.min(5,t)*1.6;
  sbPoly(g,[-4.5,-h,4.5,-h,3.4,-h-2.2,-3.4,-h-2.2],P.p[0],'#07080c',.35);g.fillStyle='rgba(255,255,255,.5)';g.fillRect(-3.3,-h-2.1,6.6,.4);
  if(t>=8)sbGlow(g,0,-h*.42,4,P.acc,P.ga*.5);
  if(ban){g.strokeStyle='#9aa4ae';g.lineWidth=.45;g.beginPath();g.moveTo(0,-h-2);g.lineTo(0,-h-10);g.stroke();g.fillStyle=t>=10?'rgb('+P.acc+')':'#ff3b3b';g.beginPath();g.arc(0,-h-10.4,.75,0,TAU);g.fill();sbGlow(g,0,-h-10.4,3.5,t>=10?P.acc:'255,59,59',.7);g.strokeStyle='#cfd6dd';g.lineWidth=.3;g.beginPath();g.moveTo(-1.8,-h-7.5);g.lineTo(1.8,-h-7.5);g.moveTo(-1.2,-h-6);g.lineTo(1.2,-h-6);g.stroke()}}
-// ---- the Ark (stainless starship + colony domes) ----
+// ---- the Ark (stainless rocket + colony domes) ----
 function artCastleT(g,t){const P=SBT(t),ac=P.acc,ol='#07080c';
  g.fillStyle='rgba(0,0,0,.4)';g.beginPath();g.ellipse(0,2,40,8,0,0,TAU);g.fill();
  // habitat domes

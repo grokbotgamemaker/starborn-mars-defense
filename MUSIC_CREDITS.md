@@ -36,4 +36,4 @@ All sound effects (plasma shots, impacts, credit pickups, alarms) are synthesize
 - **Exo 2** by Natanael Gama, and **Orbitron** by Matt McInerney. Both use the SIL Open Font License 1.1 and are self-hosted in `fonts/` (from Google Fonts).
 
 ## Art
-All in-game art (the Starborn and hover bike, aliens, bosses, the Ark starship, turrets, terrain, hives and icons) is original and drawn procedurally in code.
+All in-game art (the Starborn and hover bike, aliens, bosses, the Ark rocket, turrets, terrain, hives and icons) is original and drawn procedurally in code.
