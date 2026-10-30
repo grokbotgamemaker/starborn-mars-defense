@@ -1,6 +1,6 @@
-# Starborn: Mars Defense — Music, Sound & Font Credits
+# Star King: Mars Defense — Music, Sound & Font Credits
 
-All music in Starborn is **original** and was written for this game: a hybrid sci-fi action score in E minor / E Phrygian
+All music in Star King is **original** and was written for this game: a hybrid sci-fi action score in E minor / E Phrygian
 (pulsing synth-bass ostinatos, distorted-guitar chugs, brass "braams", taiko and choir). No existing melodies are used or quoted.
 It was composed as MIDI, rendered offline with sampled instruments, then mixed and mastered (convolution hall reverb, EQ,
 glue compression, limiter, about -16 LUFS).
@@ -36,4 +36,4 @@ All sound effects (plasma shots, impacts, credit pickups, alarms) are synthesize
 - **Exo 2** by Natanael Gama, and **Orbitron** by Matt McInerney. Both use the SIL Open Font License 1.1 and are self-hosted in `fonts/` (from Google Fonts).
 
 ## Art
-All in-game art (the Starborn and hover bike, aliens, bosses, the Ark rocket, turrets, terrain, hives and icons) is original and drawn procedurally in code.
+All in-game art (the Star King and hover bike, aliens, bosses, the Ark rocket, turrets, terrain, hives and icons) is original and drawn procedurally in code.

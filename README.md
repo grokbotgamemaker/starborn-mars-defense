@@ -1,4 +1,4 @@
-# Starborn: Mars Defense
+# Star King: Mars Defense
 
 A space-themed sibling of King Archer. Play: https://grokbotgamemaker.github.io/starborn-mars-defense/
 
