@@ -1891,7 +1891,7 @@ function ptHint(){const s=st;if(!s||s.raid||!s.rPortal||state!=='play'||!WT)retu
  const sx=(P0.x*WT[0]+WT[2])/D,sy=((P0.y-20)*WT[1]+WT[3])/D,m=34,tp=150,bt=H-140;
  if(sx<m||sx>W-m||sy<tp||sy>bt){const cx=Math.max(m,Math.min(W-m,sx)),cy=Math.max(tp,Math.min(bt,sy)),an=Math.atan2(sy-cy||(sy-H/2),sx-cx||(sx-W/2));X.save();X.translate(cx,cy);X.rotate(an);X.globalAlpha=.75+.25*pu;X.fillStyle='#b388ff';X.strokeStyle='#fff';X.lineWidth=2.5;X.beginPath();X.moveTo(18+4*pu,0);X.lineTo(-10,-13);X.lineTo(-4,0);X.lineTo(-10,13);X.closePath();X.fill();X.stroke();X.restore();X.globalAlpha=1;txt('🌀',cx-Math.cos(an)*24,cy-Math.sin(an)*24,16,'#fff')}}
 {const _d=draw;draw=function(){const r=_d();try{ptHint()}catch(e){}return r}}
-{const _mn=menu;menu=function(...a){const r=_mn.apply(this,a);try{const pn=UI.querySelector('.pn');if(pn&&!pn.querySelector('.verlbl')){const v=document.createElement('div');v.className='verlbl';v.style.cssText='font-size:11px;opacity:.55;margin-top:6px';v.textContent='Star King v1.3';pn.appendChild(v)}}catch(e){}return r}}
+{const _mn=menu;menu=function(...a){const r=_mn.apply(this,a);try{const pn=UI.querySelector('.pn');if(pn&&!pn.querySelector('.verlbl')){const v=document.createElement('div');v.className='verlbl';v.style.cssText='font-size:11px;opacity:.55;margin-top:6px';v.textContent='Star King v1.4';pn.appendChild(v)}}catch(e){}return r}}
 // ==== FIRE RATE TREE combat (v18.53) — king arrows only; disabled in Portal Raids (trN false when s.raid)
 const FRR={sun:0,nova:0,vol:0,stc:0,th:0,fz:0,phx:0};
 function frOD(){return(st.rateX||1)*(trN('rate','overc')?1.1:1)}
@@ -3817,5 +3817,18 @@ txt=function(t,x,y,s,c,al='center',ctx=X){if(typeof t!=='string'||(UPR&&ctx===X)
  const is=s*1.2,ic=sbIcon(m[1],is*(ctx===X?Math.min(3,(window.devicePixelRatio||1)*2):2));if(!ic)return _sbTxt0(t,x,y,s,c,al,ctx);const rest=t.slice(m[0].length);
  ctx.font='900 '+s+'px '+FONT;const rw=rest?ctx.measureText(rest).width:0,gap=rest?s*.28:0,tw=is+gap+rw,x0=al==='center'?x-tw/2:al==='right'?x-tw:x,d=is*1.3;
  ctx.drawImage(ic,x0-(d-is)/2,y-d/2,d,d);if(rest)_sbTxt0(rest,x0+is+gap,y,s,c,'left',ctx)};
+
+// ---- 97_bankauto.js
+// ===== Banker auto-max at run start (KA v18.77 / Star King v1.4) =====
+// After a fresh run is set up (all starting gold granted: base, armory, Head Start, run bonuses), if gold > 2x the cost to
+// take the Banker pad from its current level to max, buy it to max through the normal pad-upgrade path (cost() incl. all
+// cost modifiers, p.lv++, applyUp). Once per run (st.bkAuto, saved with the run), never in raids, never on resume.
+function bankAutoCost(p){let c=0;const q=Object.assign({},p,{paid:0});for(;q.lv<q.max;q.lv++)c+=cost(q);return c}
+function bankAuto(){const s=st;if(!s||s.raid||s.bkAuto)return 0;s.bkAuto=1;const p=(s.pads||[]).find(p=>p.kind==='banker');if(!p||p.hid||p.lv>=p.max)return 0;
+ const c=bankAutoCost(p);if(!(c>0&&s.gold>2*c))return 0;if(p.paid>0){s.gold+=p.paid;p.paid=0}let spent=0;
+ while(p.lv<p.max){const ci=cost(p);s.gold-=ci;spent+=ci;p.lv++;if(p.tw)p.tw.lv=p.lv;applyUp(p)}
+ s.bkSpent=spent;s.rs=s.rs||{};s.rs.bkAuto=spent;const msg='🏦 '+p.name+' auto-maxed (−'+fN(spent)+' credits)';
+ try{toast(msg,true)}catch(e){}try{num(p.x,p.y-26,'MAX','#ffe066',8);stars(p.x,p.y-10,14,70);Snd.sfx('bank')}catch(e){}return spent}
+{const _n=newGame;newGame=function(...a){const r=_n.apply(this,a);try{bankAuto()}catch(e){console.error(e)}return r}}
 
 </script></body></html>
