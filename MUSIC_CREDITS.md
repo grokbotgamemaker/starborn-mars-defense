@@ -1,39 +1,29 @@
-# Star King: Mars Defense — Music, Sound & Font Credits
+# Star King: Mars Defense — Music & Sound Credits
 
-All music in Star King is **original** and was written for this game: a hybrid sci-fi action score in E minor / E Phrygian
-(pulsing synth-bass ostinatos, distorted-guitar chugs, brass "braams", taiko and choir). No existing melodies are used or quoted.
-It was composed as MIDI, rendered offline with sampled instruments, then mixed and mastered (convolution hall reverb, EQ,
-glue compression, limiter, about -16 LUFS).
+All music and sound in Star King is **original** and was written for this game. No samples, loops, soundfonts or existing melodies are used.
 
-All sound effects (plasma shots, impacts, credit pickups, alarms) are synthesized live in the browser with the Web Audio API. No samples are used.
+## Score (v1.7)
+A cinematic sci-fi score in E minor / E Phrygian, synthesized entirely from scratch with a custom offline synth engine
+(band-limited saw/pulse oscillators, detuned "reese" pulse bass with kick sidechain, supersaw pads, formant-filtered choir,
+filtered-saw braams, synthesized kick/snare/taiko/toms/cymbals, ping-pong delays and generated hall/room reverbs), then mixed and
+mastered (EQ, glue compression, limiter, about -14 LUFS).
 
-## Sampled instruments
-
-**FluidR3_GM SoundFont** (v3, 2008)
-- Copyright © 2000-2002, 2008 Frank Wen; © 2008 Toby Smithe
-- Built in part from public-domain samples, with contributions by Suren M. Seron, Scott Hanan, Steve Aupperle, Chris Gillman,
-  Alex Taubr, Chris Prola, Andrew Klenk, Winfried Hubbe, Dylan, Tim, Gort, Uros Katic and Ethan Winer.
-- Licence: **MIT** ("I hereby release Fluid under the MIT license"). You may redistribute rendered audio in games.
-- Source: Debian package `fluid-soundfont-gm` (upstream: musescore.org fluid-soundfont).
-
-> Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
-> files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy,
-> modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software
-> is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be
-> included in all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
-
-## Tracks
-| File | Length (loop) | What's in it |
+| File | Loop | What's in it |
 |---|---|---|
-| music/defend_base.m4a | 96 s @120 bpm | 16th-note synth-bass pulse, poly-synth pad, saw arpeggiator, saw lead (main theme), synth strings, crystal bell, voice pad, electronic kit |
-| music/defend_battle.m4a (intensity layer) | 96 s | taiko, timpani rolls, distorted-guitar chugs, trombone and brass braams/stabs, synth-brass call, choir, orchestra hits |
-| music/buildup_base.m4a + buildup_rise.m4a | 12.8 s @150 bpm | boss-incoming riser: heartbeat taiko, accelerating synth bass/timpani/synth drums, rising synth-string cluster, choir and trombone swell |
-| music/boss_hit.m4a | 4.6 s one-shot | boss-arrival impact: taiko, timpani, crash/china, brass and guitar braam, orchestra hit |
-| music/boss.m4a | 51.2 s @150 bpm | Phrygian synth-bass and guitar grind, tuba, synth strings, choir, double-time taiko, full kit, trombone braams, saw-lead motif, sweep pad |
-| music/raid.m4a | 61.44 s @125 bpm | galloping synth bass, overdriven-guitar gallop, saw arps, march snare rudiments, taiko, synth-brass fanfare, lead theme, choir |
+| music/menu.m4a | 76.8 s @100 bpm | menu theme: pulsing bass, slow arpeggios, supersaw pad, choir, braams, half-time drums, synth-brass main theme |
+| music/defend_base.m4a | 96 s @120 bpm | in-run base: 16th pulse bass, arps, pads, choir, electronic kit |
+| music/defend_battle.m4a | 96 s | intensity layer (follows enemy count): taiko, braams, distorted octave bass, stabs, fills, main theme |
+| music/buildup_base.m4a + buildup_rise.m4a | 12.8 s @150 bpm | boss incoming: heartbeat drums and drone, plus an endlessly rising tone, snare roll, choir and riser |
+| music/boss_hit.m4a | one-shot | the boss arrival impact: braam, sub boom, crash, choir hit |
+| music/boss.m4a | 51.2 s @150 bpm | boss battle, E Phrygian riff |
+| music/raid.m4a | 61.44 s @125 bpm | rift raid theme |
+
+## Sound effects
+All sound effects (plasma and laser shots, energy impacts, alien death squelches, credit chimes, UI beeps, blast door hits,
+jet pack thrust) are synthesized live in the browser with the Web Audio API.
 
 ## Fonts
 - **Exo 2** by Natanael Gama, and **Orbitron** by Matt McInerney. Both use the SIL Open Font License 1.1 and are self-hosted in `fonts/` (from Google Fonts).
 
 ## Art
-All in-game art (the Star King and hover bike, aliens, bosses, the Ark rocket, turrets, terrain, hives and icons) is original and drawn procedurally in code.
+All in-game art (the robot Star King and his jet pack, robot troopers, aliens, bosses, the Ark rocket, turrets, terrain, hives and icons) is original and drawn procedurally in code.
