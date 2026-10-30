@@ -1893,7 +1893,7 @@ function ptHint(){const s=st;if(!s||s.raid||!s.rPortal||state!=='play'||!WT)retu
  const sx=(P0.x*WT[0]+WT[2])/D,sy=((P0.y-20)*WT[1]+WT[3])/D,m=34,tp=150,bt=H-140;
  if(sx<m||sx>W-m||sy<tp||sy>bt){const cx=Math.max(m,Math.min(W-m,sx)),cy=Math.max(tp,Math.min(bt,sy)),an=Math.atan2(sy-cy||(sy-H/2),sx-cx||(sx-W/2));X.save();X.translate(cx,cy);X.rotate(an);X.globalAlpha=.75+.25*pu;X.fillStyle='#b388ff';X.strokeStyle='#fff';X.lineWidth=2.5;X.beginPath();X.moveTo(18+4*pu,0);X.lineTo(-10,-13);X.lineTo(-4,0);X.lineTo(-10,13);X.closePath();X.fill();X.stroke();X.restore();X.globalAlpha=1;txt('🌀',cx-Math.cos(an)*24,cy-Math.sin(an)*24,16,'#fff')}}
 {const _d=draw;draw=function(){const r=_d();try{ptHint()}catch(e){}return r}}
-{const _mn=menu;menu=function(...a){const r=_mn.apply(this,a);try{const pn=UI.querySelector('.pn');if(pn&&!pn.querySelector('.verlbl')){const v=document.createElement('div');v.className='verlbl';v.style.cssText='font-size:11px;opacity:.55;margin-top:6px';v.textContent='Star King v1.9';pn.appendChild(v)}}catch(e){}return r}}
+{const _mn=menu;menu=function(...a){const r=_mn.apply(this,a);try{const pn=UI.querySelector('.pn');if(pn&&!pn.querySelector('.verlbl')){const v=document.createElement('div');v.className='verlbl';v.style.cssText='font-size:11px;opacity:.55;margin-top:6px';v.textContent='Star King v1.10';pn.appendChild(v)}}catch(e){}return r}}
 // ==== FIRE RATE TREE combat (v18.53) — king arrows only; disabled in Portal Raids (trN false when s.raid)
 const FRR={sun:0,nova:0,vol:0,stc:0,th:0,fz:0,phx:0};
 function frOD(){return(st.rateX||1)*(trN('rate','overc')?1.1:1)}
@@ -3054,6 +3054,16 @@ function doorSplash(e){const s=st,k=s.k;for(const o of s.sol)if(dist(o.x,o.y,CX,
   else if(s.brkN)m+=`The ${T.door} was rebuilt, but ${nIn||'some'} enem${nIn===1?'y':'ies'} had already got ${T.inside}. `;
   m+=T.fix}
  p.textContent=m.replace(/(^|\. )([a-z])/g,(a,b,c)=>b+c.toUpperCase());h.after(p)}catch(x){}}}
+
+// ===== v18.82 / v1.10: a tier's Head Start / Compass source is that tier's OWN real best wave; never played = 0 (start at wave 1) =====
+// (overrides the v18.73 '~estimate' seed; artifact/gem anchoring to the T1 best is unchanged)
+function tbE(t){return t<=1?best:(tbR(t)>0?tbR(t):0)}
+function tbTxt(t){return tbEst(t)?'— (not played yet)':fN(tbE(t))}
+// saves: a tier best that never went past a Head Start skip that itself came from the estimate is not real play -> drop it
+function tbClean(){try{if(!meta||meta.tbV2)return;meta.tbV2=1;const F=meta.tbF||{},T=meta.tb=meta.tb||{};for(const k in F){const t=+k;if(t>1&&(T[t]||0)>0&&(T[t]||0)<=(F[k]||0))T[t]=0}saveMeta()}catch(e){}}
+{const _ls=loadSlot;loadSlot=function(){const r=_ls.apply(this,arguments);tbClean();return r}}
+try{if(typeof SLOT!=='undefined'&&SLOT)tbClean()}catch(e){}
+{const _b=rsHSBlock;rsHSBlock=function(){let h=_b.apply(this,arguments);try{const t=rset().t;if(t>1&&tbEst(t))h=h.replace(/No (\S+ Start) available yet \([^)]*\)\. It will apply once you have one\./,(m,n)=>'Tier '+t+' not played yet (Best: —), so '+n+' starts at wave 1. Once you clear waves on Tier '+t+', '+n+' uses this tier\'s own best wave.')}catch(e){}return h}}
 
 // ---- 00_engine.js
 // ===== Star King art engine: tiny oblique-3D polyhedra renderer (original) =====
