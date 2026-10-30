@@ -1893,7 +1893,7 @@ function ptHint(){const s=st;if(!s||s.raid||!s.rPortal||state!=='play'||!WT)retu
  const sx=(P0.x*WT[0]+WT[2])/D,sy=((P0.y-20)*WT[1]+WT[3])/D,m=34,tp=150,bt=H-140;
  if(sx<m||sx>W-m||sy<tp||sy>bt){const cx=Math.max(m,Math.min(W-m,sx)),cy=Math.max(tp,Math.min(bt,sy)),an=Math.atan2(sy-cy||(sy-H/2),sx-cx||(sx-W/2));X.save();X.translate(cx,cy);X.rotate(an);X.globalAlpha=.75+.25*pu;X.fillStyle='#b388ff';X.strokeStyle='#fff';X.lineWidth=2.5;X.beginPath();X.moveTo(18+4*pu,0);X.lineTo(-10,-13);X.lineTo(-4,0);X.lineTo(-10,13);X.closePath();X.fill();X.stroke();X.restore();X.globalAlpha=1;txt('🌀',cx-Math.cos(an)*24,cy-Math.sin(an)*24,16,'#fff')}}
 {const _d=draw;draw=function(){const r=_d();try{ptHint()}catch(e){}return r}}
-{const _mn=menu;menu=function(...a){const r=_mn.apply(this,a);try{const pn=UI.querySelector('.pn');if(pn&&!pn.querySelector('.verlbl')){const v=document.createElement('div');v.className='verlbl';v.style.cssText='font-size:11px;opacity:.55;margin-top:6px';v.textContent='Star King v1.7';pn.appendChild(v)}}catch(e){}return r}}
+{const _mn=menu;menu=function(...a){const r=_mn.apply(this,a);try{const pn=UI.querySelector('.pn');if(pn&&!pn.querySelector('.verlbl')){const v=document.createElement('div');v.className='verlbl';v.style.cssText='font-size:11px;opacity:.55;margin-top:6px';v.textContent='Star King v1.8';pn.appendChild(v)}}catch(e){}return r}}
 // ==== FIRE RATE TREE combat (v18.53) — king arrows only; disabled in Portal Raids (trN false when s.raid)
 const FRR={sun:0,nova:0,vol:0,stc:0,th:0,fz:0,phx:0};
 function frOD(){return(st.rateX||1)*(trN('rate','overc')?1.1:1)}
@@ -3008,6 +3008,38 @@ if("serviceWorker" in navigator){const had=!!navigator.serviceWorker.controller;
 // ===== Armory rows: identical fixed height, buy button at the same spot in every row (KA v18.79 / Star King v1.6) =====
 {const st0=document.createElement('style');st0.textContent='#ui button{touch-action:manipulation}.arow{height:92px;box-sizing:border-box;overflow:hidden;flex-wrap:nowrap}.arow .ic{flex:none}.arow .tx{min-width:0;overflow:hidden}.arow .tx b,.arow .tx small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.arow .fav{flex:none;width:34px}.arow .buy{flex:0 0 96px;width:96px;min-width:96px;height:52px;padding:2px 4px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;-webkit-tap-highlight-color:transparent}.arow .buy small{font-size:11px}';document.head.appendChild(st0)}
 
+// ===== Armory: rows tall enough for the longest upgrade text (measured at the real width), tap-a-row info popup (KA v18.80 / Star King v1.8) =====
+{const css=document.createElement('style');css.textContent='.arow{height:var(--arh,92px)!important;align-items:center;gap:6px!important;padding-left:8px!important;padding-right:8px!important}.arow .ic{font-size:22px!important;width:28px!important;flex:0 0 28px!important;text-align:center}.arow .fav{width:28px!important;flex:0 0 28px!important;padding:0!important}.arow .tx{overflow:visible!important}.arow .tx b,.arow .tx small{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere}.arow .tx b::after{content:" \\24D8";font-weight:400;opacity:.55;font-size:.85em}.arow{cursor:pointer}'
+ +'.arow-m{height:auto!important}'
+ +'.ainf{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.62);padding:18px;box-sizing:border-box}'
+ +'.ainf .ac{position:relative;width:100%;max-width:400px;max-height:86vh;overflow:auto;box-sizing:border-box;padding:18px 16px 16px;border-radius:16px;text-align:left;margin:0}'
+ +'.ainf .ah{display:flex;align-items:center;gap:10px;margin:0 44px 12px 0}.ainf .ah .ic{font-size:30px;flex:none}.ainf .ah b{font-size:19px;line-height:1.2}'
+ +'.ainf .ad{font-size:15px;line-height:1.35;margin:6px 0 12px}.ainf .ag{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;font-size:14px;line-height:1.3;margin-bottom:14px}.ainf .ag span{opacity:.75}'
+ +'.ainf .ax{position:absolute!important;top:10px!important;right:10px!important;left:auto!important;bottom:auto!important;width:36px!important;height:36px!important;border-radius:50%;font-size:18px;padding:0!important;line-height:30px;margin:0!important;transform:none!important}.ainf .buy{width:100%;height:52px;font-size:17px}';
+ document.head.appendChild(css)}
+const AFIT={w:0,h:0};
+function armRowHTML(a,l){let d='',n='';try{d=a[3](l)}catch(e){}const mx=l>=a[4];try{n=mx?'—':a[3](l+1,1)}catch(e){}
+ return`<div class="row arow arow-m"><div class="ic">${a[1]}</div><div class="tx"><b>${a[2]}</b><small>${d}</small><div class="pbar"><i style="width:50%"></i></div><small>Lv ${l}${a[4]>=1e9?' · no cap':'/'+a[4]} · next: ${n}</small></div><button class="fav" style="background:none;border:0;font-size:22px;padding:0 4px">⭐</button><button class="buy">💎 999.9K<br><small>×100</small></button></div>`}
+function armFit(){try{const rows=UI.querySelectorAll('.arow:not(.arow-m)');const host=rows[0]?rows[0].parentElement:UI.querySelector('.pn');if(!host)return;
+ const w=Math.round(host.clientWidth);if(w!==AFIT.w){AFIT.w=w;AFIT.h=0}
+ const cs=getComputedStyle(host),rw=rows[0]?rows[0].getBoundingClientRect().width:host.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);const box=document.createElement('div');box.style.cssText='position:absolute;left:0;top:0;width:'+rw+'px;visibility:hidden;pointer-events:none';const pos=cs.position;if(pos==='static')host.style.position='relative';
+ let h='';for(const a of ARM){const l=mlR(a[0]);const ls=[...new Set([l,l+1,l+10,l+100,l+1000,a[4]<1e9?a[4]:l+10000].map(x=>Math.min(a[4],x)))];for(const x of ls)h+=armRowHTML(a,x)}box.innerHTML=h;host.appendChild(box);
+ let m=92;for(const r of box.children)m=Math.max(m,Math.ceil(r.getBoundingClientRect().height));const sm=box.querySelector('.tx small');const lh=sm?Math.ceil(parseFloat(getComputedStyle(sm).fontSize)*1.3)||16:16;box.remove();// one spare line: some texts depend on other upgrades' levels (e.g. crit text shows crit damage), so a buy elsewhere can't push a row taller mid-session
+ 
+ if(m>AFIT.h)AFIT.h=m+lh;UI.style.setProperty('--arh',AFIT.h+'px')}catch(e){}}
+{const _arm=armory;armory=function(){const r=_arm.apply(this,arguments);armFit();if(AINF.k&&AINF.re){AINF.re=0;armInfo(AINF.k)}return r}}
+addEventListener('resize',()=>{if(UI.querySelector('.arow'))armFit()});
+const AINF={k:null,re:0};
+function armInfo(k){const a=ARM.find(x=>x[0]===k);if(!a)return;AINF.k=k;const l=mlR(k),mx=l>=a[4],q=PGqty(a),c=q.c;let cur='',nxt='';try{cur=a[3](l)}catch(e){}try{nxt=mx?'':a[3](l+1)}catch(e){}
+ let o=UI.querySelector('.ainf');if(o)o.remove();o=document.createElement('div');o.className='ainf';
+ o.innerHTML=`<div class="pn ac" role="dialog" aria-label="${a[2]}"><button class="xb ax" data-ainfx="1" aria-label="Close">✕</button><div class="ah"><div class="ic">${a[1]}</div><b>${a[2]}</b></div>
+ <div class="ag"><span>Level</span><b>${l}${a[4]>=1e9?' (no cap)':' / '+a[4]}</b><span>Now</span><div>${cur}</div>${mx?'<span>Next</span><div>Maxed</div>':`<span>Next level</span><div>${nxt}</div><span>Next cost</span><div>💎 ${fC(PGc(a,l))}${q.n>1?' · ×'+q.n+' for 💎 '+fC(c):''}</div>`}</div>
+ <button class="buy" data-buy="${k}" data-ainfb="1" ${mx||meta.gems<c?'disabled':''}>${mx?'MAX':'Buy'+(q.n>1?' ×'+q.n:'')+' · 💎 '+fC(c)}</button></div>`;
+ UI.appendChild(o)}
+UI.addEventListener('click',e=>{const t=e.target;const inf=t.closest&&t.closest('.ainf');
+ if(inf){if(t===inf||t.closest('[data-ainfx]')){e.stopImmediatePropagation();inf.remove();AINF.k=null;return}if(t.closest('[data-ainfb]')){AINF.re=1;return}if(!t.closest('button'))e.stopImmediatePropagation();return}
+ const row=t.closest&&t.closest('.arow');if(!row||t.closest('button'))return;const bb=row.querySelector('[data-buy]');if(bb){e.stopImmediatePropagation();try{Snd.init();Snd.ui()}catch(x){}armInfo(bb.dataset.buy)}},true);
+
 // ---- 00_engine.js
 // ===== Star King art engine: tiny oblique-3D polyhedra renderer (original) =====
 // screen = (dx, dy*.5 - z) with dx=u*c-v*s, dy=u*s+v*c ; view dir d=(0,1,.5) ; light from upper-left-north
@@ -3738,6 +3770,14 @@ function sbHeroDraw(k,sp,ka,sx,sy){const vx=k.vx||0,vy=k.vy||0,m=Math.min(1,Math
 // ---- 66_robofx.js
 // v1.7: jet nozzle anchors for the scaled robot Star King (overrides 60_fx)
 function sbJetNoz(ka){if(SBJN[ka])return SBJN[ka];const S=M3.S(ka/KANG*TAU,0,0,SBK_SC);return SBJN[ka]=SBJ.noz.map(([u,v])=>{const p=M3.P(S,u,v,SBJ.hip-1.6);return[p[0],p[1],p[2]]})}
+
+// ---- 67_armfit_space.js
+// Star King v1.8: space styling for the armory info popup (holo glass panel, cyan glow)
+{const st=document.createElement('style');st.textContent='.ainf{background:radial-gradient(ellipse at center,rgba(10,30,60,.55),rgba(0,4,12,.82))!important;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}'
++'.ainf .ac{background:linear-gradient(160deg,rgba(14,30,58,.97),rgba(6,12,28,.97))!important;border:1.5px solid rgba(90,220,255,.75)!important;box-shadow:0 0 0 1px rgba(90,220,255,.15),0 0 28px rgba(60,200,255,.35),inset 0 0 22px rgba(60,180,255,.12)!important;border-radius:14px!important;color:#dff6ff}'
++'.ainf .ac::before{content:"";position:absolute;left:14px;right:14px;top:0;height:2px;background:linear-gradient(90deg,transparent,#5fe3ff,transparent);opacity:.9}'
++'.ainf .ah b{color:#8fefff;text-shadow:0 0 10px rgba(90,220,255,.55);letter-spacing:.5px}.ainf .ag span{color:#7fb7d6;opacity:1}.ainf .ag b,.ainf .ag div{color:#e8fbff}'
++'.arow .tx b::after{color:#5fe3ff;opacity:.8}';document.head.appendChild(st)}
 
 // ---- 70_hive.js
 // ===== Raid targets: alien hives & motherships (original) =====
