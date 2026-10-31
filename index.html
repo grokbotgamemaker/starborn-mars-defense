@@ -1893,7 +1893,7 @@ function ptHint(){const s=st;if(!s||s.raid||!s.rPortal||state!=='play'||!WT)retu
  const sx=(P0.x*WT[0]+WT[2])/D,sy=((P0.y-20)*WT[1]+WT[3])/D,m=34,tp=150,bt=H-140;
  if(sx<m||sx>W-m||sy<tp||sy>bt){const cx=Math.max(m,Math.min(W-m,sx)),cy=Math.max(tp,Math.min(bt,sy)),an=Math.atan2(sy-cy||(sy-H/2),sx-cx||(sx-W/2));X.save();X.translate(cx,cy);X.rotate(an);X.globalAlpha=.75+.25*pu;X.fillStyle='#b388ff';X.strokeStyle='#fff';X.lineWidth=2.5;X.beginPath();X.moveTo(18+4*pu,0);X.lineTo(-10,-13);X.lineTo(-4,0);X.lineTo(-10,13);X.closePath();X.fill();X.stroke();X.restore();X.globalAlpha=1;txt('🌀',cx-Math.cos(an)*24,cy-Math.sin(an)*24,16,'#fff')}}
 {const _d=draw;draw=function(){const r=_d();try{ptHint()}catch(e){}return r}}
-{const _mn=menu;menu=function(...a){const r=_mn.apply(this,a);try{const pn=UI.querySelector('.pn');if(pn&&!pn.querySelector('.verlbl')){const v=document.createElement('div');v.className='verlbl';v.style.cssText='font-size:11px;opacity:.55;margin-top:6px';v.textContent='Star King v1.10';pn.appendChild(v)}}catch(e){}return r}}
+{const _mn=menu;menu=function(...a){const r=_mn.apply(this,a);try{const pn=UI.querySelector('.pn');if(pn&&!pn.querySelector('.verlbl')){const v=document.createElement('div');v.className='verlbl';v.style.cssText='font-size:11px;opacity:.55;margin-top:6px';v.textContent='Star King v1.11';pn.appendChild(v)}}catch(e){}return r}}
 // ==== FIRE RATE TREE combat (v18.53) — king arrows only; disabled in Portal Raids (trN false when s.raid)
 const FRR={sun:0,nova:0,vol:0,stc:0,th:0,fz:0,phx:0};
 function frOD(){return(st.rateX||1)*(trN('rate','overc')?1.1:1)}
@@ -3064,6 +3064,41 @@ function tbClean(){try{if(!meta||meta.tbV2)return;meta.tbV2=1;const F=meta.tbF||
 {const _ls=loadSlot;loadSlot=function(){const r=_ls.apply(this,arguments);tbClean();return r}}
 try{if(typeof SLOT!=='undefined'&&SLOT)tbClean()}catch(e){}
 {const _b=rsHSBlock;rsHSBlock=function(){let h=_b.apply(this,arguments);try{const t=rset().t;if(t>1&&tbEst(t))h=h.replace(/No (\S+ Start) available yet \([^)]*\)\. It will apply once you have one\./,(m,n)=>'Tier '+t+' not played yet (Best: —), so '+n+' starts at wave 1. Once you clear waves on Tier '+t+', '+n+' uses this tier\'s own best wave.')}catch(e){}return h}}
+
+// ===== v18.83 / v1.11 Picture-in-Picture: warm the capture video when the pause menu opens; the tap only calls the PiP API =====
+(function(){const P=PIP,UA=navigator.userAgent||'';
+ const iOS=/iP(hone|ad|od)/.test(UA)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+ const standalone=()=>{try{return !!(navigator.standalone||matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches)}catch(e){return false}};
+ const otherApp=/CriOS|FxiOS|EdgiOS|OPiOS|DuckDuckGo|GSA\//.test(UA)||!!navigator.brave;
+ P.err='';P.bad=false;
+ P.hint=function(){return iOS?(standalone()?' On iPhone, Picture-in-Picture does not work from a Home Screen app: open the game in Safari.':(otherApp?' Try opening the game in Safari.':' If you are in Brave or another app browser, try Safari.')):''};
+ P.msg=function(t,ok){try{document.querySelectorAll('.pipmsg').forEach(e=>e.remove());const d=document.createElement('div');d.className='toast pipmsg';d.textContent=t;d.style.cssText='position:fixed;left:50%;top:14%;transform:translateX(-50%);z-index:100;width:min(88vw,420px);box-sizing:border-box;padding:10px 14px;border-radius:12px;font:700 14px/1.35 var(--f),sans-serif;text-align:center;color:'+(ok?'#b9f6ca':'#ff8a80')+';background:rgba(12,10,8,.94);border:2px solid currentColor;box-shadow:0 4px 16px #000a;pointer-events:none;transition:opacity .4s';document.body.appendChild(d);setTimeout(()=>d.style.opacity='0',6000);setTimeout(()=>d.remove(),6500)}catch(e){}};
+ const live=s=>{try{return !!s&&s.getVideoTracks().some(t=>t.readyState==='live')}catch(e){return false}};
+ P.resume=function(){if(state==='pause'&&st){state='play';Snd.setPaused(false);UI.style.display='none';UI.innerHTML='';lt=performance.now()}};
+ P.mk=function(){if(this.v&&this.v.isConnected)return this.v;const v=document.createElement('video');v.muted=true;v.defaultMuted=true;v.playsInline=true;v.autoplay=true;
+  for(const a of ['playsinline','webkit-playsinline','muted','autoplay'])v.setAttribute(a,'');try{v.disablePictureInPicture=false}catch(e){}
+  v.style.cssText='position:fixed;left:0;bottom:0;width:4px;height:4px;opacity:.01;pointer-events:none;border:0;margin:0;padding:0;background:#000';document.body.appendChild(v);
+  v.addEventListener('enterpictureinpicture',()=>{this.on=true;this.bad=false;this.err='';this.resume();this.ui()});
+  v.addEventListener('leavepictureinpicture',()=>{this.on=false;this.ui()});
+  v.addEventListener('webkitpresentationmodechanged',()=>{const was=this.on;this.on=v.webkitPresentationMode==='picture-in-picture';if(this.on&&!was){this.bad=false;this.err='';this.resume()}this.ui()});
+  v.addEventListener('error',()=>{const e=v.error;this.err='video error'+(e?' '+e.code+(e.message?': '+e.message:''):'')});
+  return this.v=v};
+ // start (or keep) the canvas stream playing in the hidden video, outside any tap
+ P.prep=function(){try{if(!this.sup())return;const v=this.mk();if(!live(v.srcObject)){const s=C.captureStream(30);v.controls=true;v.srcObject=s;v.controls=false}if(v.paused){const p=v.play();if(p&&p.catch)p.catch(e=>{this.err=(e.name||'Error')+': '+(e.message||e)})}}catch(e){this.err=(e.name||'Error')+': '+(e.message||e)}};
+ P.stop=function(){if(this.on||!this.v)return;try{const v=this.v;if(!v.srcObject)return;v.pause();v.srcObject.getTracks().forEach(t=>t.stop());v.srcObject=null}catch(e){}};
+ P.ready=function(){const v=this.v;return !!(v&&live(v.srcObject)&&v.readyState>=2&&v.videoWidth>0)};
+ P.fail=function(e){this.err=(e&&e.name&&e.name!=='Error'?e.name+': ':'')+((e&&e.message)||String(e));this.bad=true;this.msg('Picture-in-Picture failed: '+this.err+'.'+this.hint(),false);this.ui()};
+ // the tap: no awaits before the request
+ P.toggle=function(){let v;try{v=this.mk()}catch(e){this.fail(e);return}
+  try{if(this.on){if(document.pictureInPictureElement)document.exitPictureInPicture().catch(e=>this.fail(e));else if(v.webkitSetPresentationMode)v.webkitSetPresentationMode('inline');return}
+   if(!this.ready()){this.prep();this.msg('Picture-in-Picture is still warming up, tap it again in a second.'+(this.err?' ('+this.err+')':''),false);return}
+   if(v.requestPictureInPicture&&document.pictureInPictureEnabled){const p=v.requestPictureInPicture();if(p&&p.then)p.then(()=>{this.on=true;this.bad=false;this.err='';this.resume();this.ui()},e=>this.fail(e))}
+   else if(v.webkitSupportsPresentationMode&&v.webkitSupportsPresentationMode('picture-in-picture')){v.webkitSetPresentationMode('picture-in-picture');setTimeout(()=>{if(!this.on&&v.webkitPresentationMode!=='picture-in-picture')this.fail(new Error('the browser did not open the floating window'))},1500)}
+   else this.fail(new Error('this browser does not allow Picture-in-Picture for the game video'))}catch(e){this.fail(e)}};
+ // warm up whenever the pause menu is shown; release the stream once the game is running again without PiP
+ {const _r=renderMenu;renderMenu=function(){const r=_r.apply(this,arguments);try{if(state==='pause'){P.prep();const b=UI.querySelector('[data-id="pip"]');if(b&&P.bad&&!P.on){b.textContent='🖼️ Picture-in-Picture: not working here'+(iOS?' — try Safari':'');const n=b.nextElementSibling;if(n&&n.tagName==='P')n.textContent='Last error: '+P.err+'.'+P.hint()}}}catch(e){}return r}}
+ setInterval(()=>{try{if(!P.on&&state!=='pause'&&P.v&&P.v.srcObject)P.stop()}catch(e){}},1500);
+})();
 
 // ---- 00_engine.js
 // ===== Star King art engine: tiny oblique-3D polyhedra renderer (original) =====
