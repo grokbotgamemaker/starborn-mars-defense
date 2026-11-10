@@ -86,7 +86,7 @@ table{color:#c7d3df}td:last-child{color:#bff1ff}
 </style></head><body>
 <canvas id="c"></canvas><div id="ui"></div>
 <script>
-const SKVER='v1.19.4';
+const SKVER='v1.19.5';
 const LSP='sbm_',LS={getItem:k=>localStorage.getItem(LSP+k),setItem:(k,v)=>localStorage.setItem(LSP+k,v),removeItem:k=>localStorage.removeItem(LSP+k),keys:()=>Object.keys(localStorage).filter(k=>k.startsWith(LSP)).map(k=>k.slice(LSP.length)),clear:()=>LS.keys().forEach(k=>localStorage.removeItem(LSP+k))};
 
 const C=document.getElementById('c');let X=C.getContext('2d');const UI=document.getElementById('ui');
@@ -993,8 +993,16 @@ case'gate':s.gate.mhp=gateMax(p.lv);s.gate.hp=s.gate.mhp;{const cm=castleMax(p.l
 for(let i=0;i<36;i++){const a=i/36*TAU;part({x:p.x,y:p.y,vx:Math.cos(a)*90,vy:Math.sin(a)*60,l:.7,ml:.7,c:'#ffe066',s:2,add:1})}stars(p.x,p.y-10,24,110);ring(p.x,p.y,'#fff',26);p.bounce=1;
 Snd.sfx('up');const nm=p.kind==='gate'?GNAME[p.lv]+' Door':p.name+' Lv'+p.lv;pop(p.kind==='repair'?'REPAIRED!':'UPGRADE!');ST('ups');num(p.x,p.y-26,p.kind==='repair'?'Repaired':nm,'#ffe066',8);s.shake=.25}
 const COIN_V=40,COIN_BR=110;function coinZY(){return trenchY1()-5}function coinDrift(c,dt){if(c.pull>0){c.pull-=dt;return}const m1=trenchY1();if(!c.zn&&c.y>m1+3)return;if(c.zx===undefined){c.zx=(R()-.5)*22;c.zy=(R()-.5)*7}const tx=CX+c.zx,ty=coinZY()+c.zy,dx=tx-c.x,dy=ty-c.y,dd=Math.hypot(dx,dy);if(dd<1){c.zn=1;return}if(dd>14)c.zn=0;const sp=Math.min(dd,COIN_V*Math.min(1,.35+dd/30)*dt);c.x+=dx/dd*sp;c.y+=dy/dd*sp}
-const SOL_W=5,SOL_SP=8,SOL_RS=10;function solSlotXY(i,n){const W=SOL_W,rows=Math.max(1,Math.ceil(n/W)),r=Math.floor(i/W),inRow=r<rows-1?W:n-(rows-1)*W,c=i%W;return[CX+(c-(inRow-1)/2)*SOL_SP,trenchY1()+21+r*SOL_RS]}
-function solSlot(o,s){if(s._solF!==s.t||s._solL!==s.sol.length){s._solF=s.t;s._solL=s.sol.length;let i=0;for(const q of s.sol)q.fi=q.tg?-1:i++;s._solN=i}const n=Math.max(1,s._solN);return solSlotXY(o.fi>=0?Math.min(o.fi,n-1):n-1,n)}
+const SOL_W=5,SOL_SP=8,SOL_RS=10,SOL_DOOR=20,SOL_WSP=10,SOL_WRS=11;
+function solViewHalf(){const z=(typeof Z==='number'&&Z>1)?Z:2.17,w=(typeof W==='number'&&W>0)?W:390;return Math.max(72,Math.min(110,w/(2*z)-14))}
+function solSlotXY(i,n){i=i|0;n=Math.max(1,n|0);if(i<SOL_DOOR){const m=Math.min(SOL_DOOR,n),W=SOL_W,rows=Math.max(1,Math.ceil(m/W)),r=Math.floor(i/W),inRow=r<rows-1?W:m-(rows-1)*W,c=i%W;return[CX+(c-(inRow-1)/2)*SOL_SP,trenchY1()+21+r*SOL_RS]}
+ const k=i-SOL_DOOR,side=k%2===0?-1:1,fi=(k/2)|0,half=solViewHalf(),pad=28,y0=trenchY1()+21;
+ const x0=CX+side*pad,xEdge=CX+side*(half-6),usable=Math.max(SOL_WSP,Math.abs(xEdge-x0)),cols=Math.max(1,Math.floor(usable/SOL_WSP)+1);
+ const r=(fi/cols)|0,c=fi%cols;let x=x0+side*c*SOL_WSP,y=y0+r*SOL_WRS-c*1.4;
+ const lo=Math.max(SIDE+8,CX-half+4),hi=Math.min(WW-SIDE-8,CX+half-4);if(x<lo)x=lo;if(x>hi)x=hi;if(y>WALLY-8)y=WALLY-8;if(y<y0-8)y=y0-8;return[x,y]}
+function solSlots(s){const n=s.sol.length,vw=solViewHalf();if(s._solXY&&s._solL===n&&s._solVW===vw)return s._solXY;const xy=new Array(n);for(let i=0;i<n;i++)xy[i]=solSlotXY(i,n);s._solXY=xy;s._solL=n;s._solVW=vw;return xy}
+function solSlot(o,s){const xy=solSlots(s),i=(o&&o._si>=0)?o._si:0;return xy[i]||xy[xy.length-1]||[CX,trenchY1()+21]}
+function solLeashPt(t,fsl,side){let tx=t.x,ty=t.y;if(side){const mx=CX+side*22;tx=side<0?Math.min(tx,mx):Math.max(tx,mx)}const d=dist(tx,ty,fsl[0],fsl[1]),L=120;if(d>L){const k=L/d;tx=fsl[0]+(tx-fsl[0])*k;ty=fsl[1]+(ty-fsl[1])*k}return[tx,ty]}
 function wallClamp(o,r,inside,canGate){if(o.x<SIDE+r)o.x=SIDE+r;if(o.x>WW-SIDE-r)o.x=WW-SIDE-r;const inGap=Math.abs(o.x-CX)<GW-r*.4;
 if(inside){if(o.y<WALLY+r&&!(canGate&&inGap))o.y=WALLY+r}else{if(o.y>WALLY-r&&!(canGate&&inGap))o.y=WALLY-r}}
 function upd(dt){const s=st,k=s.k;s.t+=dt;
@@ -1007,7 +1015,7 @@ if(Math.abs(k.x-CX)>=GW-3&&Math.abs(k.y-WALLY)<6){/*keep*/}k.x=Math.max(SIDE+6,M
 if(Math.abs(k.y-WALLY)<8){k.x=Math.abs(k.x-CX)<GW-3?k.x:k.x}
 const sp=Math.hypot(k.vx,k.vy);if(Math.abs(k.vx)>4)k.face=k.vx<0?-1:1;k.ph+=sp*dt*.2;k.fl-=dt;
 if(sp>30&&R()<dt*12)part({x:k.x-k.vx*.05,y:k.y,vx:rnd(-8,8),vy:-6,l:.5,ml:.5,c:'dust',s:rnd(1.5,2.5),grow:4});
-if(k.y>WALLY)k.hp=Math.min(k.mhp,k.hp+5*dt);if(s.med&&k.hp<k.mhp){k.hp=Math.min(k.mhp,k.hp+k.mhp*s.med*dt*(typeof x181auraMul==='function'?x181auraMul('md'):1)*(typeof x19g==='function'?x19g('kReg'):1)*(k.y>WALLY?1.5:1));if(R()<dt*6)part({x:k.x+rnd(-6,6),y:k.y-rnd(4,24),vx:0,vy:-18,l:.7,ml:.7,c:'#8dff6a',s:1.8,star:1,rot:R()*6})}
+if(k.y>WALLY)pkKHeal(k,5*dt);if(s.med&&(k.hp<k.mhp||(pk('kv')&&(k.sh||0)<pkKvShMax(k)))){pkKHeal(k,k.mhp*s.med*dt*(typeof x181auraMul==='function'?x181auraMul('md'):1)*(typeof x19g==='function'?x19g('kReg'):1)*(k.y>WALLY?1.5:1));if(R()<dt*6)part({x:k.x+rnd(-6,6),y:k.y-rnd(4,24),vx:0,vy:-18,l:.7,ml:.7,c:'#8dff6a',s:1.8,star:1,rot:R()*6})}
 if(s.eng){const rep=(o,x,y)=>{if(o.hp>0&&o.hp<o.mhp){o.hp=Math.min(o.mhp,o.hp+o.mhp*s.eng*dt*(typeof x181auraMul==='function'?x181auraMul('md'):1));if(R()<dt*5)part({x:x+rnd(-14,14),y:y-rnd(0,20),vx:0,vy:-15,l:.7,ml:.7,c:'#8dff6a',s:1.6,star:1,rot:R()*6})}};rep(s.gate,CX,WALLY-10);rep(s.castle,CX,ARK_Y-30)}
 const hw=W/2/Z,hh=H/2/Z/TILT;s.cam.x+=(k.x+k.vx*.3-s.cam.x)*Math.min(1,dt*4);s.cam.y+=(k.y-hh*.36+Math.min(0,k.vy)*.15-s.cam.y)*Math.min(1,dt*4);s.cam.x=Math.max(Math.min(hw,WW/2),Math.min(Math.max(WW-hw,WW/2),s.cam.x));s.cam.y=Math.max(TOPY+hh,Math.min(WH-hh,s.cam.y));s.shake=Math.max(0,s.shake-dt);
 if(s.prep||(s.rPortal&&s.breakT>0))s.breakT=99;if(s.breakT>0){if(s.auto&&s.wave>0&&!s.prep&&!s.rPortal&&s.breakT>.6)s.breakT=.6;s.breakT-=dt;if(s.breakT<=0)startWave()}else{
@@ -1025,8 +1033,8 @@ if(p.paid>=c-1e-6){p.paid=0;p.lv++;if(p.tw)p.tw.lv=p.lv;p.cdn=.8;p.hold=0;if(upH
 for(const p of s.pads)if(p.kind==='tower'&&p.lv){p.cd-=dt;if(p.cd<=0){const ts=trTg(x17tgIn(p.x,WALLY-20,(115+Math.min(p.lv,10)*3.5)*XT(p,'rg')));if(!ts.length)p.eng=0;if(ts.length){if(!p.eng){p.eng=1;Snd.voice('creak')}const n=XT(p,'n',p.lv>=12?3:p.lv>=4?2:1);for(let i=0;i<n;i++){const cm=XCR();trBolt(p,i,CX+(p.x<CX?-38:38),towerTop(p),ts[i%ts.length],6*Math.pow(1.15,p.lv)*ASM()*XT(p,'d')*(i<ts.length?1:.25)*cm,300,cm>1?1:0)};p.cd=towCd(p)}}}
 const bars=s.pads.filter(p=>p.kind==='barracks'&&p.lv),cap=bars.length?XB('cap',Math.min(12,bars.reduce((a,b)=>a+Math.min(2+b.lv,8),0))):0,blv=Math.max(0,...bars.map(b=>b.lv));
 if(cap){s.solT-=dt;if(s.solT<=0){let w=null;if(s.sol.length>=cap){for(const o of s.sol){const f=o.hp/o.mhp;if(f<.6&&(!w||f<w.hp/w.mhp))w=o}if(!w)s.solT=0}if(s.sol.length<cap||w){const b=bars[0],hp=45*Math.pow(1.14,blv)*s.smul*SB(blv)*(1+AV.banH[aS('ban')])*XB('hp');if(w){s.sol.splice(s.sol.indexOf(w),1);smoke(w.x,w.y,5,.8);burst(w.x,w.y-6,'#fff',5,30,1);s.rot=(s.rot||0)+1}s.sol.push({x:b.x,y:b.y+4,hp,mhp:hp,cd:0,ph:0,fl:.25,face:1,home:b});s.solT=5/XB('sp');smoke(b.x,b.y+4,4,.6)}}}
-for(const o of s.sol){o.fl-=dt;o.cd-=dt;if(o.frz>0){o.frz-=dt;continue}const RPX=CX,RPY=WALLY-45,LEASH=135,si=s.sol.indexOf(o);let t=null,bd=1e9;if(dist(o.x,o.y,RPX,RPY)<LEASH+15||o.y>WALLY)for(const e of s.en){if(dist(e.x,e.y,RPX,RPY)>LEASH)continue;const d=dist(e.x,e.y,o.x,o.y);if(d<bd){bd=d;t=e}}
-if(t&&o.tg!==t){o.tg=t;Snd.voice('hup')}else if(!t)o.tg=null;const fsl=solSlot(o,s);let tx=t?t.x:fsl[0],ty=t?t.y:fsl[1];const oin=o.y>WALLY;if((oin!==(ty>WALLY))&&Math.abs(o.x-CX)>GW-3){tx=CX;ty=oin?WALLY+8:WALLY-8}
+for(let si=0;si<s.sol.length;si++){const o=s.sol[si];o._si=si;o.fl-=dt;o.cd-=dt;if(o.frz>0){o.frz-=dt;continue}const fsl=solSlot(o,s),RPX=fsl[0],RPY=fsl[1],LEASH=135,side=si>=SOL_DOOR?(si-SOL_DOOR)%2===0?-1:1:0;let t=null,bd=1e9;if(dist(o.x,o.y,RPX,RPY)<LEASH+15||o.y>WALLY)for(const e of s.en){if(dist(e.x,e.y,RPX,RPY)>LEASH)continue;if(side&&side*(e.x-CX)<-12)continue;const d=dist(e.x,e.y,o.x,o.y);if(d<bd){bd=d;t=e}}
+if(t&&o.tg!==t){o.tg=t;Snd.voice('hup')}else if(!t)o.tg=null;let tx,ty;if(t){const p=solLeashPt(t,fsl,side);tx=p[0];ty=p[1]}else{tx=fsl[0];ty=fsl[1]}const oin=o.y>WALLY;if((oin!==(ty>WALLY))&&Math.abs(o.x-CX)>GW-3){tx=CX;ty=oin?WALLY+8:WALLY-8}
 const d=dist(o.x,o.y,tx,ty);if(t&&d<t.r+6&&tx===t.x){if(o.cd<=0){{const cm=XCR();trSolHit(o,t,7*Math.pow(1.14,blv)*s.smul*SB(blv)*ASM()*XB('d')*cm,cm>1)}Snd.sfx('clang');o.cd=.8/(typeof x18sAsp==='function'?x18sAsp():1)}}else if(d>2){o.x+=(tx-o.x)/d*46*dt;o.y+=(ty-o.y)/d*46*dt;o.ph+=dt*9;o.face=tx<o.x?-1:1}else if(!t){const ez=Math.min(1,dt*10);o.x+=(tx-o.x)*ez;o.y+=(ty-o.y)*ez}wallClamp(o,3,oin,true)}
 s.ar=s.ar.filter(a=>{if(a.t&&a.t.hp>0){const ta=Math.atan2(a.t.y-a.t.r-a.y,a.t.x-a.x),ca=Math.atan2(a.vy,a.vx),na=ca+Math.max(-.25,Math.min(.25,angD(ta,ca)));a.vx=Math.cos(na)*a.sp;a.vy=Math.sin(na)*a.sp}
 a.x+=a.vx*dt;a.y+=a.vy*dt;a.l-=dt;const order=a.t&&a.t.hp>0?[a.t,...s.en]:s.en;for(const e of order)if(e.hp>0&&!(a.hs&&a.hs.includes(e))&&dist(e.x,e.y-e.r,a.x,a.y)<e.r+3){hit(e,a.dmg*(e.type==='shield'&&a.vy<0&&!(a.tw&&trN('tower','pierce'))?.5:1)*(a.tw?trTM(a,e):a.kg?dkHM(a,e):1),a.cr);if(e.type==='shield'&&a.vy<0)stars(e.x+3,e.y-e.r*1.3,2,25);if(a.onHit)a.onHit(e);if(a.tw&&trTH(a,e))break;return false}return a.l>0});
@@ -1047,7 +1055,7 @@ if(e.fly&&!so){tx=CX+Math.sin(e.age*.8)*30;ty=WALLY-50;tgt=null;stop=0;if(dist(e
 const dd=dist(e.x,e.y,tx,ty);
 if(dd>stop){const mx=tx-e.x,my=ty-e.y,mm=dd||1;e.x+=mx/mm*e.sp*dt;e.y+=my/mm*e.sp*dt;e.mv=1;e.ph+=dt*e.sp*.25;if(Math.abs(mx)>.4)e.face=mx<0?-1:1}
 else if(e.ac<=0&&(tgt==='shoot'||tgt==='shootk')){e.ac=1.6;const tx2=tgt==='shootk'?k.x:CX+rnd(-8,8),ty2=tgt==='shootk'?k.y-8:WALLY-12,a2=Math.atan2(ty2-(e.y-6),tx2-e.x);s.ear.push({x:e.x,y:e.y-6,vx:Math.cos(a2)*170,vy:Math.sin(a2)*170,tx:tx2,ty:ty2,dmg:e.dmg,sd:e.sd||1,k:tgt==='shootk',b:isB(e.type)?e:null});e.face=tx2<e.x?-1:1}
-else if(e.ac<=0&&tgt==='gate'&&e.type==='bomber'){s.gate.hp-=e.dmg*(e.sd||1);e.hp=0;e.boom=1;s.shake=.5;Snd.sfx('gate');smoke(e.x,e.y-4,14,2);burst(e.x,e.y-4,'#ffb300',24,120,1);stars(e.x,e.y-4,12,90);num(e.x,e.y-20,'-'+fN(e.dmg*(e.sd||1)),'#ff5252',9);if(s.gate.hp<=0){s.gate.hp=0;pop('BLAST DOOR BREACHED!','#ff5252')}}
+else if(e.ac<=0&&tgt==='gate'&&e.type==='bomber'){s.gate.hp-=e.dmg*(e.sd||1)*pkWkAtk();e.hp=0;e.boom=1;s.shake=.5;Snd.sfx('gate');smoke(e.x,e.y-4,14,2);burst(e.x,e.y-4,'#ffb300',24,120,1);stars(e.x,e.y-4,12,90);num(e.x,e.y-20,'-'+fN(e.dmg*(e.sd||1)),'#ff5252',9);if(s.gate.hp<=0){s.gate.hp=0;pop('BLAST DOOR BREACHED!','#ff5252')}}
 else if(e.ac<=0){e.ac=1;if(tgt==='king'){k.hp-=bKH(e,e.dmg);k.fl=.12;s.shake=.12;buzz(25)}else if(tgt==='castle'){arkHit(e,e.dmg*(e.sd||1),'melee');s.shake=.1}else if(tgt==='gate'){if(e.crush){e.crush=0;e._cru=1;s.gate.hp-=bGH(e,e.dmg*2*(e.sd||1),.2);s.shake=.5;smoke(CX,WALLY-6,10,1.6);ring(CX,WALLY-6,'#ffd23f',40)}if(e.type==='golem'){e.ac=2.2;s.shake=.45;smoke(CX,WALLY-6,10,1.6);ring(CX,WALLY-6,'#cfd8dc',40)}s.gate.hp-=bGH(e,e.dmg*(e.sd||1),e._cru?(e._cru=0,.1):BHC.g);{const bs=aS('bast');if(bs)hit(e,e.dmg*AV.bRf[bs]*HM(s.wave)/DM(s.wave),0,2)}s.gateHits=(s.gateHits||0)+1;Snd.sfx('gate');if(s.gate.hp<=0){s.gate.hp=0;pop('BLAST DOOR BREACHED!','#ff5252');smoke(CX,WALLY-10,18,2);s.shake=.5}}else if(tgt){tgt.hp-=e.dmg;tgt.fl=.1}
 burst((e.x+(tx||e.x))/2,(e.y+(ty||e.y))/2-4,'#ff6e40',5,50,1)}}
 s.ear=s.ear.filter(a=>{a.x+=a.vx*dt;a.y+=a.vy*dt;if(dist(a.x,a.y,a.tx,a.ty)<6){if(a.k){if(dist(k.x,k.y-8,a.x,a.y)<14){k.hp-=a.b?bKH(a.b,a.dmg):a.dmg;k.fl=.12}}else if(s.gate.hp>0){s.gate.hp=Math.max(0,s.gate.hp-(a.b?bGH(a.b,a.dmg*(a.sd||1)):a.dmg*(a.sd||1)));burst(a.x,a.y,'#ff6e40',3,30,1)}return false}return true});
@@ -1337,30 +1345,81 @@ function qVal(q){if(q.k==='ub')return(meta.bst&&meta.bst[q.b]&&meta.bst[q.b].kil
 function quests(){const day=nyDay();if(!day)return null;if(!meta.q||meta.q.day!==day){const r=sRng('ka-quest-'+day),pool=shuf(QP.slice(),r).slice(0,3),bb=['boss',...UB][Math.floor(r()*10)];meta.q={day,l:pool.map(p=>{const q={k:p[0],n:p[3]};if(p[0]==='ub')q.b=bb;q.base=qVal(q);return q})};saveMeta()}return meta.q}
 function qText(q){const p=QP.find(x=>x[0]===q.k);return p[1]+' '+p[2].replace('{n}',fN(q.n)).replace('{b}',ENAME[q.b]+(q.n>1?'s':''))}
 // ---- perks
-const PERKS=[['pl','💰','Salvage Rights','+12% credits'],['ct','🧱','Gigafactory','Turrets & drone bay cost 8% less'],['tw','📡','Turret Overclock','+15% turret damage'],['ex','🎯','Ludicrous Mode','+5% crit chance & +20% crit damage for Star King, turrets and troopers'],['dm','⚡','Double Deploy','+2 trooper cap, troopers respawn 25% faster'],['kd','🎯','Neural Link','+12% Star King damage'],['gt','🛡️','Reinforced Door','+20% door max HP'],['kv','❤️','Life Support','+20% Star King max HP']],PKMAX=5;
+const PERKS=[['pl','💰','Salvage Rights','+12% credits, plus a 15% credit burst every 10 levels'],['ct','🧱','Gigafactory','Turrets & drone bay get cheaper (never free), plus extra firepower and bolts'],['tw','📡','Turret Overclock','+15% turret damage, faster fire, and extra bolts every 10 levels'],['ex','🎯','Ludicrous Mode','+5% crit chance & +20% crit damage for the Star King, turrets and troopers. Chance past 100% becomes crit damage'],['dm','⚡','Double Deploy','+2 trooper cap, faster respawns, and troopers hit much harder'],['kd','🎯','Neural Link','+12% Star King damage, plus a 15% damage burst every 10 levels'],['gt','🛡️','Aegis Reactor','+20% door HP, the door zaps attackers, and while it stands your whole army deals more'],['kv','❤️','Vital Core','+20% Star King HP, missing HP fuels bonus King damage, overheal becomes a shield, and every 10 levels grants a boss-hit absorb'],['cs','🏷️','Bulk Contract','Every in-run upgrade costs less (multiplicative, never free or negative)'],['wk','🌫️','Atmo Strain','Ordinary aliens have less HP and deal less damage (does not affect bosses)'],['tb','✴️','Core Breach','Bosses have less HP and deal less damage, applied before the boss-hit cap'],['ic','💹','Vault Charter','Raises the Credit Bank interest cap (display and payout)'],['om','🔆','Unified Fire','A global damage multiplier for the Star King, turrets, drones, troopers, Psion, heroes and raids']],PKMAX=Infinity;
+function pkMile(n){return(Math.max(0,n)|0)/10|0}
+function pkStack(b,n){n=Math.max(0,n)|0;return(1+b*n)*(1+.15*pkMile(n))}
+function pkPct(x){return(x>=0?'+':'')+(Math.round(x*1000)/10)+'%'}
+function pkKdMul(n){return pkStack(.12,n==null?pk('kd'):n)}
+function pkPlMul(n){return pkStack(.12,n==null?pk('pl'):n)}
+function pkOmMul(n){return pkStack(.08,n==null?pk('om'):n)}
+function pkIcMul(n){return pkStack(.18,n==null?pk('ic'):n)}
+function pkCsMul(n){n=n==null?pk('cs'):n;if(!n)return 1;return 1/(1+.1*n)/(1+.1*pkMile(n))}
+function pkCtMul(n){n=n==null?pk('ct'):n;if(!n)return 1;return 1/(1+.133333*n)}
+function pkCtGun(n){return pkStack(.08,n==null?pk('ct'):n)}
+function pkCtBolts(n){return((n==null?pk('ct'):n)/5)|0}
+function pkTwDmg(n){return pkStack(.15,n==null?pk('tw'):n)}
+function pkTwRate(n){n=n==null?pk('tw'):n;return(1+.08*n)*(1+.1*pkMile(n))}
+function pkTwBolts(n){return pkMile(n==null?pk('tw'):n)}
+function pkDmDmg(n){return pkStack(.1,n==null?pk('dm'):n)}
+function pkGtTeam(n){n=n==null?pk('gt'):n;if(!n||!st||st.raid||!(st.gate&&st.gate.hp>0))return 1;return pkStack(.08,n)}
+function pkKvDmg(n){n=n==null?pk('kv'):n;if(!n)return 1;const s=st,k=s&&s.k,miss=k&&k.mhp>0?Math.max(0,1-k.hp/k.mhp):0;return pkStack(.08,n)*(1+.6*miss)}
+function pkKvShMax(k){const n=pk('kv');if(!n||!k)return 0;return k.mhp*(.2*n+.1*pkMile(n))}
+function pkSoft(id,n){n=n==null?pk(id):n;if(!n)return 1;return 1/(1+(id==='tb'?.055:.07)*n)}
+function pkWkAtk(n){return pkSoft('wk',n)}
+function pkTbAtk(n){return pkSoft('tb',n)}
+function pkExParts(n){n=n==null?pk('ex'):n;let cc=.05*n,cd=.2*n+.25*pkMile(n);if(cc>1){cd+=2*(cc-1);cc=1}return{cc,cd}}
+function pkKShield(d){const s=st,k=s&&s.k;if(!k||!(d>0)||!((k.sh||0)>0))return d;const a=Math.min(k.sh,d);k.sh-=a;return d-a}
+function pkKHeal(k,amt){if(!k||!(amt>0))return;const cap=pkKvShMax(k);k.hp+=amt;if(k.hp>k.mhp){const ov=k.hp-k.mhp;k.hp=k.mhp;if(cap>0)k.sh=Math.min(cap,(k.sh||0)+ov)}}
+function pkRescale(id){const s=st;if(!s||!s.en)return;const n=pk(id),prev=Math.max(0,n-1),r=pkSoft(id,n)/pkSoft(id,prev);if(!(r>0)||Math.abs(r-1)<1e-12)return;for(const e of s.en){if(e.hp<=0)continue;const boss=isB(e.type);if(id==='wk'&&boss)continue;if(id==='tb'&&!boss)continue;e.mhp*=r;e.hp*=r}}
+function pkDoorThorn(lost){const s=st,n=pk('gt');if(!s||!n||!(lost>0)||s.raid)return;let b=null,bd=40;for(const e of s.en){if(e.hp<=0)continue;const d=dist(e.x,e.y,CX,WALLY-4);if(d<bd+e.r){bd=d;b=e}}if(b)try{hit(b,lost*.25*n,0,2)}catch(e){}}
+
 const pk=id=>(st&&st.pk&&st.pk[id])||0;
+
+function pkTier(){return Math.max(1,(st&&st.pkTier||1)|0)}
+function pkCap(){return 10*pkTier()}
+function pkHardMax(id){return Infinity}
+function pkAtCap(id){return pk(id)>=pkCap()||pk(id)>=pkHardMax(id)}
+function pkOpen(id){return!pkAtCap(id)}
+function pkSyncTier(quiet){const s=st;if(!s)return 0;if(!(s.pkTier>=1))s.pkTier=1;const a=pkCap();while(PERKS.length&&PERKS.every(p=>pkAtCap(p[0])))s.pkTier=(s.pkTier||1)+1;const b=pkCap();if(b>a&&!quiet)pkCapBanner(a,b);return b>a?b:0}
+function pkAvail(){pkSyncTier(1);let L=PERKS.filter(p=>pkOpen(p[0]));if(!L.length){pkSyncTier();L=PERKS.filter(p=>pkOpen(p[0]))}return L.length?L:PERKS.slice()}
+function pkAnyOpen(){return pkAvail().length>0}
+function pkCapBanner(from,to){try{document.querySelectorAll('.gcap').forEach(e=>e.remove());const d=document.createElement('div');d.className='gmerge gcap';d.setAttribute('role','status');d.innerHTML='<div class="gmergeh">PERK CAP</div><div class="gmergerow">ALL PERKS Lv'+from+'! Cap raised to '+to+'</div>';document.body.appendChild(d);const gone=()=>{if(d.parentNode)d.remove();clearTimeout(d._t)};d.addEventListener('click',gone,{once:true});d._t=setTimeout(gone,2500)}catch(e){}}
 // ---- specs
 const SPEC={tower:[['bal','🎯','Railgun','One heavy bolt: ×3.2 damage, +15% range'],['vol','🎯','Scatter','+2 bolts per shot at ×0.8 damage']],barracks:[['kn','🛡️','Heavies','Trooper HP ×1.8, damage ×0.9'],['pa','✨','Field Medics','Trooper HP ×1.2, troopers heal 3%/s and the Star King 0.4%/s']]},SPLV=10;
 const spc=k=>{if(!st||st.raid)return null;const t=st.tr&&st.tr[k],v=t?t[0]:(st.spec&&st.spec[k]);return v==='bal'||v==='vol'||v==='kn'||v==='pa'?v:null};
-function XT(p,k,n){if(k==='rg')return(1+.02*labL('rg'))*(trN('tower','bal')?1.15:1)*(trN('tower','rngf')?1.2:1);if(k==='d'){const l=p?p.lv:trLv('tower'),b=6*Math.pow(1.15,l)*ASM();let m=b>0?Math.max(1,trLink('tower')/b):1;m*=(1+.15*pk('tw'))*(1+TRB('tw'))*sieM();if(trN('tower','bal'))m*=3.4;if(trN('tower','vol'))m*=.8;if(trN('tower','sharp'))m*=1.25;if(trN('tower','over'))m*=1.4;return m}if(k==='n'){let v=trN('tower','bal')?1:n+(trN('tower','vol')?2:0);if(trN('tower','twin'))v+=1;return v}return 1}
-function XB(k,v){if(k==='hp')return(1+labPct('sh')/100)*(1+TRB('shp'))*(trN('barracks','kn')?1.8:trN('barracks','pa')?1.2:trN('barracks','bers')?.8:1)*(trN('barracks','taunt')?1.3:1);if(k==='d'){const l=trLv('barracks'),b=7*Math.pow(1.14,l)*(st?st.smul:1)*SB(l)*ASM();let m=b>0?Math.max(1,trLink('barracks')/b):1;if(trN('barracks','kn'))m*=.9;if(trN('barracks','bers'))m*=1.5;if(trN('barracks','rally'))m*=1.2;return m}if(k==='cap')return v+2*pk('dm')+(trN('barracks','bmust')?2:0)+(trN('barracks','legion')?4:0);if(k==='sp')return(1+.25*pk('dm'))*(1+TRB('sp'))*(trN('barracks','swift')?1/.7:1);return 1}
-const XK0=()=>(1+.12*pk('kd'))*(1+TRB('kd')),XK=()=>XK0()*trRallyK()*(typeof x181auraMul==='function'?x181auraMul('sn'):1)*(typeof x19g==='function'?x19g('kDmg'):1),CRC=()=>.05*pk('ex')+TRB('cc')+artCC(),CRD=()=>.2*pk('ex')+TRB('cd')+artCD(),XCR=()=>R()<CRC()?1.1+CRD():1;
-function pkEff(id,n){const P=x=>Math.round(x)+'%';switch(id){case'pl':return'+'+P(12*n)+' credits';case'ct':return'−'+P(8*n)+' turret & drone bay cost';case'tw':return'+'+P(15*n)+' turret damage';case'ex':return'+'+P(5*n)+' crit chance, +'+P(20*n)+' crit dmg';case'dm':return'+'+2*n+' trooper cap, +'+P(25*n)+' respawn speed';case'kd':return'+'+P(12*n)+' Star King damage';case'gt':return'+'+P(20*n)+' door max HP';case'kv':return'+'+P(20*n)+' Star King max HP'}return''}
-function PKS(row){const L=PERKS.filter(p=>pk(p[0])>0);if(!L.length)return'<div style="font-size:13px;opacity:.8;padding:4px 8px">No perks yet — first pick at wave 50</div>';return L.map(p=>row(p[1],p[2]+' Lv '+pk(p[0])+'/'+PKMAX,pkEff(p[0],pk(p[0])))).join('')}
-{const _c=cost;cost=function(p){const c=_c(p);return (p.kind==='tower'||p.kind==='barracks')&&pk('ct')?Math.round(c*(1-.08*pk('ct'))):c}}
+function XT(p,k,n){if(k==='rg')return(1+.02*labL('rg'))*(trN('tower','bal')?1.15:1)*(trN('tower','rngf')?1.2:1);if(k==='d'){const l=p?p.lv:trLv('tower'),b=6*Math.pow(1.15,l)*ASM();let m=b>0?Math.max(1,trLink('tower')/b):1;m*=pkTwDmg()*(1+TRB('tw'))*sieM()*pkCtGun()*pkGtTeam();if(trN('tower','bal'))m*=3.4;if(trN('tower','vol'))m*=.8;if(trN('tower','sharp'))m*=1.25;if(trN('tower','over'))m*=1.4;return m}if(k==='n'){let v=trN('tower','bal')?1:n+(trN('tower','vol')?2:0);if(trN('tower','twin'))v+=1;v+=pkTwBolts()+pkCtBolts();return v}return 1}
+function XB(k,v){if(k==='hp')return(1+labPct('sh')/100)*(1+TRB('shp'))*(trN('barracks','kn')?1.8:trN('barracks','pa')?1.2:trN('barracks','bers')?.8:1)*(trN('barracks','taunt')?1.3:1);if(k==='d'){const l=trLv('barracks'),b=7*Math.pow(1.14,l)*(st?st.smul:1)*SB(l)*ASM();let m=b>0?Math.max(1,trLink('barracks')/b):1;if(trN('barracks','kn'))m*=.9;if(trN('barracks','bers'))m*=1.5;if(trN('barracks','rally'))m*=1.2;return m*pkDmDmg()*pkGtTeam()}if(k==='cap')return v+2*pk('dm')+(trN('barracks','bmust')?2:0)+(trN('barracks','legion')?4:0);if(k==='sp')return(1+.25*pk('dm'))*(1+TRB('sp'))*(trN('barracks','swift')?1/.7:1);return 1}
+const XK0=()=>pkKdMul()*pkKvDmg()*(1+TRB('kd')),XK=()=>XK0()*trRallyK()*(typeof x181auraMul==='function'?x181auraMul('sn'):1)*(typeof x19g==='function'?x19g('kDmg'):1),CRC=()=>pkExParts().cc+TRB('cc')+artCC(),CRD=()=>pkExParts().cd+TRB('cd')+artCD(),XCR=()=>R()<CRC()?1.1+CRD():1;
+function pkEff(id,n){n=Math.max(0,n)|0;const P=x=>pkPct(x),ms=pkMile(n),msT=ms?(' · milestone ×'+(1+.15*ms).toFixed(2)):'';switch(id){
+case'pl':return P(pkPlMul(n)-1)+' credits'+msT;
+case'ct':return 'turret & drone bay cost ×'+pkCtMul(n).toFixed(2)+', '+P(pkCtGun(n)-1)+' turret damage, +'+pkCtBolts(n)+' turret bolts';
+case'tw':return P(pkTwDmg(n)-1)+' turret damage, '+P(pkTwRate(n)-1)+' turret fire rate, +'+pkTwBolts(n)+' extra bolts';
+case'ex':{const e=pkExParts(n);return P(e.cc)+' crit chance, '+P(e.cd)+' crit dmg'}
+case'dm':return '+'+2*n+' trooper cap, '+P(.25*n)+' respawn speed, '+P(pkDmDmg(n)-1)+' trooper damage';
+case'kd':return P(pkKdMul(n)-1)+' Star King damage'+msT;
+case'gt':return P(.2*n)+' door max HP, door thorns '+P(.25*n)+' of hits, '+P(pkStack(.08,n)-1)+' army damage while the door stands';
+case'kv':return P(.2*n)+' Star King max HP, '+P(pkStack(.08,n)-1)+' King damage (+60% more as HP falls), overheal shield up to '+P(.2*n+.1*ms)+' of max HP'+(ms?', '+ms+' boss-hit absorb'+(ms>1?'s':'')+' per boss wave':'');
+case'cs':return 'all in-run upgrade costs ×'+pkCsMul(n).toFixed(2)+' ('+P(1-pkCsMul(n))+' off, never free)';
+case'wk':return 'ordinary aliens ×'+pkSoft('wk',n).toFixed(2)+' HP and damage';
+case'tb':return 'bosses ×'+pkSoft('tb',n).toFixed(2)+' HP and damage (before the hit cap)';
+case'ic':return 'Credit Bank interest cap ×'+pkIcMul(n).toFixed(2)+msT;
+case'om':return P(pkOmMul(n)-1)+' all damage (King, turrets, drones, troopers, Psion, heroes, raids)'+msT;
+}return''}
+function PKS(row){const L=PERKS.filter(p=>pk(p[0])>0);if(!L.length)return'<div style="font-size:13px;opacity:.8;padding:4px 8px">No perks yet — first pick at wave 50</div>';return L.map(p=>row(p[1],p[2]+' Lv '+pk(p[0])+'/'+pkCap(),pkEff(p[0],pk(p[0])))).join('')}
+{const _c=cost;cost=function(p){let c=_c(p);c*=pkCsMul();if((p.kind==='tower'||p.kind==='barracks')&&pk('ct'))c*=pkCtMul();return Math.max(1,Math.round(c))}}
 {const _a=applyUp;applyUp=function(p){_a(p);if(p.kind==='repair'&&st)st.repU=1;if(['tower','barracks','rate','gate','bow','banker'].includes(p.kind)&&st)trCheck()}}
 {const _u=upd;upd=function(dt){_u(dt);const s=st;if(s&&spc('barracks')==='pa'){for(const o of s.sol)if(o.hp<o.mhp)o.hp=Math.min(o.mhp,o.hp+o.mhp*.03*dt);if(s.k.hp>0&&s.k.hp<s.k.mhp)s.k.hp=Math.min(s.k.mhp,s.k.hp+s.k.mhp*.004*dt)}}}
 {const _g=gemsFor;gemsFor=function(s){const g=_g(s),m=1+labPct('gy')/100;if(m>1)g.t=Math.round(g.t*m);g.lab=m;return g}}
 {const _r=raceFor;raceFor=function(w){return st&&st.daily&&st.drace!=null&&!(w%10===0)?st.drace:_r(w)}}
-{const _n=newGame;newGame=function(sw){const D=PG.dPend;PG.dPend=null;let save=null;if(D){save=JSON.stringify(meta.rset||{});meta.rset={t:1,m:Object.fromEntries(D.ms.map(x=>[x,1]))};sw=D.sw}_n(sw);if(save!=null){meta.rset=JSON.parse(save);saveMeta()}const s=st;if(!s)return;if(D){s.daily=D.day;s.drace=D.race}s.pk={};s.spec={};s.pkDone={};s.pkQ=[];{const sw=(s.skipW||0)+(s.skipW?1:0);for(let w=50;w<=sw;w+=50){s.pkDone[w]=1;s.pkQ.push(w)}if(s.pkQ.length)s.pkPend=s.pkQ.shift()}const cf=labL('cf');if(cf)s.gold=Math.round(s.gold*(1+labPct('cf')/100))}}
+{const _n=newGame;newGame=function(sw){const D=PG.dPend;PG.dPend=null;let save=null;if(D){save=JSON.stringify(meta.rset||{});meta.rset={t:1,m:Object.fromEntries(D.ms.map(x=>[x,1]))};sw=D.sw}_n(sw);if(save!=null){meta.rset=JSON.parse(save);saveMeta()}const s=st;if(!s)return;if(D){s.daily=D.day;s.drace=D.race}s.pk={};s.pkTier=1;s.spec={};s.pkDone={};s.pkQ=[];{const sw=(s.skipW||0)+(s.skipW?1:0);for(let w=50;w<=sw;w+=50){s.pkDone[w]=1;s.pkQ.push(w)}if(s.pkQ.length)s.pkPend=s.pkQ.shift()}const cf=labL('cf');if(cf)s.gold=Math.round(s.gold*(1+labPct('cf')/100))}}
 {const _wd=waveDone;waveDone=function(w){const s=st,b0=best,T=s&&(s.tier||1)>1,sn=meta.art&&meta.art.seen;_wd(w);if(T&&best!==b0){best=b0;if(meta.art)meta.art.seen=sn;try{LS.setItem(SK('kaBestC'),best)}catch(e){}}if(!s)return;if(w>(s.skipW||0)&&!(s.wdc||{})[w]){(s.wdc=s.wdc||{})[w]=1;meta.wc=(meta.wc||0)+1;if(!s.repU)meta.nrw=(meta.nrw||0)+1;if(w%50===0&&!(s.pkDone||{})[w]&&PERKS.some(p=>pk(p[0])<PKMAX)){(s.pkDone=s.pkDone||{})[w]=1;if(s.pkPend)(s.pkQ=s.pkQ||[]).push(w);else s.pkPend=w}}}}
 {const _o3=over;over=function(){const s=st,b0=best,T=s&&(s.tier||1)>1,np=s&&!s.paid;let dr=0;if(np&&s.daily&&wayReal(s)>=10&&meta.dly!==s.daily){dr=dlyReward();meta.dly=s.daily}if(np&&wayReal(s)>=20&&Object.values(s.mod||{}).filter(Boolean).length>=2)meta.cr2=(meta.cr2||0)+1;_o3();if(T&&best!==b0){best=b0;try{LS.setItem(SK('kaBestC'),best)}catch(e){}}if(dr&&s.paid){meta.gems+=dr;meta.tg=(meta.tg||0)+dr;saveMeta();const t=UI.querySelector('.pn table');if(t){const tr=document.createElement('tr');tr.innerHTML=`<td>📅 Daily Challenge reward</td><td>+${fN(dr)}</td>`;t.querySelector('tr:last-child').after(tr)}const gm=UI.querySelector('.pn .gem');if(gm)gm.textContent='💎 '+fN(meta.gems)}}}
 // modal driver
-function pkOffer(){const s=st,av=shuf(PERKS.filter(p=>pk(p[0])<PKMAX),sRng((s.rid||'')+':pk:'+s.pkPend+':'+((s.pkHist||[]).length))).slice(0,3);s.pkOf=s.pkOf&&s.pkOf.w===s.pkPend?s.pkOf:{w:s.pkPend,ids:av.map(p=>p[0])};return s.pkOf}
-function modal(){const s=st;if(!s||state!=='play')return;if(s.pkPend){const o=pkOffer();state='perk';Snd.setPaused&&0;UI.innerHTML=`<div class="pn"><h1>Wave ${o.w} Perk</h1><p>Choose one upgrade module for this run.</p>${o.ids.map(id=>{const p=PERKS.find(x=>x[0]===id);return`<button class="b ${pk(id)?'g':'n'}" data-pkp="${id}" style="font-size:15px;padding:10px;margin:5px 0;text-align:left">${p[1]} <b>${p[2]}</b>${pk(id)?' → Lv '+(pk(id)+1)+'/'+PKMAX:''}<br><small style="font-weight:400">${p[3]}</small></button>`}).join('')}</div>`;UI.style.display='flex';return}
+function pkOffer(){const s=st,av=shuf(pkAvail(),sRng((s.rid||'')+':pk:'+s.pkPend+':'+((s.pkHist||[]).length))).slice(0,3);s.pkOf=s.pkOf&&s.pkOf.w===s.pkPend?s.pkOf:{w:s.pkPend,ids:av.map(p=>p[0])};return s.pkOf}
+function modal(){const s=st;if(!s||state!=='play')return;if(s.pkPend){const o=pkOffer();state='perk';Snd.setPaused&&0;UI.innerHTML=`<div class="pn"><h1>Wave ${o.w} Perk</h1><p>Choose one upgrade module for this run. Cap Lv ${pkCap()}.</p>${o.ids.map(id=>{const p=PERKS.find(x=>x[0]===id);return`<button class="b ${pk(id)?'g':'n'}" data-pkp="${id}" style="font-size:15px;padding:10px;margin:5px 0;text-align:left">${p[1]} <b>${p[2]}</b> · Lv ${pk(id)}/${pkCap()} → ${pk(id)+1}<br><small style="font-weight:400">Now: ${pk(id)?pkEff(id,pk(id)):'—'}</small><br><small style="font-weight:400">Next: ${pkEff(id,pk(id)+1)}</small></button>`}).join('')}</div>`;UI.style.display='flex';return}
  if(s.spPend){const k=s.spPend;state='perk';UI.innerHTML=`<div class="pn"><h1>${k==='tower'?'Turret':'Drone Bay'} Specialization</h1><p>Your ${k==='tower'?'towers':'barracks'} reached level ${SPLV}. Choose a path (respec later from the pause menu for credits).</p>${SPEC[k].map(x=>`<button class="b n" data-spp="${k}:${x[0]}" style="font-size:15px;padding:10px;margin:5px 0;text-align:left"><img src="${specIcon(k,x[0])}" style="width:40px;height:40px;vertical-align:middle;margin-right:6px">${x[1]} <b>${x[2]}</b><br><small style="font-weight:400">${x[3]}</small></button>`).join('')}</div>`;UI.style.display='flex'}}
 {const _f=frame;frame=function(dt){_f(dt);if(st&&state==='play'&&(st.pkPend||st.spPend))modal()}}
-function pickPerk(id){const s=st;if(!s||!s.pkPend||pk(id)>=PKMAX||!(s.pkOf&&s.pkOf.ids.includes(id)))return;const pw=s.pkPend;s.pk[id]=pk(id)+1;s.pkPend=0;s.pkOf=null;if(id==='pl')s.gmul*=(1+.12*pk(id))/(1+.12*(pk(id)-1));if(id==='gt'){const g=s.pads.find(p=>p.kind==='gate'),m0=s.gate.mhp;s.gate.mhp=gateMax(g?g.lv||1:1);s.gate.hp+=s.gate.mhp-m0}if(id==='kv'){const k=s.k,f=(1+.2*pk(id))/(1+.2*(pk(id)-1));k.bhp=Math.round((k.bhp||k.mhp)*f);const m0=k.mhp;k.mhp=Math.round(k.mhp*f);k.hp+=k.mhp-m0}s.pkHist=(s.pkHist||[]).concat([[pw,id]]);if(s.pkQ&&s.pkQ.length&&PERKS.some(p=>pk(p[0])<PKMAX))s.pkPend=s.pkQ.shift();else s.pkQ=[];resume()}
+function pickPerk(id){const s=st;if(!s||!s.pkPend||!pkOpen(id)||!(s.pkOf&&s.pkOf.ids.includes(id)))return;const pw=s.pkPend;s.pk[id]=pk(id)+1;s.pkPend=0;s.pkOf=null;if(id==='pl')s.gmul*=pkPlMul(pk(id))/pkPlMul(pk(id)-1);if(id==='gt'){const g=s.pads.find(p=>p.kind==='gate'),m0=s.gate.mhp;s.gate.mhp=gateMax(g?g.lv||1:1);s.gate.hp+=s.gate.mhp-m0}if(id==='kv'){const k=s.k,f=(1+.2*pk(id))/(1+.2*(pk(id)-1));k.bhp=Math.round((k.bhp||k.mhp)*f);const m0=k.mhp;k.mhp=Math.round(k.mhp*f);k.hp+=k.mhp-m0}if(id==='wk'||id==='tb')try{pkRescale(id)}catch(e){}try{pkSyncTier()}catch(e){}s.pkHist=(s.pkHist||[]).concat([[pw,id]]);if(s.pkQ&&s.pkQ.length)s.pkPend=s.pkQ.shift();else s.pkQ=[];resume()}
 function pickSpec(k,v){const s=st;if(!s||s.spPend!==k)return;s.spec[k]=v;s.spPend=null;resume()}
 function resume(){UI.innerHTML='';UI.style.display='none';state='play';saveRun();if(st.pkPend||st.spPend)modal()}
 function respecCost(k){const p=st.pads.filter(x=>x.kind===k&&!x.hid).sort((a,b)=>b.lv-a.lv)[0];return p?Math.round(cost(p)*3):0}
@@ -2095,7 +2154,7 @@ function labHTML(){const L=labS(),op=obsOpen(),sl=labSlots();
 .buy.ob{border-color:#cfe3ff;background:linear-gradient(#9d8bff,#5a3fd0 55%,#35208f);box-shadow:0 3px 0 #160c40}
 .b.rr{background:linear-gradient(#9d8bff,#5a3fd0 55%,#35208f)!important;box-shadow:0 4px 0 #160c40!important}`;document.head.appendChild(st_)}
 // ---- Royal Augury perk offers (persisted in run save; rerolls counted per pick, so reload never re-rolls)
-function pkRoll(s,r){const av=PERKS.filter(p=>pk(p[0])<PKMAX),n=augN(),seed=(s.rid||'')+':pk:'+s.pkPend+':'+((s.pkHist||[]).length)+(r?':rr'+r:'');let a=shuf(av.slice(),sRng(seed));if(r&&s.pkOf){const old=s.pkOf.ids,f=a.filter(p=>!old.includes(p[0]));if(f.length>=n)a=f;else a=f.concat(a.filter(p=>old.includes(p[0])))}return a.slice(0,n).map(p=>p[0])}
+function pkRoll(s,r){const av=pkAvail(),n=Math.min(augN(),av.length)||1,seed=(s.rid||'')+':pk:'+s.pkPend+':'+((s.pkHist||[]).length)+(r?':rr'+r:'');let a=shuf(av.slice(),sRng(seed));if(r&&s.pkOf){const old=s.pkOf.ids,f=a.filter(p=>!old.includes(p[0]));if(f.length>=n)a=f;else a=f.concat(a.filter(p=>old.includes(p[0])))}return a.slice(0,n).map(p=>p[0])}
 function pkOffer(){const s=st;if(s.pkOf&&s.pkOf.w===s.pkPend)return s.pkOf;s.pkOf={w:s.pkPend,ids:pkRoll(s,0),rr:0};return s.pkOf}
 function pkReroll(){const s=st;if(!s||!s.pkPend)return;const o=s.pkOf;if(!o||o.w!==s.pkPend||(o.rr||0)>=augRR())return;o.rr=(o.rr||0)+1;o.ids=pkRoll(s,o.rr);s.pkRrT=(s.pkRrT||0)+1;saveRun();state='play';modal()}
 {const _m=modal;modal=function(){const r=_m();const s=st;if(s&&s.pkPend&&state==='perk'&&s.pkOf&&UI.querySelector('[data-pkp]')&&augL()){const o=s.pkOf,left=augRR()-(o.rr||0),pn=UI.querySelector('.pn');if(pn&&!pn.querySelector('[data-pkrr]')){const p=pn.querySelector('p');if(p)p.innerHTML='Choose one upgrade module for this run. <span style="color:#cfe3ff">🎴 Colony Augury: '+o.ids.length+' choices</span>';if(augRR()>0){const b=document.createElement('button');b.className='b rr';b.dataset.pkrr='1';b.style.cssText='font-size:14px;padding:8px;margin:8px 0 0';b.disabled=left<=0;b.textContent=left>0?'🎲 Reroll choices ('+left+' left)':'🎲 No rerolls left';pn.appendChild(b)}}}return r}}
@@ -3093,7 +3152,7 @@ UI.addEventListener('click',e=>{const t=e.target;const inf=t.closest&&t.closest(
 const LOSSTX=typeof LSP!=='undefined'?{ark:'Ark',door:'Blast Door',king:'Star King',inside:'inside the perimeter',fix:'Rebuild a breached door at the door pad (upgrade) or the repair pad, and clear aliens that got inside.'}:{ark:'castle',door:'gate',king:'King',inside:'inside the walls',fix:'Rebuild a broken gate at the gate pad (upgrade) or the repair pad, and clear enemies that got inside.'};
 function eNm(e){try{return e.title||(typeof ENAME!=='undefined'&&ENAME[e.type])||e.type}catch(x){return e.type}}
 function arkHit(e,d,how){const s=st;s.castle.hp-=d;s.arkBy={n:eNm(e),how,w:s.wave,boss:isB(e.type)}}
-function doorSplash(e){const s=st,k=s.k;for(const o of s.sol)if(dist(o.x,o.y,CX,WALLY)<46){o.hp-=e.dmg;o.fl=.1}if(dist(k.x,k.y,CX,WALLY)<50){k.hp-=bKH(e,e.dmg*.5);k.fl=.12}}
+function doorSplash(e){const s=st,k=s.k;for(const o of s.sol)if(dist(o.x,o.y,CX,WALLY)<46){o.hp-=e.dmg*(isB(e.type)?pkTbAtk():pkWkAtk());o.fl=.1}if(dist(k.x,k.y,CX,WALLY)<50){k.hp-=bKH(e,e.dmg*.5);k.fl=.12}}
 {const _u=upd;upd=function(dt){const s=st;if(s&&s.gate&&s.castle&&!s.raid){if(s.gate.hp<=0&&s.gate.mhp>0){if(!s.doorDn){s.doorDn={w:s.wave,t:s.t};s.brkN=(s.brkN||0)+1}}else if(s.doorDn)s.doorDn=null}return _u.apply(this,arguments)}}
 {const _ov=over;over=function(){const s=st;_ov.apply(this,arguments);try{if(!s||s.rdDied||s.raid)return;const pn=UI.querySelector('.pn'),h=pn&&pn.querySelector('h1');if(!h||pn.querySelector('.lossWhy'))return;const T=LOSSTX,p=document.createElement('p');p.className='lossWhy';p.style.cssText='color:#ff9e80;font-size:13.5px;line-height:1.4;margin:4px 0 8px';let m;
  if(s.k.hp<=0)m=`💀 Your ${T.king}'s HP reached 0 on wave ${s.wave}. The run ends if the ${T.king} or the ${T.ark} falls.`;
@@ -4418,8 +4477,8 @@ artCards=function(){const av=artAvail(),n5=ARTS.reduce((n,x)=>n+Math.min(5,aS(x[
 var BHC={g:.22,a:.22,k:.2,any:.3};
 function bTierK(){const s=st,T=(s&&s.tier)||1;return T>1?wbTier()/ASC.dmg(T):1}
 {const _s=spawn;spawn=function(type){const r=_s.apply(this,arguments);try{const s=st,e=s.en[s.en.length-1];if(e&&e.type===type&&isB(type)&&!s.raid&&!e._bt){e._bt=1;const f=bTierK();e.sd=(e.sd||1)*f;e.kd=f}}catch(x){}return r}}
-function bGH(e,d,f){const s=st;if(!e||!isB(e.type)||!(s.gate.mhp>0))return d;return Math.min(d,(f==null?BHC.g:f)*s.gate.mhp)}
-function bKH(e,d){const s=st;if(!e||!isB(e.type)||s.raid)return d;try{if(typeof x19g==='function')d=d/Math.max(1,x19g('bArm'))}catch(x){}return Math.min(d*(e.kd||1),BHC.k*s.k.mhp)}
+function bGH(e,d,f){const s=st;if(!e||!isB(e.type)||!(s.gate.mhp>0))return d;d*=pkTbAtk();if((s.gtAbs||0)>0){s.gtAbs--;try{num(CX,WALLY-28,'AEGIS ABSORB','#80d8ff',8)}catch(x){}return 0}return Math.min(d,(f==null?BHC.g:f)*s.gate.mhp)}
+function bKH(e,d){const s=st;if(!e||s.raid)return d;if(!isB(e.type))return pkKShield(d*pkWkAtk());d*=pkTbAtk();try{if(typeof x19g==='function')d=d/Math.max(1,x19g('bArm'))}catch(x){}if((s.k.pkAbs||0)>0){s.k.pkAbs--;try{num(s.k.x,s.k.y-28,'VITAL ABSORB','#80d8ff',8)}catch(x){}return 0}d=pkKShield(d);return Math.min(d*(e.kd||1),BHC.k*s.k.mhp)}
 {const _a=arkHit;arkHit=function(e,d,how){const s=st;if(e&&isB(e.type)&&s.castle.mhp>0)d=Math.min(d,BHC.a*s.castle.mhp);return _a(e,d,how)}}
 const HG={on:0,id:0};
 // per-step budget: everything that lands in one simulation step together removes at most BHC.any of max HP
@@ -4892,8 +4951,8 @@ function bkSnap(w,G,E,L){const s=st;if(!s||!(s.bank||L))return{rate:0,L:0,w:w||0
  w=w==null?Math.max(1,s.wave):w;G=G==null?s.gold:G;L=L==null?x17BankL():L;const rate=.05*L;E=E==null?bkEfor(w):E;
  const bb=trN('banker','bkdiv')&&w%5===0,dv=bb?2:1,cm=bkCapM(w),fl=bkFloor(w)+(bb?.05:0),base=ICAP(w);
  const S=x17BankS(L),A=x17BankA(),F=x17('banker','fl'),T=.04*aN('tmoon'),rB=rsR('tre');
- const capM0=base*cm,capF0=E*fl,oldCap=Math.max(capM0,capF0)*dv;
- const C=S*Math.max(base*cm*(1+A),E*(fl+F))*(1+T)*(1+.005*rB);
+ const capM0=base*cm,capF0=E*fl,oldCap=Math.max(capM0,capF0)*dv*(typeof pkIcMul==='function'?pkIcMul():1);
+ const ic=typeof pkIcMul==='function'?pkIcMul():1;const C=S*Math.max(base*cm*(1+A),E*(fl+F))*(1+T)*(1+.005*rB)*ic;
  const J=bb&&x17('banker','divL')&&trN('banker','bkdiv')?.2:0,newCap=C*dv*(1+J);
  const cap=Math.max(oldCap,newCap);
  const pay=Math.max(0,Math.floor(Math.min(G*rate*dv,oldCap)),Math.floor(Math.min(G*rate*dv*(1+J),newCap)));
@@ -4901,7 +4960,7 @@ function bkSnap(w,G,E,L){const s=st;if(!s||!(s.bank||L))return{rate:0,L:0,w:w||0
  return{rate,L,w,cap,pay:isFinite(pay)?pay:0,floorOn,dv,bb,J,S,A,F,T,rB,cm,fl,base,E,G,oldCap,newCap,capM0,capF0}}
 function x17Int(G,w,dv,cm,fl,base,E,bb){return bkSnap(w,G,E).pay}
 function bkRateTxt(n){n=n||bkSnap();if(!n.rate)return'—';return Math.round(n.rate*100)+'%'+(n.dv>1?' (×'+n.dv+' this boss wave)':'')}
-function bkCapTxt(n){n=n||bkSnap();if(!n.rate)return'—';return fN(Math.floor(n.cap))+' (Bank Lv '+n.L+', wave '+n.w+')'+(n.floorOn?' · set by credits collected this wave':'')}
+function bkCapTxt(n){n=n||bkSnap();if(!n.rate)return'—';return fN(Math.floor(n.cap))+' (Bank Lv '+n.L+', wave '+n.w+')'+(n.floorOn?' · set by credits collected this wave':'')+(pk('ic')?' · Vault Charter ×'+pkIcMul().toFixed(2):'')}
 {const _l=bkLine;bkLine=function(){const s=st;let h=_l();if(!s)return h;const L=x17BankL(),S=x17BankS(L),A=x17BankA(),F=x17('banker','fl'),T=.04*aN('tmoon'),rB=rsR('tre'),J=x17('banker','divL')&&trN('banker','bkdiv');
  const parts=[];if(S>1)parts.push('Lv '+L+' cap ×'+S.toFixed(2));if(A>0)parts.push('cap +'+Math.round(A*100)+'%');if(F>0)parts.push('floor +'+Math.round(F*100)+' pts');if(T>0)parts.push('Treasury Moon +'+Math.round(T*100)+'%');if(rB)parts.push('Research +'+fD(rB*.5)+'%');if(J)parts.push('boss dividend +20%');
  return h+(parts.length?'<br><span style="color:#7fe3ff">🌌 Deep-Space Bank: '+parts.join(' · ')+'</span>':'')}}
@@ -5409,4 +5468,12 @@ if(!window._x19sig){window._x19sig=1;x19sigWrap();}
 {const _r=renderMenu;renderMenu=function(){const r=_r.apply(this,arguments);try{if(state==='pause'&&UI&&!UI.querySelector('[data-id="gear"]')){const b=document.createElement('button');b.className='b';b.dataset.id='gear';b.textContent='🛡️ King Gear';b.style.cssText='background:linear-gradient(#3a6ad9,#1a2a80);border-color:#b8d4ff';const rs=UI.querySelector('[data-id="resume"]');if(rs&&rs.parentNode)rs.after(b);else{const pn=UI.querySelector('.pn');if(pn)pn.appendChild(b)}}}catch(e){}return r}}
 {const _m=menu;menu=function(...a){const r=_m.apply(this,a);try{if(UI&&!UI.querySelector('[data-id="gear"]')){const ab=UI.querySelector('[data-whhero]')||UI.querySelector('button[data-id="arts"]');if(ab){const b=document.createElement('button');b.className='b';b.dataset.id='gear';b.textContent='🛡️ King Gear';b.style.cssText='background:linear-gradient(#3a6ad9,#1a2a80);border-color:#b8d4ff;box-shadow:0 0 12px #4a80ff66,0 4px 0 #0a1a40';ab.after(b)}}}catch(e){}return r}}
 
+{const _hit=hit;hit=function(e,d,cr,q){try{d*=pkOmMul()*pkGtTeam()}catch(x){}return _hit(e,d,cr,q)}}
+{const _es=eStats;eStats=function(type,w){const T=_es(type,w);try{T.hp*=isB(type)?pkSoft('tb'):pkSoft('wk')}catch(x){}return T}}
+{const _rm=trRM;trRM=function(){return _rm()*pkTwRate()}}
+{const _sw=startWave;startWave=function(){_sw.apply(this,arguments);try{const s=st;if(s&&s.boss){if(s.k)s.k.pkAbs=pkMile(pk('kv'));s.gtAbs=pkMile(pk('gt'))}}catch(x){}}}
+{const _ah=arkHit;arkHit=function(e,d,how){try{if(e&&isB(e.type)&&st&&!st.raid)d*=pkTbAtk()}catch(x){}return _ah(e,d,how)}}
+{const _u=upd;upd=function(dt){const s=st,g0=s&&s.gate&&!s.raid?s.gate.hp:null,r=_u(dt);try{if(s&&g0!=null&&s.gate&&s.gate.hp<g0)pkDoorThorn(g0-s.gate.hp)}catch(x){}return r}}
+
+{const _plr=loadRun;loadRun=function(...a){const r=_plr.apply(this,a);try{if(st){if(!(st.pkTier>=1))st.pkTier=1;pkSyncTier(1)}}catch(x){}return r}}
 </script></body></html>
