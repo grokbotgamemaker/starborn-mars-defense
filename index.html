@@ -86,7 +86,7 @@ table{color:#c7d3df}td:last-child{color:#bff1ff}
 </style></head><body>
 <canvas id="c"></canvas><div id="ui"></div>
 <script>
-const SKVER='v1.19.3';
+const SKVER='v1.19.4';
 const LSP='sbm_',LS={getItem:k=>localStorage.getItem(LSP+k),setItem:(k,v)=>localStorage.setItem(LSP+k,v),removeItem:k=>localStorage.removeItem(LSP+k),keys:()=>Object.keys(localStorage).filter(k=>k.startsWith(LSP)).map(k=>k.slice(LSP.length)),clear:()=>LS.keys().forEach(k=>localStorage.removeItem(LSP+k))};
 
 const C=document.getElementById('c');let X=C.getContext('2d');const UI=document.getElementById('ui');
@@ -215,7 +215,7 @@ const ARTS=[
 ['ban','🚩','Flag on Mars','Troopers are hardier; a periodic sonic boom stuns nearby aliens.',s=>`Trooper HP +${[0,15,30,50,75,100][s]}% · sonic boom every ${[0,14,12,10,9,8][s]}s, stun ${[0,1,1.25,1.5,1.75,2][s]}s r${[0,45,50,55,60,65][s]} (bosses half)`],
 ['hoard','☄️','Asteroid Mining','More credits, and slain aliens sometimes drop a bonus asteroid haul.',s=>`+${[0,10,20,30,40,50][s]}% credits · ${[0,1,2,3,4,5][s]}% chance of bonus haul (×6 drop value)`],
 ['storm','🛰️','Swarm Array','Satellite swarm: the Star King fires extra bolts at distinct targets (spare bolts deal 25% damage).',s=>`${1+2*s} bolts per volley (+${2*s})`],
-['way','⏩','Jump Drive','After you clear a wave, a chance to skip ahead — even past your best wave. Skipped waves pay like Warp Start; skipped rifts hold their raid spoils for 10 real waves. Never skips a boss wave (every 5th wave): a skip that would land on or jump past a boss stops at that boss so you fight it.',s=>`${[0,30,45,60,70,80][s]}% chance to skip each next wave, leaping more waves per skip the higher your best · never skips a boss wave`],
+['way','⏩','Jump Drive','After you clear a wave, a chance to skip ahead — even past your best wave. Skipped waves pay like Warp Start (credits and interest, including the boss-wave credit bonus; no crystal boss payout and no gear drops). Skipped rifts hold their raid spoils for 10 real waves. Skips bosses below your best wave; stops for every boss past it.',s=>`${[0,30,45,60,70,80][s]}% chance to skip each next wave, leaping more waves per skip the higher your best · skips bosses at or below your best wave, then holds for every boss past it`],
 ['glass','⏳','Time Dilator','Shorter breaks between waves and a longer warp start (adds to the Launch Boost, total capped at 90% of your best wave).',s=>`Wave break −${[0,10,20,30,40,50][s]}% · Warp Start +${[0,5,10,15,20,25][s]}% of best wave`]];
 const AV={fireN:[0,8,7,6,5,4],fireA:[0,.8,1,1.2,1.4,1.6],fireR:[0,16,19,22,25,28],fireB:[0,.2,.25,.3,.35,.4],fireT:[0,2,2.5,3,3.5,4],crown:[0,.08,.16,.25,.35,.5],bRg:[0,.003,.005,.0075,.01,.015],bRf:[0,.15,.25,.4,.6,.8],banH:[0,.15,.3,.5,.75,1],banP:[0,14,12,10,9,8],banS:[0,1,1.25,1.5,1.75,2],banR:[0,45,50,55,60,65],hG:[0,.1,.2,.3,.4,.5],hC:[0,.01,.02,.03,.04,.05],gB:[0,.1,.2,.3,.4,.5],gH:[0,.05,.1,.15,.2,.25]};
 const aS=id=>(meta&&meta.art&&meta.art.a&&meta.art.a[id])||0,artCost=s=>{if(s<1)return 0;let c=Math.min(5,s)*(Math.min(5,s)+1)/2;for(let i=6;i<=s;i++)c+=MYC(i);return c},artSpent=()=>ARTS.reduce((t,a)=>t+artCostId(a[0],aS(a[0])),0)+rsSpent(),artTotal=()=>PGat(),artAvail=()=>artTotal()-artSpent();
@@ -958,7 +958,7 @@ function startPick(){const M=herMax();if(M>1&&hsOn())newGame(M);else newGame();r
 function newGame(sw=1){Wake.req();saveMeta();loadMeta();meta.ls=meta.ls||{};meta.ls.runs=(meta.ls.runs||0)+1;Snd.setPaused(false);const k={x:CX,y:1000,vx:0,vy:0,hp:100+5*ml('hp'),cd:0,face:1,ph:0,fl:0};k.mhp=k.hp;
 st={rid:'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,8),wave:0,gold:45+5*ml('sg'),spawnLeft:0,spawnT:0,boss:false,breakT:6,rs:{},k,cam:{x:CX,y:1000},castle:{hp:300,mhp:300},gate:{hp:0,mhp:0},dmg:8*ARMD(ml('dmg')),dmgB:8*ARMD(ml('dmg')),rate:1.4,multi:1+2*aS('storm'),spd:76,crit:.005*ml('crit'),cm:1.1+.02*ml('cd'),mag:48+1.5*ml('mg'),gmul:1+.03*ml('gg'),eng:.0002*ml('eng'),bank:0,med:.0005*ml('med'),smul:1+.03*ml('so'),
 speed:1,auto:LS.getItem('kaAuto')==='1',ear:[],pads:makePads(),en:[],ar:[],coins:[],pt:[],nums:[],hud:[],sol:[],dead:[],solT:0,pops:[],shake:0,kills:0,bosses:0,t:0,spawnLog:[]};
-P('gate').lv=1;st.gate.mhp=st.gate.hp=gateMax(1);state='play';UI.style.display='none';if(sw>1)headStart(sw)}
+P('gate').lv=1;st.gate.mhp=st.gate.hp=gateMax(1);st.wayBest=Math.max(0,(typeof herBase==='function'?herBase():(best||0))|0);state='play';UI.style.display='none';if(sw>1)headStart(sw)}
 function sendWave(){if(!st||state!=='play')return;const mid=st.breakT<=0;if(mid){const b=Math.round(5+st.wave*3);st.gold+=b;num(st.k.x,st.k.y-36,'+'+b+' early!','#8dff6a',7)}startWave()}
 const UBP2=[[0,5],[1,6],[2,7],[3,8],[4,6],[0,7],[1,8],[2,5],[3,6],[4,8]],UBP3=[[0,3,6],[1,4,7],[2,5,8],[0,4,8],[1,5,6],[2,3,7],[0,5,7],[1,3,8],[2,4,6]];
 function ubFor(w){const n=w/10;let L;if(n<=9)L=[UB[n-1]];else L=(n<=19?UBP2[(n-10)%10]:UBP3[(n-20)%9]).map(i=>UB[i]);return n%10===0?['boss',...L]:L}
@@ -2287,6 +2287,8 @@ function wayCost(s){let c=0;for(let i=1;i<=Math.min(5,s);i++)c+=WAYC[i];return c
 function wayReal(s){s=s||st;if(!s)return 0;const c=s.clr||0;let n=c-(s.skipW||0);if(s.wsk)for(const k in s.wsk)if(+k<=c&&+k>(s.skipW||0))n--;return Math.max(0,n)}
 function wayOk(s){return !!(s&&state==='play'&&!s.ended&&!s.raid&&!s.rPortal&&aS('way')>0)}
 function wayBossW(w){return w>0&&w%5===0}
+function wayBestCap(s){s=s||st;if(s&&s.wayBest!=null&&isFinite(+s.wayBest))return +s.wayBest|0;return Math.max(0,(typeof herBase==='function'?herBase():(best||0))|0)}
+function wayHoldBoss(x,s){return wayBossW(x)&&x>wayBestCap(s)}
 // gold for one skipped wave: Head Start's per-wave formula as the floor, topped up to what the wave pays in
 // real play with this run's gold multiplier (Plunder/trophies/Hoard), plus the banker's real per-wave interest.
 function wayCredits(x){const s=st,wg=waveCredits(x),hs=wg*1.6*(1+.005*ml('sg')),pace=wg*(s.gmul||1)*(1+AV.hG[aS('hoard')]);
@@ -2301,8 +2303,9 @@ function wayGate(x,sum){const s=st;if(!s.rid)s.rid='r'+Date.now().toString(36)+M
  (s.wyEsc=s.wyEsc||[]).push(en);sum.tro++;(s.rdLog=s.rdLog||[]).push([x,race,r,rv]);
  meta.rdGot.push(key);if(meta.rdGot.length>200)meta.rdGot=meta.rdGot.slice(-200)}
 function wayTry(){const s=st;if(!wayOk(s))return 0;const p=WAYP[Math.min(5,aS('way'))];const sum={n:0,g:0,i:0,tro:0,gem:0,perk:0,gold:0,sp:0,pk50:0};let x=s.wave+1;
- const SD=PGstride();while(!wayBossW(x)&&R()<p){for(let jj=0;jj<SD&&!wayBossW(x);jj++){s.wave=x;s.dn=s.dn||{};s.dn[x]=1;(s.wsk=s.wsk||{})[x]=1;s.wskN=(s.wskN||0)+1;
+ const SD=PGstride();while(!wayHoldBoss(x,s)&&R()<p){for(let jj=0;jj<SD&&!wayHoldBoss(x,s);jj++){s.wave=x;s.dn=s.dn||{};s.dn[x]=1;(s.wsk=s.wsk||{})[x]=1;s.wskN=(s.wskN||0)+1;
   const G=wayCredits(x);s.gold+=G.g+G.i;sum.g+=G.g;sum.i+=G.i;if(G.i&&s.bank){s.interest=(s.interest||0)+G.i;s.intLog=(s.intLog||[]).concat([[x,G.i]]).slice(-50)}s.wyGold=(s.wyGold||0)+G.g+G.i;
+  if(wayBossW(x))s.skipB=(s.skipB||0)+1;
   if(x%50===0){if(!(s.pkDone||{})[x]&&PERKS.some(q=>pk(q[0])<PKMAX)){(s.pkDone=s.pkDone||{})[x]=1;sum.pk50++;if(s.pkPend)(s.pkQ=s.pkQ||[]).push(x);else s.pkPend=x}wayGate(x,sum)}
   sum.n++;x++}}
  if(!sum.n)return 0;
@@ -2314,7 +2317,7 @@ function wayTry(){const s=st;if(!wayOk(s))return 0;const p=WAYP[Math.min(5,aS('w
  const k=s.k;num(k.x,k.y-50,'+'+fN(sum.g+sum.i+sum.sp)+' credits · next: wave '+(s.wave+1),'#ffe066',9);
  if(sum.tro)num(k.x,k.y-64,'🔒 '+sum.tro+' rift spoil'+(sum.tro>1?'s':'')+' held (10 real waves)','#e0a0ff',8);
  stars(k.x,k.y-20,22,90);try{Snd.sfx('skip')}catch(e){}
- if(wayBossW(s.wave+1))num(k.x,k.y-78,'⏩ Jump Drive holds for boss wave '+(s.wave+1),'#b3e5fc',8);
+ if(wayHoldBoss(s.wave+1,s))num(k.x,k.y-78,'⏩ Skips bosses below your best wave; stops for every boss past it.','#b3e5fc',8);
  return sum.n}
 // escrow for Compass-skipped gates: trophies + gem jackpots release after 10 REAL waves past the skip
 function wyEscTry(){const s=st;if(!s||s.raid||!s.wyEsc||!s.wyEsc.length)return;const r=wayReal(s),due=s.wyEsc.filter(e=>r>=e.at);if(!due.length)return;
@@ -2327,7 +2330,7 @@ function wyEscTry(){const s=st;if(!s||s.raid||!s.wyEsc||!s.wyEsc.length)return;c
 {const _wd=waveDone;waveDone=function(w){_wd(w);try{wyEscTry()}catch(e){console.error(e)}}}
 {const _l=loadRun;loadRun=function(...a){const r=_l.apply(this,a);try{wyEscTry()}catch(e){}return r}}
 function wayRow(row){const s=st,a=aS('way');if(!s||!a)return'';const held=(s.wyEsc||[]).length,hg=(s.wyEsc||[]).reduce((t,e)=>t+(e.gem||0),0);
- return row('⏩','Jump Drive',Math.round(WAYP[a]*100)+'% skip chance · '+(s.wskN||0)+' skipped this run'+' · holds for every boss wave')+(held?row('🔒','Jump Drive spoils','Held: '+held+' trophies'+(hg?', '+fN(hg)+' crystals':'')+' · '+Math.min(10,Math.max(0,wayReal(s)-Math.min(...s.wyEsc.map(e=>e.at))+10))+'/10 real waves'):'')}
+ return row('⏩','Jump Drive',Math.round(WAYP[a]*100)+'% skip chance · '+(s.wskN||0)+' skipped this run'+' · skips bosses below your best wave; stops for every boss past it')+(held?row('🔒','Jump Drive spoils','Held: '+held+' trophies'+(hg?', '+fN(hg)+' crystals':'')+' · '+Math.min(10,Math.max(0,wayReal(s)-Math.min(...s.wyEsc.map(e=>e.at))+10))+'/10 real waves'):'')}
 // satisfying chime + whoosh (respects the SFX toggle via Snd.cfg.s)
 {const _sf=Snd.sfx;Snd.sfx=function(n){if(n!=='skip')return _sf.call(this,n);if(!this.ctx||!this.cfg.s||this.ctx.state!=='running')return;const now=this.ctx.currentTime;if(now-(this.last.skip||0)<.6)return;this.last.skip=now;const t=now+.005,d=this.sg;
  this.noise(t,.32,.16,1400,d);this.tone('sine',330,t,.28,.05,d,{slide:990});
@@ -5133,7 +5136,7 @@ function x19shouldDrop(w,t,force){if(force||(w>0&&w%50===0))return 1;if(w>0&&w%5
 function x19rollDrop(w,t){const sl=X19SL[(Math.random()*5)|0][0],typ=(Math.random()*3)|0,r=x19rarity(w,t);return x19mk(sl,typ,r,0)}
 function x19tryDrop(e){try{const s=st;if(!s||s.raid)return;const w=s.wave|0,t=s.tier||1;if(s._gDropW===w)return;if(!x19shouldDrop(w,t,0))return;s._gDropW=w;const it=x19rollDrop(w,t);x19spawnLoot(e?e.x:s.k.x,e?e.y:(s.k.y-40),it,3+it.r)}catch(x){console.error(x)}}
 function x19spawnLoot(x,y,it,scrap){const s=st;if(!s)return;s.gLoot=s.gLoot||[];s.gLoot.push({x,y,z:18,vz:rnd(50,80),vx:rnd(-40,40),vy:rnd(-20,20),it,scrap:scrap|0,f:Math.random()*8,tk:0})}
-function x19collect(L){const g=x19gear();if(L.scrap)g.scrap=(g.scrap||0)+L.scrap;if(L.it){if(g.inv.length>=80){const p=x19salvPts(L.it);try{if(meta.art){meta.art.seen=(meta.art.seen||0)+p}}catch(e){}toast('Inventory full — salvaged for 🛸'+p,1)}else{g.inv.push(L.it);toast(X19SL.find(z=>z[0]===L.it.sl)[1]+' '+x19sn(L.it),1)}}saveMeta();try{Snd.sfx('coin')}catch(e){}}
+function x19collect(L){const g=x19gear();if(L.scrap)g.scrap=(g.scrap||0)+L.scrap;if(L.it){if(g.inv.length>=80){const p=x19salvPts(L.it);try{if(meta.art){meta.art.seen=(meta.art.seen||0)+p}}catch(e){}toast('Inventory full — salvaged for 🛸'+p,1)}else{g.inv.push(L.it);toast(X19SL.find(z=>z[0]===L.it.sl)[1]+' '+x19sn(L.it),1);try{x19autoMerge()}catch(e){}}}saveMeta();try{Snd.sfx('coin')}catch(e){}}
 function x19salvPts(it){if(!it)return 0;return Math.max(1,Math.round([2,6,16,40,90,200][it.r|0]*(1+.15*(it.st|0))))}
 function x19salvScrap(it){return Math.round(4*((it.r|0)+1)*(1+(it.st|0)*.5))}
 function x19starCost(it){const st=it.st|0,r=(it.r|0)+1;return{g:Math.round(25*Math.pow(2.6,st)*Math.pow(r,1.25)),sc:Math.round(6*Math.pow(1.85,st)*r)}}
@@ -5146,6 +5149,34 @@ function x19canFuse(a,b,c){if(!a||!b||!c)return 0;if(a.id===b.id||a.id===c.id||b
 function x19fuseSubs(a,b,c){const L=[];for(const it of[a,b,c])if(it.sub)for(const s of it.sub)L.push({from:it.id,s,lab:s[2]|| (X19SUB.find(z=>z[0]===s[0])||[,,s[0]])[2],it});return L}
 function x19fuseDo(a,b,c,keep){if(!x19canFuse(a,b,c))return null;const g=x19gear(),nr=a.r+1,out=x19mk(a.sl,a.typ,nr,0);if(keep&&keep.s){out.sub[0]=keep.s.slice();if(!out.sub[0][2])out.sub[0][2]=(X19SUB.find(z=>z[0]===out.sub[0][0])||[,,''])[2];const seen=new Set([X19T[out.sl][out.typ][2],out.sub[0][0]]);for(let i=1;i<out.sub.length;i++){const s=x19rollSub(seen,nr);seen.add(s[0]);out.sub[i]=s}}
  const ids=new Set([a.id,b.id,c.id]);for(const sl of Object.keys(g.eq))if(ids.has(g.eq[sl]))g.eq[sl]=null;g.inv=g.inv.filter(x=>!ids.has(x.id));g.inv.push(out);saveMeta();x19flash=1;return out}
+function x19autoOn(){try{return LS.getItem('kaGearAuto')==='1'}catch(e){return false}}
+function x19autoSet(on){try{LS.setItem('kaGearAuto',on?'1':'0')}catch(e){}}
+function x19bestKeep(a,b,c){const subs=x19fuseSubs(a,b,c);if(!subs.length)return null;let best=subs[0];for(const z of subs)if((z.s[1]||0)>(best.s[1]||0))best=z;return best}
+function x19autoPool(){const g=x19gear(),eq=new Set(Object.values(g.eq).filter(Boolean));return g.inv.filter(it=>it&&!it.lk&&!eq.has(it.id))}
+function x19autoMerge(silent){if(!x19autoOn())return[];const out=[];let guard=0;
+ while(guard++<40){const pool=x19autoPool(),groups={};
+  for(const it of pool){const k=it.sl+'|'+it.typ+'|'+(it.r|0)+'|'+(it.st|0);(groups[k]=groups[k]||[]).push(it)}
+  let trip=null;for(const k of Object.keys(groups)){if(groups[k].length>=3){const a=groups[k][0],b=groups[k][1],c=groups[k][2];if(x19canFuse(a,b,c)){trip=[a,b,c];break}}}
+  if(!trip)break;const keep=x19bestKeep(trip[0],trip[1],trip[2]),got=x19fuseDo(trip[0],trip[1],trip[2],keep);if(!got)break;
+  out.push({a:trip[0],out:got,ic:(X19SL.find(z=>z[0]===got.sl)||['','⭐'])[1]})}
+ if(out.length&&!silent)x19mergeBanner(out);return out}
+function x19mergeBanner(rows){try{document.querySelectorAll('.gmerge').forEach(e=>e.remove());const d=document.createElement('div');d.className='gmerge';d.setAttribute('role','status');
+ d.innerHTML='<div class="gmergeh">AUTO-MERGE!</div>'+rows.map(r=>{const a=r.a,o=r.out,ic=r.ic||'⭐';return'<div class="gmergerow">'+ic+' 3× <span style="color:'+x19col(a.r)+'">'+X19R[a.r]+' '+X19T[a.sl][a.typ][0]+'</span> → <span style="color:'+x19col(o.r)+'">'+X19R[o.r]+' '+X19T[o.sl][o.typ][0]+'</span></div>'}).join('');
+ document.body.appendChild(d);
+ const gone=()=>{if(d.parentNode)d.remove();clearTimeout(d._t)};d.addEventListener('click',gone,{once:true});d._t=setTimeout(gone,2500)}catch(e){}}
+const X19KS=['kDmg','kRate','kCC','kCD','kRng','kHP','kReg','bArm','spd','mag','dash','hCd','aura','psi','splash','bank','gold','shard','artp'];
+function x19kLab(k){const s=X19SUB.find(z=>z[0]===k);if(s)return s[1];for(const sl of Object.keys(X19T||{})){const t=(X19T[sl]||[]).find(z=>z[2]===k);if(t)return t[1]}return k}
+function x19kScore(){const g=x19g,a=k=>x19gAdd(k);const dps=g('kDmg')*g('kRate')*(1+a('kCC')*Math.max(0,g('kCD')-1))*(1+a('splash'))*g('kRng')*g('psi');const live=g('kHP')*g('bArm')*(1+.35*a('kReg'));const eco=g('gold')*g('bank')*g('shard')*(1+.5*a('artp'))*g('mag');const ut=g('spd')*g('dash')*(1+a('aura'))*(1+a('hCd'));return dps*Math.pow(Math.max(1e-6,live),.55)*Math.pow(Math.max(1e-6,eco),.25)*Math.pow(Math.max(1e-6,ut),.25)}
+function x19kScoreIf(it){const g=x19gear(),sl=it?it.sl:null;if(!sl)return x19kScore();const prev=g.eq[sl],had=g.inv.some(x=>x.id===it.id);if(!had)g.inv.push(it);g.eq[sl]=it.id;let v=0;try{v=x19kScore()}finally{g.eq[sl]=prev;if(!had)g.inv=g.inv.filter(x=>x.id!==it.id)}return v}
+function x19isBetter(it){if(!it)return 0;const cur=x19eq(it.sl);if(cur&&cur.id===it.id)return 0;if(!cur)return 1;return x19kScoreIf(it)>x19kScoreIf(cur)+1e-12}
+function x19betterSlots(){const g=x19gear(),o={};for(const it of g.inv){if(g.eq[it.sl]===it.id)continue;if(x19isBetter(it))o[it.sl]=1}return o}
+function x19deltaHTML(it){if(!it)return'';const cur=x19eq(it.sl),same=cur&&cur.id===it.id;
+ let h='<div class="gcmp">';
+ if(same){h+='<div class="gcmph">Equipped</div>'+x19line(it)}
+ else{h+='<div class="gcmprow"><div class="gcmpc"><div class="gcmph">Selected</div>'+x19line(it)+'</div><div class="gcmpc"><div class="gcmph">Equipped</div>'+(cur?x19line(cur):'<small>Empty slot</small>')+'</div></div>';
+  const keys=[],seen={};for(const k of X19KS){const a=x19star(it,k),b=cur?x19star(cur,k):0;if(Math.abs(a)+Math.abs(b)>1e-12){keys.push([k,a,b,a-b]);seen[k]=1}}
+  if(keys.length){h+='<div class="gcmd">'+keys.map(([k,a,b,d])=>{const col=d>1e-12?'#69f0ae':d<-1e-12?'#ff8a80':'#cfd8dc';const sign=d>1e-12?'+':('');return'<span style="color:'+col+'">'+sign+(d*100).toFixed(1)+'% '+x19kLab(k)+'</span>'}).join(' · ')+'</div>'}}
+ return h+'</div>'}
 function x19hpSync(){const s=st;if(!s||s.raid||!s.k)return;const f=x19g('kHP'),o=s.kx19||1;if(Math.abs(f/o-1)<1e-9)return;const r=f/o,k=s.k,m0=k.mhp;k.mhp=Math.max(1,Math.round(k.mhp*r));if(k.hp>0)k.hp=Math.max(1,k.hp*k.mhp/Math.max(1,m0));if(k.bhp)k.bhp*=r;s.kx19=f}
 function x19gearSig(){try{const g=x19gear();return X19SL.map(([sl])=>{const it=x19eq(sl);return it?it.sl+it.typ+it.r+it.st:'_'}).join('')}catch(e){return ''}}
 let x19flash=0,x19from=null,X19SO={k:'best',d:-1,tab:'all'};try{Object.assign(X19SO,JSON.parse(LS.getItem('kaGearSort')||'{}'))}catch(e){}if(!X19SO.k||X19SO.k==='def')X19SO.k='best';if(!X19SO.tab)X19SO.tab='all';
@@ -5261,29 +5292,29 @@ function x19dashTick(dt){const s=st;if(!s||s.raid||!s.k)return;x19dashCd=Math.ma
 function x19line(it){if(!it)return'Empty';const typ=X19T[it.sl][it.typ],main=typ[3]*x19rmul(it.r)*x19smul(it.st);let h='<b style="color:'+x19col(it.r)+'">'+X19R[it.r]+'</b> '+typ[0]+(it.st?' <span style="color:#ffe08a">'+'★'.repeat(it.st)+'</span>':'')+'<br><small>Main: '+typ[1]+' +'+(main*100).toFixed(1)+'%</small>';if(it.sub&&it.sub.length)h+='<br><small>'+it.sub.map(s=>'+'+(s[1]*x19rmul(it.r)*x19smul(it.st)*100).toFixed(1)+'% '+(s[2]||s[0])).join(' · ')+'</small>';return h}
 let X19SEL=null,X19FUSE=[],X19PICK=null,X19MODE='inv';
 function x19open(from){loadMeta();x19from=from||(state==='pause'?'pause':state==='play'?'play':'menu');if(state==='play'){try{openMenu()}catch(e){}x19from='pause'}
- X19SEL=null;X19FUSE=[];X19PICK=null;X19MODE='inv';x19draw();UI.style.display='flex'}
+ X19SEL=null;X19FUSE=[];X19PICK=null;X19MODE='inv';try{x19autoMerge()}catch(e){}x19draw();UI.style.display='flex'}
 function x19back(){if(x19from==='pause'&&st){state='pause';renderMenu();return}menu()}
 function x19slotXY(sl,W,H){// percent of preview box, away from body
  const map={hm:[50,8],jp:[10,38],su:[8,62],bl:[90,42],ga:[90,68]};return map[sl]||[50,50]}
-function x19draw(){loadMeta();const g=x19gear(),sel=X19SEL?x19it(X19SEL):null;
+function x19draw(){loadMeta();const g=x19gear(),sel=X19SEL?x19it(X19SEL):null,better=x19betterSlots();
  const sortB=(()=>{const b=(k,l)=>`<button class="sb ${X19SO.k===k?'on':''}" data-gsort="${k}">${l}</button>`;return`<div class="sortbar">Sort: ${b('best','Best')}${b('name','Name')}${b('r','Rarity')}${b('st','Stars')}${b('sl','Slot')}${b('lock','Locked')}<button class="sb on" data-gdir="1">${X19SO.d>0?'▲ Asc':'▼ Desc'}</button></div>`})();
  const counts={all:g.inv.length};for(const[sl]of X19SL)counts[sl]=g.inv.filter(it=>it.sl===sl).length;
  const tab=x19tab();
  const short={all:'All',bl:'Blaster',hm:'Helmet',su:'Spacesuit',jp:'Jet Pack',ga:'Gauntlet'};
- const tabs=`<div class="gtabs" role="tablist">${[['all','📦','All'],...X19SL.map(([sl,ic,nm])=>[sl,ic,short[sl]||nm])].map(([id,ic,nm])=>`<button class="gtab ${tab===id?'on':''}" data-gtab="${id}" role="tab"><span class="gtatic">${ic}</span><span class="gtatx">${nm}</span><span class="gtac">${counts[id]||0}</span></button>`).join('')}</div>`;
- const items=x19sInv().map(it=>{const eq=g.eq[it.sl]===it.id,on=X19SEL===it.id,fu=X19FUSE.some(x=>x.id===it.id);return`<button class="gcard ${on?'on':''} ${eq?'eq':''} ${fu?'fu':''}" data-gsel="${it.id}" style="border-color:${x19col(it.r)}"><span class="gic">${X19SL.find(z=>z[0]===it.sl)[1]}</span><span class="gnm" style="color:${x19col(it.r)}">${it.lk?'🔒 ':''}${X19R[it.r]} ${X19T[it.sl][it.typ][0]}</span><span class="gst">${it.st?('★'.repeat(it.st)):''}${eq?' · ON':''}</span></button>`}).join('')||'<p style="opacity:.7;padding:8px">'+(tab!=='all'?'No '+(X19SL.find(z=>z[0]===tab)||['','','gear'])[2]+' pieces yet.':'No gear yet. Bosses (every 5th wave) can drop a piece — guaranteed every 50th. Walk to the drawbridge to collect it.')+'</p>';
+ const tabs=`<div class="gtabs" role="tablist">${[['all','📦','All'],...X19SL.map(([sl,ic,nm])=>[sl,ic,short[sl]||nm])].map(([id,ic,nm])=>`<button class="gtab ${tab===id?'on':''} ${id!=='all'&&better[id]?'up':''}" data-gtab="${id}" role="tab"><span class="gtatic">${ic}</span><span class="gtatx">${nm}</span><span class="gtac">${counts[id]||0}</span>${id!=='all'&&better[id]?'<span class="gupdot">★</span>':''}</button>`).join('')}</div>`;
+ const items=x19sInv().map(it=>{const eq=g.eq[it.sl]===it.id,on=X19SEL===it.id,fu=X19FUSE.some(x=>x.id===it.id);const up=!eq&&x19isBetter(it);return`<button class="gcard ${on?'on':''} ${eq?'eq':''} ${fu?'fu':''} ${up?'up':''}" data-gsel="${it.id}" style="border-color:${x19col(it.r)}"><span class="gic">${X19SL.find(z=>z[0]===it.sl)[1]}</span><span class="gnm" style="color:${x19col(it.r)}">${it.lk?'🔒 ':''}${X19R[it.r]} ${X19T[it.sl][it.typ][0]}</span><span class="gst">${it.st?('★'.repeat(it.st)):''}${eq?' · ON':''}${up?' <span class="gupbadge">⬆️ ★</span>':''}</span></button>`}).join('')||'<p style="opacity:.7;padding:8px">'+(tab!=='all'?'No '+(X19SL.find(z=>z[0]===tab)||['','','gear'])[2]+' pieces yet.':'No gear yet. Bosses (every 5th wave) can drop a piece — guaranteed every 50th. Walk to the drawbridge to collect it.')+'</p>';
  let acts='';
- if(sel){const eqd=g.eq[sel.sl]===sel.id,c=x19starCost(sel),mx=(sel.st|0)>=8;acts=`<div class="gact">${x19line(sel)}<div class="grow">`+
+ if(sel){const eqd=g.eq[sel.sl]===sel.id,c=x19starCost(sel),mx=(sel.st|0)>=8;acts=`<div class="gact gcmpbox">${x19deltaHTML(sel)}<div class="grow">`+
   `<button class="whb ${eqd?'o':'g'}" data-geq="${sel.id}">${eqd?'⬇ Unequip':'⬆ Equip'}</button>`+
   `<button class="whb" data-glk="${sel.id}">${sel.lk?'🔓 Unlock':'🔒 Lock'}</button>`+
   `<button class="whb g" data-gup="${sel.id}" ${mx?'disabled':''}>${mx?'MAX ★':'★ Star 💎'+fN(c.g)+' + scrap '+c.sc}</button>`+
   `<button class="whb n" data-gsal="${sel.id}" ${sel.lk||eqd?'disabled':''}>Salvage 🛸${x19salvPts(sel)}</button></div></div>`}
  if(X19MODE==='fuse'){const ok=X19FUSE.length===3&&x19canFuse(X19FUSE[0],X19FUSE[1],X19FUSE[2]);acts=`<div class="gact"><b>Fuse</b> — pick 3 same-slot, same-rarity pieces (not Cosmic). Result is one tier higher; you keep one substat.<br><small>Selected: ${X19FUSE.length}/3</small>`+(ok?`<div class="grow"><button class="whb g" data-gfuse="go">Fuse to ${X19R[X19FUSE[0].r+1]}</button></div>`:'')+`<div class="grow"><button class="whb" data-gfuse="x">Cancel</button></div></div>`}
  if(X19PICK){const subs=x19fuseSubs(X19PICK.a,X19PICK.b,X19PICK.c);acts=`<div class="gact"><b>Keep one substat</b> for the new ${X19R[X19PICK.a.r+1]} piece:`+subs.map((z,i)=>`<button class="whb g" data-gkeep="${i}" style="display:block;width:100%;margin:4px 0;text-align:left">+${(z.s[1]*100).toFixed(1)}% ${z.lab}</button>`).join('')+`<button class="whb" data-gkeep="none">Reroll all substats</button></div>`}
- UI.innerHTML=`<div class="pn gpn"><h1>🛡️ King Gear</h1><div style="position:sticky;top:-18px;z-index:6;margin:0 -16px 6px;padding:8px 8px 6px;background:linear-gradient(#1a212b,#0e1218);border-bottom:2px solid #5fd4ff;display:flex;align-items:center;gap:8px;flex-wrap:wrap"><div class="gem">💎 ${fN(meta.gems)}</div><div class="gem" style="color:#b8f0ff">⚙️ Scrap ${fN(g.scrap)}</div><div class="gem" style="color:#ffb74d">📦 ${g.inv.length}/80</div><button class="xb" data-gback="1" aria-label="Close">✕</button></div>
- <div class="gstage"><canvas class="glines"></canvas><canvas class="gking" width="280" height="340"></canvas>${X19SL.map(([sl,ic,nm])=>`<button class="gslot" data-gslot="${sl}" data-gpart="${sl}"><b>${ic} ${nm}</b><small>${g.eq[sl]?x19sn(x19eq(sl)):'Empty'}</small></button>`).join('')}</div>
- <div class="grow" style="margin:4px 0"><button class="whb ${X19MODE==='fuse'?'g':''}" data-gfuse="on"> Fuse 3 → next rarity</button></div>
- ${tabs}${sortB}<div class="ginv">${items}</div>${acts}</div>`;
+ UI.innerHTML=`<div class="pn gpn"><h1>🛡️ King Gear</h1><div style="position:sticky;top:-18px;z-index:6;margin:0 -16px 6px;padding:8px 8px 6px;background:linear-gradient(#1a212b,#0e1218);border-bottom:2px solid #5fd4ff;display:flex;align-items:center;gap:8px;flex-wrap:wrap"><div class="gem">💎 ${fN(meta.gems)}</div><div class="gem" style="color:#b8f0ff">⚙️ Scrap ${fN(g.scrap)}</div><div class="gem" style="color:#ffb74d">📦 ${g.inv.length}/80</div><button class="gauto ${x19autoOn()?'on':''}" data-gauto="1" type="button" aria-pressed="${x19autoOn()?'true':'false'}">${x19autoOn()?'☑':'☐'} Auto-merge</button><button class="xb" data-gback="1" aria-label="Close">✕</button></div>
+ <div class="gstage"><canvas class="glines"></canvas><canvas class="gking" width="280" height="340"></canvas>${X19SL.map(([sl,ic,nm])=>`<button class="gslot ${better[sl]?'up':''}" data-gslot="${sl}" data-gpart="${sl}"><b>${ic} ${nm}${better[sl]?'<span class="gupdot">★</span>':''}</b><small>${g.eq[sl]?x19sn(x19eq(sl)):'Empty'}</small></button>`).join('')}</div>
+ ${acts}<div class="grow gfusebar" style="margin:4px 0"><button class="whb ${X19MODE==='fuse'?'g':''}" data-gfuse="on"> Fuse 3 → next rarity</button></div>
+ <div class="glist">${tabs}${sortB}<div class="ginv">${items}</div></div></div>`;
  x19layout();x19preview();UI.style.display='flex';try{if(!window._x19rz){window._x19rz=1;addEventListener('resize',()=>{try{if(UI.querySelector('.gstage'))x19layout()}catch(e){}})}}catch(e){}}
 function x19kingBox(W,H){return x19fit(W,H,0,6).sil}
 function x19bodyPts(W,H,f){return x19fit(W,H,f||0,6).body}
@@ -5337,14 +5368,15 @@ function x19preview(){const cv=UI.querySelector('.gking'),stg=UI.querySelector('
     }catch(e){console.error(e)}
     requestAnimationFrame(loop)};loop()}
 
-function x19pauseBtn(){return `<button class="b" data-id="gear" style="background:linear-gradient(#3a6ad9,#1a2a80);border-color:#b8d4ff;box-shadow:0 0 12px #4a80ff66,0 4px 0 #0a1a40">🛡️ King Gear</button>`}
+function x19pauseBtn(){let hint='';try{if(Object.keys(x19betterSlots()).length)hint=' <span class="guphint">⬆️</span>'}catch(e){}return `<button class="b" data-id="gear" style="background:linear-gradient(#3a6ad9,#1a2a80);border-color:#b8d4ff;box-shadow:0 0 12px #4a80ff66,0 4px 0 #0a1a40">🛡️ King Gear${hint}</button>`}
 
 // event delegation
-UI.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;if(!(d.gback||d.gsel||d.geq||d.glk||d.gup||d.gsal||d.gsort||d.gdir||d.gfuse||d.gkeep||d.gslot||d.gtab||d.id==='gear'))return;
+UI.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;if(!(d.gback||d.gsel||d.geq||d.glk||d.gup||d.gsal||d.gsort||d.gdir||d.gfuse||d.gkeep||d.gslot||d.gtab||d.gauto||d.id==='gear'))return;
  if(d.id==='gear'){e.stopPropagation();try{Snd.init();Snd.ui()}catch(x){}x19open(state==='pause'?'pause':state==='play'?'play':'menu');return}
- if(!d.gback&&!d.gsel&&!d.geq&&!d.glk&&!d.gup&&!d.gsal&&!d.gsort&&!d.gdir&&!d.gfuse&&!d.gkeep&&!d.gslot&&!d.gtab)return;
+ if(!d.gback&&!d.gsel&&!d.geq&&!d.glk&&!d.gup&&!d.gsal&&!d.gsort&&!d.gdir&&!d.gfuse&&!d.gkeep&&!d.gslot&&!d.gtab&&!d.gauto)return;
  e.stopPropagation();try{Snd.init();Snd.ui()}catch(x){}
  if(d.gback){x19back();return}
+ if(d.gauto){x19autoSet(!x19autoOn());if(x19autoOn())try{x19autoMerge()}catch(e){}x19draw();return}
  if(d.gtab){X19SO.tab=d.gtab;X19SEL=null;x19saveSO();x19draw();return}
  if(d.gsort){X19SO.k=d.gsort;x19saveSO();x19draw();return}
  if(d.gdir){X19SO.d=-X19SO.d;x19saveSO();x19draw();return}
@@ -5361,7 +5393,7 @@ UI.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
 },true);
 
 // CSS
-try{const st=document.createElement('style');st.textContent=`.gpn{padding-bottom:16px}.gstage{position:relative;height:420px;margin:4px 0 8px;background:radial-gradient(ellipse at 50% 58%,#1a2a44 0%,#0a0e16 72%);border:2px solid #35506a;border-radius:14px;overflow:hidden}.glines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}.gking{display:block;position:absolute;inset:0;width:100%;height:100%;max-width:none;pointer-events:none;z-index:0}.gslot{position:absolute;width:80px;max-width:24%;padding:4px 5px;border-radius:10px;border:1.5px solid #5fd4ff;background:rgba(8,14,24,.94);color:#eef3fb;font:700 10px/1.15 var(--f),serif;text-align:left;z-index:2;box-shadow:0 2px 8px #0008}.gslot b{display:block;font-size:12px}.gslot small{display:block;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gtabs{display:flex;gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:6px 0 4px;margin:4px 0;scrollbar-width:none;position:sticky;top:42px;z-index:5;background:linear-gradient(#0e1218 70%,#0e121800)}.gtabs::-webkit-scrollbar{display:none}.gtab{flex:0 0 auto;display:flex;align-items:center;gap:4px;min-height:40px;padding:6px 10px;border-radius:11px;border:1.5px solid #35506a;background:#121820;color:#eef3fb;font:800 11px/1 var(--f),serif}.gtab.on{border-color:#5fd4ff;background:#16324a;box-shadow:0 0 8px #5fd4ff55}.gtatic{font-size:15px}.gtac{min-width:16px;padding:1px 6px;border-radius:8px;background:#0006;font-size:10px}.ginv{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0}.gcard{display:flex;flex-direction:column;align-items:flex-start;padding:7px 8px;border-radius:10px;border:1.5px solid #35506a;background:#121820;color:#eef3fb;text-align:left}.gcard.on{outline:2px solid #ffe08a}.gcard.eq{background:#16301c}.gcard.fu{background:#2a2040}.gic{font-size:16px}.gnm{font:800 12px/1.2 var(--f),serif}.gst{font-size:11px;color:#ffe08a}.gact{margin:8px 0;padding:8px;border:1.5px solid #5fd4ff;border-radius:10px;background:#0c1220;font-size:13px;line-height:1.35}.grow{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.grow .whb{flex:1 1 120px}`;document.head.appendChild(st)}catch(e){}
+try{const st=document.createElement('style');st.textContent=`.gpn{padding-bottom:16px}.gstage{position:relative;height:420px;margin:4px 0 8px;background:radial-gradient(ellipse at 50% 58%,#1a2a44 0%,#0a0e16 72%);border:2px solid #35506a;border-radius:14px;overflow:hidden}.glines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}.gking{display:block;position:absolute;inset:0;width:100%;height:100%;max-width:none;pointer-events:none;z-index:0}.gslot{position:absolute;width:80px;max-width:24%;padding:4px 5px;border-radius:10px;border:1.5px solid #5fd4ff;background:rgba(8,14,24,.94);color:#eef3fb;font:700 10px/1.15 var(--f),serif;text-align:left;z-index:2;box-shadow:0 2px 8px #0008}.gslot b{display:block;font-size:12px}.gslot small{display:block;opacity:.9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gtabs{display:flex;gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:6px 0 4px;margin:4px 0;scrollbar-width:none;position:sticky;top:42px;z-index:5;background:linear-gradient(#0e1218 70%,#0e121800)}.gtabs::-webkit-scrollbar{display:none}.gtab{flex:0 0 auto;display:flex;align-items:center;gap:4px;min-height:40px;padding:6px 10px;border-radius:11px;border:1.5px solid #35506a;background:#121820;color:#eef3fb;font:800 11px/1 var(--f),serif}.gtab.on{border-color:#5fd4ff;background:#16324a;box-shadow:0 0 8px #5fd4ff55}.gtatic{font-size:15px}.gtac{min-width:16px;padding:1px 6px;border-radius:8px;background:#0006;font-size:10px}.ginv{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0}.gcard{display:flex;flex-direction:column;align-items:flex-start;padding:7px 8px;border-radius:10px;border:1.5px solid #35506a;background:#121820;color:#eef3fb;text-align:left}.pn.gpn{display:flex;flex-direction:column;max-height:94vh;overflow:hidden;overscroll-behavior:contain}.gpn .gstage{height:230px;flex:0 0 auto}.glist{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y}.gpn .sortbar{display:flex;flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;gap:4px;margin:4px 0;padding-bottom:2px;-webkit-overflow-scrolling:touch}.gact.gcmpbox,.gfusebar{flex:0 0 auto}.gcard.on{outline:2px solid #ffe08a}.gcard.eq{background:#16301c}.gcard.fu{background:#2a2040}.gcard.up{box-shadow:0 0 10px #ffe08a88}.gic{font-size:16px}.gnm{font:800 12px/1.2 var(--f),serif}.gst{font-size:11px;color:#ffe08a}.gact{margin:6px 0;padding:7px 8px;border:1.5px solid #5fd4ff;border-radius:10px;background:#0c1220;font-size:12px;line-height:1.3;max-height:none}.gact.gcmpbox{display:flex;flex-direction:column;gap:4px}.gact.gcmpbox .gcmp{overflow-y:auto;max-height:14vh;-webkit-overflow-scrolling:touch}.gact.gcmpbox .grow{flex:0 0 auto}.gcmp .gcmph{font-size:10px;letter-spacing:.08em;opacity:.7;text-transform:uppercase;margin-bottom:2px}.gcmprow{display:grid;grid-template-columns:1fr 1fr;gap:8px}.gcmd{margin-top:6px;font:800 11px/1.35 var(--f),serif}.gupbadge{display:inline-block;margin-left:4px;padding:0 5px;border-radius:7px;background:#ffe08a;color:#1a1200;font-size:10px;box-shadow:0 0 8px #ffe08a}.gupdot{display:inline-block;margin-left:4px;color:#ffe08a;text-shadow:0 0 8px #ffe08a;font-size:11px}.gslot.up{box-shadow:0 0 10px #ffe08a99}.gtab.up{box-shadow:0 0 8px #ffe08a88}.gauto{flex:0 0 auto;min-height:36px;padding:6px 10px;border-radius:11px;border:1.5px solid #35506a;background:#121820;color:#eef3fb;font:800 11px/1 var(--f),serif}.gauto.on{border-color:#69f0ae;background:#16301c;color:#b9f6ca}.gmerge{position:fixed;left:50%;top:12%;transform:translateX(-50%);z-index:400;width:min(360px,calc(100vw - 24px));padding:12px 14px 10px;border-radius:14px;background:rgba(10,16,28,.96);border:2px solid #ffe08a;box-shadow:0 8px 28px #000c,0 0 18px #ffe08a55;color:#eef3fb;font:800 15px/1.35 var(--f),serif;text-align:left;pointer-events:auto}.gmergeh{color:#ffe08a;font-size:13px;letter-spacing:.12em;margin-bottom:6px}.gmergerow{margin:3px 0;font-size:14px}.guphint{display:inline-block;margin-left:6px;padding:0 6px;border-radius:8px;background:#ffe08a;color:#1a1200;font-size:12px;box-shadow:0 0 8px #ffe08a}.grow{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}.grow .whb{flex:1 1 120px}`;document.head.appendChild(st)}catch(e){}
 
 if(!window._x19sig){window._x19sig=1;x19sigWrap();}
 
