@@ -86,7 +86,7 @@ table{color:#c7d3df}td:last-child{color:#bff1ff}
 </style></head><body>
 <canvas id="c"></canvas><div id="ui"></div>
 <script>
-const SKVER='v1.19.2';
+const SKVER='v1.19.3';
 const LSP='sbm_',LS={getItem:k=>localStorage.getItem(LSP+k),setItem:(k,v)=>localStorage.setItem(LSP+k,v),removeItem:k=>localStorage.removeItem(LSP+k),keys:()=>Object.keys(localStorage).filter(k=>k.startsWith(LSP)).map(k=>k.slice(LSP.length)),clear:()=>LS.keys().forEach(k=>localStorage.removeItem(LSP+k))};
 
 const C=document.getElementById('c');let X=C.getContext('2d');const UI=document.getElementById('ui');
@@ -5369,7 +5369,7 @@ if(!window._x19sig){window._x19sig=1;x19sigWrap();}
 // ===== v1.19 King Gear hooks =====
 {const _k=xKC;xKC=function(B){return _k(B)*(typeof x19g==='function'?x19g('gold'):1)}}
 {const _s=whShard;whShard=function(w){return Math.max(1,Math.round(_s(w)*(typeof x19g==='function'?x19g('shard'):1)))}}
-{const _p=PGat;PGat=function(){return Math.max(0,Math.round(_p()*(typeof x19g==='function'?x19g('artp'):1)))}}
+{const _p=PGat;PGat=function(){const v=_p();try{const seen=(meta&&meta.art&&meta.art.seen)||0,mul=(typeof x19g==='function'?x19g('artp'):1)||1,bonus=v-seen;if(bonus>0&&mul!==1)return seen+Math.max(0,Math.round(bonus*mul))}catch(e){}return Math.max(0,v)}}
 {const _g=gmDmg;gmDmg=function(){return _g()*(typeof x19g==='function'?x19g('psi'):1)}}
 {const _h=x18hCd;x18hCd=function(){const c=_h();try{const g=typeof x19g==='function'?x19g('hCd'):1;return Math.min(.5,1-(1-Math.min(.49,c))/g)}catch(e){return c}}}
 {const _hp=kHpSync;kHpSync=function(){_hp();try{x19hpSync()}catch(e){}}}
