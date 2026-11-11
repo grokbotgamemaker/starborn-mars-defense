@@ -86,7 +86,7 @@ table{color:#c7d3df}td:last-child{color:#bff1ff}
 </style></head><body>
 <canvas id="c"></canvas><div id="ui"></div>
 <script>
-const SKVER='v1.21';
+const SKVER='v1.21.1';
 const LSP='sbm_',LS={getItem:k=>localStorage.getItem(LSP+k),setItem:(k,v)=>localStorage.setItem(LSP+k,v),removeItem:k=>localStorage.removeItem(LSP+k),keys:()=>Object.keys(localStorage).filter(k=>k.startsWith(LSP)).map(k=>k.slice(LSP.length)),clear:()=>LS.keys().forEach(k=>localStorage.removeItem(LSP+k))};
 
 const C=document.getElementById('c');let X=C.getContext('2d');const UI=document.getElementById('ui');
@@ -124,7 +124,7 @@ const ARM=[['sg','💰','Seed Funding',l=>'+'+(l*5)+' starting credits, +'+(l*.5
 ['gDmg','🚪','Psion Conductors',l=>'Blast Door / Psion damage +'+(l*.4).toFixed(1)+'%',1000,11],
 ['bbCr','🏆','Trophy Claim',l=>'Credits from bosses +'+(l*.4).toFixed(1)+'%',1000,13],
 ['brkS','⏳','Rift Scheduling',l=>'Wave-break duration −'+(Math.min(40,l*.5)).toFixed(1)+'%',80,18]];
-const RCAP=9,ARMD=l=>(1+.125*l)*Math.pow(1.01,l),ICAPB=(w,l)=>Math.round((200+80*Math.min(w,150)+38*Math.max(0,w-150))*(1+l*.1)),ICAP=w=>Math.round(ICAPB(w,ml('vault'))*(typeof x19g==='function'?x19g('bank'):1));
+const RCAP=9,ARMD=l=>(1+.125*l)*Math.pow(1.01,l),ICAPB=(w,l)=>Math.round((200+80*Math.min(w,150)+38*Math.max(0,w-150))*(1+l*.1)),ICAP=w=>Math.round(ICAPB(w,ml('vault'))*(typeof x1211gfMul==='function'?x1211gfMul('bank'):1));
 
 let meta;function loadMeta(){try{meta=JSON.parse(LS.getItem(SK('kaMeta')))}catch(e){}if(!meta||typeof meta!=='object')meta={gems:0,up:{}};meta.up=meta.up||{};if(!meta.v13){const bl=meta.up.bank||0;let r=0;for(let l=0;l<bl;l++)r+=Math.round(10*Math.pow(l+1,1.3)+l*l*.15);delete meta.up.bank;meta.v13=1;if(r){meta.gems+=r;meta.refund=(meta.refund||0)+r}LS.setItem(SK('kaMeta'),JSON.stringify(meta))}
 if(!meta.v7){let r=0;const st0=meta.up.st||0;for(let l=0;l<st0;l++)r+=Math.round(40*Math.pow(l+1,1.6));delete meta.up.st;if(meta.up.ea)meta.up.ea=Math.min(100,meta.up.ea*25);meta.v7=1;if(r){meta.gems+=r;meta.refund=(meta.refund||0)+r}saveMeta()}if(meta.up.ea){let r=0;for(let l=0;l<meta.up.ea;l++)r+=Math.round(12*Math.pow(l+1,1.3)+l*l*.15);delete meta.up.ea;meta.gems+=r;meta.tqR=(meta.tqR||0)+r;saveMeta()}if(meta.up.hs){let r=0;for(let l=0;l<meta.up.hs;l++)r+=Math.round(20*Math.pow(l+1,1.6));meta.gems+=r;delete meta.up.hs;meta.refund=(meta.refund||0)+r;saveMeta()}return meta}
@@ -1068,7 +1068,7 @@ const hg=(1+AV.hG[aS('hoard')])*(e.gmK&&!B&&trN('gate','mcoin')?1.5:1),val=(B?(1
 s.dead=s.dead.filter(d=>(d.t+=dt)<.7);
 if((s.mgT=(s.mgT||0)-dt)<=0&&s.coins.length>1){s.mgT=.5;const rad=s.coins.length>150?70:s.coins.length>60?48:s.coins.length>12?32:8,rs=s.coins.filter(c=>c.z===0&&Math.abs(c.vx)+Math.abs(c.vy)<3);for(let i=0;i<rs.length;i++){const a=rs[i];if(a.dead)continue;for(let j=i+1;j<rs.length;j++){const b=rs[j];if(b.dead||(a.y>WALLY)!==(b.y>WALLY))continue;if(!!a.zn!==!!b.zn||(a.y<trenchY1()+3)!==(b.y<trenchY1()+3))continue;const rr=a.zn&&b.zn?9:rad;if(Math.abs(a.x-b.x)<rr&&Math.abs(a.y-b.y)<rr){if(b.y>a.y){a.x=b.x;a.y=b.y}if(b.zn){a.zn=1;a.zx=b.zx;a.zy=b.zy}a.v+=b.v;a.sq=1;b.dead=1}}}s.coins=s.coins.filter(c=>!c.dead)}
 s.coins=s.coins.filter(c=>{c.f+=dt*14;c.vz-=220*dt;c.z+=c.vz*dt;if(c.z<0){c.z=0;c.sq=Math.min(1,Math.abs(c.vz)/60);c.vz*=-.45;c.vx*=.55;c.vy*=.55;if(Math.abs(c.vz)<12&&!c.tk){c.tk=1;for(let it=0;it<4;it++){let mv=0;for(const t of trees){const rr=14*t.s,dx=c.x-t.x,dy=c.y-(t.y-6*t.s),d=Math.hypot(dx,dy);if(d<rr){const f=(rr-d+1)/(d||1);c.x+=dx*f;c.y+=dy*f;mv=1}}if(!mv)break}}}c.x+=c.vx*dt;c.y+=c.vy*dt;wallClamp(c,2,c.y>WALLY,true);if(c.z===0&&c.y<JUNC[1]-4&&c.y<WALLY){let bd=1e9,br=0,bi=0;for(let r=0;r<3;r++){const U=UPP[r];for(let i=0;i<U.length;i+=2){const dx=U[i][0]-c.x,dy=U[i][1]-c.y,d=dx*dx+dy*dy;if(d<bd){bd=d;br=r;bi=i}}}const U=UPP[br],tg=Math.sqrt(bd)>7?U[bi]:U[Math.min(U.length-1,bi+4)],dx=tg[0]-c.x,dy=tg[1]-c.y,dd=Math.hypot(dx,dy);if(dd>.3){const sp3=Math.min(dd,(s.raid?11:COIN_V*.85)*dt);c.x+=dx/dd*sp3;c.y+=dy/dd*sp3}}else if(!s.raid&&c.z===0&&c.y<WALLY)coinDrift(c,dt);
-const d=dist(c.x,c.y,k.x,k.y);if(c.z<3&&(d<st.mag*(typeof x19g==='function'?x19g('mag'):1)&&(c.y>WALLY)===(k.y>WALLY)||c.zn&&!s.raid&&k.y<WALLY&&d<Math.max(st.mag*(typeof x19g==='function'?x19g('mag'):1),COIN_BR))){c.pull=.2;c.x+=(k.x-c.x)/d*240*dt;c.y+=(k.y-c.y)/d*240*dt}
+const d=dist(c.x,c.y,k.x,k.y);if(c.z<3&&(d<st.mag*(typeof x1211gfMul==='function'?x1211gfMul('mag'):1)&&(c.y>WALLY)===(k.y>WALLY)||c.zn&&!s.raid&&k.y<WALLY&&d<Math.max(st.mag*(typeof x1211gfMul==='function'?x1211gfMul('mag'):1),COIN_BR))){c.pull=.2;c.x+=(k.x-c.x)/d*240*dt;c.y+=(k.y-c.y)/d*240*dt}
 if(d<9){s.gold+=c.v;if(!s.raid)s.bkE=(s.bkE||0)+c.v;num(k.x,k.y-30,'+'+fN(c.v),'#ffe066',7);Snd.sfx('coin');stars(c.x,c.y-3,4,35);ring(c.x,c.y-3,'#ffd25e',7);s.hud.push({x:(c.x-s.cam.x)*Z+W/2,y:(c.y-s.cam.y)*Z*TILT+H/2,t:0});return false}return true});
 s.hud=s.hud.filter(h=>(h.t+=dt*2.2)<1);
 s.pt=s.pt.filter(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.95;p.vy=p.vy*.95+(p.g||0)*dt;if(p.grow)p.s+=p.grow*dt;return(p.l-=dt)>0});
@@ -5202,7 +5202,7 @@ const X19R=['Common','Uncommon','Rare','Epic','Legendary','Mythic'],
  },
  X19SUB=[]; // v1.21: substats removed (gear is pure %, see X121ROLE)
 const X19SUB_OLD=[['kDmg','King damage',.012],['kRate','Fire rate',.008],['kCC','Crit chance',.006],['kCD','Crit damage',.018],['kRng','Attack range',.01],['kHP','King HP',.015],['kReg','King regen',.02],['bArm','Boss armor',.01],['spd','Move speed',.01],['mag','Pickup radius',.015],['dash','Dash power',.012],['hCd','Hero cooldown',.006],['aura','Aura amp',.01],['psi','Psion damage',.012],['splash','Bolt splash',.01],['bank','Bank interest cap',.02],['gold','Kill credits',.012],['shard','Shard find',.015],['artp','Artifact points',.012]];
-function x19gear(){if(!meta)return{inv:[],eq:{bl:null,hm:null,su:null,jp:null,ga:null},scrap:0};const g=meta.gear=meta.gear&&typeof meta.gear==='object'?meta.gear:{};g.inv=Array.isArray(g.inv)?g.inv:[];g.eq=g.eq&&typeof g.eq==='object'?g.eq:{};for(const[s]of (typeof x19SLall==='function'?x19SLall():X19SL))if(g.eq[s]==null)g.eq[s]=null;if(typeof g.scrap!=='number'||!isFinite(g.scrap))g.scrap=0;if(g.v!==121)x121mig(g);return g}
+function x19gear(){if(!meta)return{inv:[],eq:{bl:null,hm:null,su:null,jp:null,ga:null},scrap:0};const g=meta.gear=meta.gear&&typeof meta.gear==='object'?meta.gear:{};g.inv=Array.isArray(g.inv)?g.inv:[];g.eq=g.eq&&typeof g.eq==='object'?g.eq:{};for(const[s]of (typeof x19SLall==='function'?x19SLall():X19SL))if(g.eq[s]==null)g.eq[s]=null;if(typeof g.scrap!=='number'||!isFinite(g.scrap))g.scrap=0;if(g.v!==121)x121mig(g);if(meta&&!meta.gf121&&typeof x1211gfEnsure==='function')x1211gfEnsure(g);return g}
 // ---- v1.21 endless rarity ladder (Steve's spec). Tier index t: 0..5 = Common..Mythic, 6..11 = Common★..Mythic★, 12.. = ★★, forever.
 // Every stat on a piece = x121V(t) %. Rates per step: base 5, 1★ 4, 2★ 3, 3★ 2, 4★+ 1 (forever).
 // Each star cycle is worth exactly 6 steps (Legendary -> next Legendary = 6 x rate), which is what Steve's examples encode
@@ -5229,7 +5229,7 @@ function x121totHTML(){try{const parts=[];for(const k of X19KS){const v=x121sum(
   let h=parts.length?'Gear: '+parts.join(' · '):'Gear: no bonuses yet';const def=x121sum('def')*100;
   if(def>0)h+='<small>Defense: damage taken ×100/(100+Def) → −'+x121fmt(100-100*100/(100+def))+'% (never immunity)</small>';
   const ov=x121ccOver();h+='<small>Crit Chance over 100% powers super-crits; anything past '+((typeof CRMAX==='number'?CRMAX:7)*100)+'% converts 1:1 into Crit Damage'+(ov>0?' (now +'+x121fmt(ov*100)+'% CD)':'')+', so it is never wasted.</small>';
-  if(x121sum('spd')>X121MSCAP)h+='<small>Move Speed from gear is limited to +'+(X121MSCAP*100)+'% (movement only).</small>';return h}catch(e){return''}}
+  if(x121sum('spd')>X121MSCAP)h+='<small>Move Speed from gear is limited to +'+(X121MSCAP*100)+'% (movement only).</small>';try{const lg=x1211legacyTxt();if(lg)h+='<small class="glegacy">'+lg+'</small>'}catch(e){}return h}catch(e){return''}}
 // ---- save migration (v1.20.x gear -> v1.21). Old power: v1.19 main stat + substats at rarity/star multipliers.
 // New tier = lowest tier at or above (a) the rarity-name floor, (b) every old stat that survives in this slot's role,
 // (c) the old total % budget spread over the piece's 2 stats. Nothing is lost.
@@ -5241,7 +5241,7 @@ function x121migT(it){const r=Math.max(0,Math.min(5,it.r|0)),{o,tot}=x121oldStat
   for(const k in o){const nk=X121OLDMAP[k];if(nk&&R.indexOf(nk)>=0)need=Math.max(need,o[k]*100)}
   let t=X121RFLOOR[r];while(x121V(t)<need-1e-9&&t<1e6)t++;return t}
 function x121migIt(it){const r=Math.max(0,Math.min(5,it.r|0)),stt=Math.max(0,Math.min(8,it.st|0));const sp0=Math.max(1,Math.round([2,6,16,40,90,200][r]*(1+.15*stt)));const t=x121migT(it);it.o121={r,st:stt};it.sp0=sp0;if(!X19T[it.sl])it.sl='bl';it.typ=Math.max(0,Math.min(2,it.typ|0));x121setT(it,t);return it}
-function x121mig(g){if(!g||g.v===121)return g;let n=0;try{
+function x121mig(g){if(!g||g.v===121)return g;let n=0;try{if(meta&&!meta.gf121&&typeof x1211gfCalc==='function')meta.gf121=x1211gfCalc(g,'v1206');
   // Artifact-points substat: freeze what it was adding right now so nothing is clawed back
   let ap=0;for(const sl in (g.eq||{})){const id=g.eq[sl];const it=id&&g.inv.find(x=>x&&x.id===id);if(it&&typeof it.t!=='number'){const q=x121oldStats(it);ap+=q.o.artp||0}}
   if(ap>0&&meta){meta.art=meta.art||{a:{},seen:0};meta.art.ap121=(meta.art.ap121||0)+ap}
@@ -5292,7 +5292,7 @@ function x19autoMerge(silent){if(!x19autoOn())return[];const out=[];let guard=0;
   out.push({a:trip[0],out:got,ic:((typeof x19SLall==='function'?x19SLall():X19SL).find(z=>z[0]===got.sl)||['','⭐'])[1]})}
  if(out.length&&!silent)x19mergeBanner(out);return out}
 function x19mergeBanner(rows){try{document.querySelectorAll('.gmerge').forEach(e=>e.remove());const d=document.createElement('div');d.className='gmerge';d.setAttribute('role','status');
- d.innerHTML='<div class="gmergeh">AUTO-MERGE!</div>'+rows.map(r=>{const a=r.a,o=r.out,ic=r.ic||'⭐';return'<div class="gmergerow">'+ic+' 3× <span style="color:'+x19col(a.r)+'">'+x121tn(x121t(a))+'</span> → <span style="color:'+x19col(o.r)+'">'+x121tn(x121t(o))+' '+X19T[o.sl][o.typ][0]+'</span></div>'}).join('');
+ d.innerHTML='<div class="gmergeh">AUTO-MERGE!</div>'+rows.map(r=>{const a=r.a,o=r.out,ic=r.ic||'⭐';return'<div class="gmergerow">'+ic+' 3× <span style="color:'+x19col(a.r)+'">'+x121tn(x121t(a))+'</span> → <span style="color:'+x19col(o.r)+'">'+x121tn(x121t(o))+' '+X19T[o.sl][o.typ][0]+'</span>'+(x121t(o)%6===0?' <b style="color:#ff6bff">★ NEW STAR CYCLE</b>':'')+'</div>'}).join('');
  document.body.appendChild(d);
  const gone=()=>{if(d.parentNode)d.remove();clearTimeout(d._t)};d.addEventListener('click',gone,{once:true});d._t=setTimeout(gone,2500)}catch(e){}}
 const X19KS=['kDmg','kHP','def','kCC','kCD','spd','kRate'];
@@ -5450,17 +5450,17 @@ function x19draw(){loadMeta();const g=x19gear(),sel=X19SEL?x19it(X19SEL):null,be
  const tab=x19tab();
  const short={all:'All',bl:'Blaster',mw:'Melee',fc:'Focus',hm:'Helmet',su:'Spacesuit',jp:'Jet Pack',ga:'Gauntlet'};
  const tabs=`<div class="gtabs" role="tablist">${[['all','📦','All'],...(typeof x19SLnow==='function'?x19SLnow():X19SL).map(([sl,ic,nm])=>[sl,ic,short[sl]||nm])].map(([id,ic,nm])=>`<button class="gtab ${tab===id?'on':''} ${id!=='all'&&better[id]?'up':''}" data-gtab="${id}" role="tab"><span class="gtatic">${ic}</span><span class="gtatx">${nm}</span><span class="gtac">${counts[id]||0}</span>${id!=='all'&&better[id]?'<span class="gupdot">★</span>':''}</button>`).join('')}</div>`;
- const items=x19sInv().map(it=>{const eq=g.eq[it.sl]===it.id,on=X19SEL===it.id,fu=X19FUSE.some(x=>x.id===it.id);const up=!eq&&x19isBetter(it);return`<button class="gcard ${on?'on':''} ${eq?'eq':''} ${fu?'fu':''} ${up?'up':''}" data-gsel="${it.id}" style="border-color:${x19col(it.r)}"><span class="gic">${(typeof x19SLall==='function'?x19SLall():X19SL).find(z=>z[0]===it.sl)[1]}</span><span class="gnm" style="color:${x19col(it.r)}">${it.lk?'🔒 ':''}${x121tn(x121t(it))} ${X19T[it.sl][it.typ][0]}</span><span class="gst">+${x121fmt(x121V(x121t(it)))}% ${(X121ROLE[it.sl]||[]).map(k=>X121SH[k]).join('/')}${eq?' · ON':''}${up?' <span class="gupbadge">⬆️ ★</span>':''}</span></button>`}).join('')||'<p style="opacity:.7;padding:8px">'+(tab!=='all'?'No '+((typeof x19SLall==='function'?x19SLall():X19SL).find(z=>z[0]===tab)||['','','gear'])[2]+' pieces yet.':'No gear yet. Bosses (every 5th wave) can drop a piece — guaranteed every 50th. Walk to the drawbridge to collect it.')+'</p>';
+ const items=x19sInv().map(it=>{const eq=g.eq[it.sl]===it.id,on=X19SEL===it.id,fu=X19FUSE.some(x=>x.id===it.id);const up=!eq&&x19isBetter(it);return`<button class="gcard ${on?'on':''} ${(it.r|0)===5?'myth':''} ${eq?'eq':''} ${fu?'fu':''} ${up?'up':''}" data-gsel="${it.id}" style="border-color:${x19col(it.r)}"><span class="gic">${(typeof x19SLall==='function'?x19SLall():X19SL).find(z=>z[0]===it.sl)[1]}</span><span class="gnm ${(it.r|0)===5?'myth':''}" style="color:${x19col(it.r)}">${it.lk?'🔒 ':''}${x121tn(x121t(it))} ${X19T[it.sl][it.typ][0]}</span><span class="gst">+${x121fmt(x121V(x121t(it)))}% ${(X121ROLE[it.sl]||[]).map(k=>X121SH[k]).join('/')}${eq?' · ON':''}${up?' <span class="gupbadge">⬆️ ★</span>':''}</span></button>`}).join('')||'<p style="opacity:.7;padding:8px">'+(tab!=='all'?'No '+((typeof x19SLall==='function'?x19SLall():X19SL).find(z=>z[0]===tab)||['','','gear'])[2]+' pieces yet.':'No gear yet. Bosses (every 5th wave) can drop a piece — guaranteed every 50th. Walk to the drawbridge to collect it.')+'</p>';
  let acts='';
  if(sel){const eqd=g.eq[sel.sl]===sel.id,c=x19starCost(sel),mx=false;acts=`<div class="gact gcmpbox">${x19deltaHTML(sel)}<div class="grow">`+
   `<button class="whb ${eqd?'o':'g'}" data-geq="${sel.id}">${eqd?'⬇ Unequip':'⬆ Equip'}</button>`+
   `<button class="whb" data-glk="${sel.id}">${sel.lk?'🔓 Unlock':'🔒 Lock'}</button>`+
-  `<button class="whb g" data-gup="${sel.id}">⬆ ${x121tn(x121t(sel)+1)} 💎${fN(c.g)} + ⚙️${fN(c.sc)}</button>`+
+  `<button class="whb g" data-gup="${sel.id}">⬆ ${x121tn(x121t(sel)+1)} <small>(+${x121fmt(x121V(x121t(sel)+1)-x121V(x121t(sel)))}%)</small> 💎${fN(c.g)} + ⚙️${fN(c.sc)}</button>`+
   `<button class="whb n" data-gsal="${sel.id}" ${sel.lk||eqd?'disabled':''}>Salvage 🛸${x19salvPts(sel)}</button></div></div>`}
  if(X19MODE==='fuse'){const ok=X19FUSE.length===3&&x19canFuse(X19FUSE[0],X19FUSE[1],X19FUSE[2]);acts=`<div class="gact"><b>Fuse</b> — pick 3 same-slot pieces of the same tier. Result is the next tier up (endless, no cap).<br><small>Selected: ${X19FUSE.length}/3</small>`+(ok?`<div class="grow"><button class="whb g" data-gfuse="go">Fuse to ${x121tn(x121t(X19FUSE[0])+1)}</button></div>`:'')+`<div class="grow"><button class="whb" data-gfuse="x">Cancel</button></div></div>`}
  X19PICK=null;
  UI.innerHTML=`<div class="pn gpn"><h1>🛡️ King Gear</h1><div style="position:sticky;top:-18px;z-index:6;margin:0 -16px 6px;padding:8px 8px 6px;background:linear-gradient(#1a212b,#0e1218);border-bottom:2px solid #5fd4ff;display:flex;align-items:center;gap:8px;flex-wrap:wrap"><div class="gem">💎 ${fN(meta.gems)}</div><div class="gem" style="color:#b8f0ff">⚙️ Scrap ${fN(g.scrap)}</div><div class="gem" style="color:#ffb74d">📦 ${g.inv.length}/80</div><button class="gauto ${x19autoOn()?'on':''}" data-gauto="1" type="button" aria-pressed="${x19autoOn()?'true':'false'}">${x19autoOn()?'☑':'☐'} Auto-merge</button><button class="xb" data-gback="1" aria-label="Close">✕</button></div>
- <div class="gstage"><canvas class="glines"></canvas><canvas class="gking" width="280" height="340"></canvas>${(typeof x19SLnow==='function'?x19SLnow():X19SL).map(([sl,ic,nm])=>`<button class="gslot ${better[sl]?'up':''}" data-gslot="${sl}" data-gpart="${sl}"><b>${ic} ${nm}${better[sl]?'<span class="gupdot">★</span>':''}</b><small>${g.eq[sl]?x19sn(x19eq(sl)):'Empty'}</small></button>`).join('')}</div>
+ <div class="gstage"><canvas class="glines"></canvas><canvas class="gking" width="280" height="340"></canvas>${(typeof x19SLnow==='function'?x19SLnow():X19SL).map(([sl,ic,nm])=>`<button class="gslot ${better[sl]?'up':''} ${(x19eq(sl)&&(x19eq(sl).r|0)===5)?'myth':''}" data-gslot="${sl}" data-gpart="${sl}"><b>${ic} ${nm}${better[sl]?'<span class="gupdot">★</span>':''}</b><small>${g.eq[sl]?x19sn(x19eq(sl)):'Empty'}</small></button>`).join('')}</div>
  ${acts}<div class="grow gfusebar" style="margin:4px 0"><button class="whb ${X19MODE==='fuse'?'g':''}" data-gfuse="on"> Fuse 3 → next tier</button></div>${(!sel&&X19MODE!=='fuse')?'<div class="gtot">'+x121totHTML()+'</div>':''}
  <div class="glist">${tabs}${sortB}<div class="ginv">${items}</div></div></div>`;
  x19layout();x19preview();UI.style.display='flex';try{if(!window._x19rz){window._x19rz=1;addEventListener('resize',()=>{try{if(UI.querySelector('.gstage'))x19layout()}catch(e){}})}}catch(e){}}
@@ -5511,7 +5511,7 @@ function x19preview(){const cv=UI.querySelector('.gking'),stg=UI.querySelector('
       if(x19flash>0){g.save();g.globalCompositeOperation='lighter';g.fillStyle='rgba(255,230,140,'+(x19flash*.45)+')';g.beginPath();g.ellipse(fit.sil.x+fit.sil.w/2,fit.sil.y+fit.sil.h*.52,fit.sil.w*.42,fit.sil.h*.46,0,0,TAU);g.fill();g.restore();x19flash=Math.max(0,x19flash-.06)}
       const _S=M3.S;M3.S=function(th,ox,oy,sc){return _S(fit.th,fit.ox,fit.oy,SBK_SC*fit.scMul)};
       try{g.save();g.lineCap='round';g.lineJoin='round';artHeroV(g,f,fit.th);g.restore()}finally{M3.S=_S}
-      x19paintFit(g,fit,f);
+      x19paintFit(g,fit,f);try{x1211prevFX(g,fit)}catch(e){}
       const slots=(stg&&stg._x19slots)||x19slotBox(cssW,cssH,fit.sil,fit.body);
       x19drawLines(ln,cssW,cssH,fit,slots,dpr);
     }catch(e){console.error(e)}
@@ -5554,6 +5554,54 @@ if(!window._x19sig){window._x19sig=1;x19sigWrap();}
 {const _g=gmDmg;gmDmg=function(){return _g()*(typeof x19g==='function'?x19g('psi'):1)}}
 {const _h=x18hCd;x18hCd=function(){const c=_h();try{const g=typeof x19g==='function'?x19g('hCd'):1;return Math.min(.5,1-(1-Math.min(.49,c))/g)}catch(e){return c}}}
 {const _hp=kHpSync;kHpSync=function(){_hp();try{x19hpSync()}catch(e){}}}
+
+// ===== v1.21.1 gear polish =====
+// (1) Legacy bonus: pickup radius + bank interest cap that EQUIPPED gear gave at migration become a permanent account bonus
+//     (meta.gf121, saved in sbm_sN_kaMeta). Computed exactly once per slot; multiplies the same way the old gear did.
+//     v1.20.6 saves: exact (old substats still there). v1.21 saves: substats were already dropped, so we recover the main stat
+//     exactly and credit each lost substat at its highest possible roll (bounded by the piece's recorded power) -> never less than it had.
+function x1211gfCalc(g,src){let mag=0,bank=0,n=0;try{for(const sl in (g.eq||{})){const id=g.eq[sl];const it=id&&g.inv.find(x=>x&&x.id===id);if(!it)continue;
+  if(typeof it.t!=='number'){const q=x121oldStats(it).o;if(q.mag||q.bank)n++;mag+=q.mag||0;bank+=q.bank||0}
+  else if(it.o121){const r=Math.max(0,Math.min(5,it.o121.r|0)),s0=Math.max(0,Math.min(8,it.o121.st|0)),M=x19rmul(r)*x19smul(s0);const T=X19T[it.sl]&&X19T[it.sl][Math.max(0,Math.min(2,it.typ|0))];let main=0;
+   if(T&&T[2]){main=T[3]*M;if(T[2]==='mag')mag+=main}const sb=Math.max(0,2*x121V(it.t)/100-main);
+   const mM=T&&T[2]==='mag'?0:Math.min(.015*1.3*M,sb),bM=Math.min(.02*1.3*M,sb);mag+=mM;bank+=bM;if(mM||bM||main)n++}}}catch(e){console.error(e)}
+  return{mag:Math.round(mag*1e6)/1e6,bank:Math.round(bank*1e6)/1e6,src:(mag||bank)?src:'none',n,at:Date.now(),v:1}}
+function x1211gfMul(k){try{if(typeof st!=='undefined'&&st&&st.raid)return 1;const g=meta&&meta.gf121;return 1+Math.max(0,(g&&+g[k])||0)}catch(e){return 1}}
+function x1211gfEnsure(g){try{if(meta&&!meta.gf121){meta.gf121=x1211gfCalc(g,'v121');saveMeta()}}catch(e){}}
+function x1211legacyTxt(){const a=x1211gfMul('mag')-1,b=x1211gfMul('bank')-1;if(a<=0&&b<=0)return'';return'Legacy bonus kept from old gear (permanent): '+[a>0?'+'+x121fmt(a*100)+'% pickup radius':'',b>0?'+'+x121fmt(b*100)+'% bank interest cap':''].filter(Boolean).join(' · ')}
+try{for(const a of ARM){if(a[0]==='mg'||a[0]==='vault'){const f=a[3],k=a[0]==='mg'?'mag':'bank';a[3]=function(){let s=f.apply(this,arguments);try{const v=x1211gfMul(k)-1;if(v>0)s+=' · ×'+x121fmt(1+v)+' legacy gear bonus'}catch(e){}return s}}}}catch(e){}
+
+// (2) tier-up FX + original synth sounds (respect the SFX toggle)
+function x1211snd(big){try{const S=Snd;if(!S||!S.ctx||!S.cfg||!S.cfg.s||S.hold||S.ctx.state!=='running')return 0;const t=S.ctx.currentTime+.01,d=S.sg;
+  const notes=big?[523.25,659.25,783.99,1046.5,1318.5]:[587.33,739.99,880];notes.forEach((f,i)=>S.tone('triangle',f,t+i*(big?.075:.06),big?.34:.22,big?.11:.09,d,{a:.004}));
+  S.metal(t+notes.length*(big?.075:.06),big?2093:1760,big?.9:.5,big?.05:.035,d,[1,2.76,5.4]);if(big){S.noise(t,.5,.035,2400,d);S.tone('sine',261.63,t,.9,.08,d,{slide:523.25,a:.02})}return 1}catch(e){return 0}}
+let x1211fxQ=null,x1211fxN=0;
+let x1211sndT=0;function x1211tierFX(from,to,how){const big=to>0&&to%6===0;x1211fxN++;x19flash=1;const nw=performance.now();if(big||nw-x1211sndT>160){x1211sndT=nw;x1211snd(big)}try{if(big&&typeof buzz==='function')buzz([25,40,60])}catch(e){}
+  x1211fxQ={from,to,big,how,at:performance.now()};setTimeout(x1211fxShow,0);return big}
+function x1211fxShow(){const q=x1211fxQ;if(!q)return;x1211fxQ=null;try{const stg=UI&&UI.querySelector('.gstage');if(!stg)return;stg.querySelectorAll('.gtup').forEach(e=>e.remove());const d=document.createElement('div');d.className='gtup'+(q.big?' big':'');
+  let sh='';const n=q.big?16:8;for(let i=0;i<n;i++){const a=i/n*Math.PI*2,r=q.big?120:80;sh+='<i style="--dx:'+Math.round(Math.cos(a)*r)+'px;--dy:'+Math.round(Math.sin(a)*r)+'px;animation-delay:'+(i%4)*.03+'s"></i>'}
+  d.innerHTML='<div class="gtupf"></div>'+sh+'<div class="gtupt">'+(q.big?'★ NEW STAR CYCLE ★':(q.how==='fuse'?'FUSED!':'TIER UP!'))+'<small><span style="color:'+x19col(q.from%6)+'">'+x121tn(q.from)+'</span> → <span style="color:'+x19col(q.to%6)+'">'+x121tn(q.to)+'</span></small><small>+'+x121fmt(x121V(q.to)-x121V(q.from))+'% to every stat</small></div>';
+  stg.appendChild(d);setTimeout(()=>{if(d.parentNode)d.remove()},q.big?2600:1700)}catch(e){}}
+{const _u=x19starUp;x19starUp=function(it){const t0=it?x121t(it):0,r=_u(it);if(r)x1211tierFX(t0,x121t(it),'up');return r}}
+{const _f=x19fuseDo;x19fuseDo=function(a,b,c,keep){const t0=a?x121t(a):0,o=_f(a,b,c,keep);if(o)x1211tierFX(t0,x121t(o),'fuse');return o}}
+
+// (3) Mythic trim: sparkles around Mythic pieces (every star cycle) on the King, in the gear screen, and a light beam on Mythic drops
+function x1211spark(c,x,y,T,seed,sc){sc=sc||1;for(let i=0;i<3;i++){const a=T*(1.6+i*.35)+seed+i*2.09,rr=(7+3*Math.sin(T*2.1+i))*sc,px=x+Math.cos(a)*rr,py=y+Math.sin(a)*rr*.75,s=(1.6+1.1*Math.sin(T*5+i*1.7+seed))*sc;if(s<=.2)continue;
+  c.save();c.globalCompositeOperation='lighter';c.fillStyle='hsl('+((T*140+i*120+seed*40)%360)+',100%,72%)';c.shadowColor=c.fillStyle;c.shadowBlur=6*sc;c.beginPath();c.moveTo(px,py-s*2);c.lineTo(px+s*.5,py-s*.5);c.lineTo(px+s*2,py);c.lineTo(px+s*.5,py+s*.5);c.lineTo(px,py+s*2);c.lineTo(px-s*.5,py+s*.5);c.lineTo(px-s*2,py);c.lineTo(px-s*.5,py-s*.5);c.closePath();c.fill();c.restore()}}
+function x1211myth(){const o=[];try{for(const[sl]of x19SLnow()){const it=x19eq(sl);if(it&&(it.r|0)===5)o.push(sl)}}catch(e){}return o}
+function x1211prevFX(g,fit){const L=x1211myth();if(!L.length||!fit||!fit.body)return;const T=performance.now()/1000;L.forEach((sl,i)=>{const p=fit.body[sl]||fit.body.bl;if(p)x1211spark(g,p[0],p[1],T,i*1.3,1.15)})}
+{const _gl=x19gearLive;x19gearLive=function(k,ka){_gl(k,ka);try{const L=x1211myth();if(!L.length||!k)return;const T=performance.now()/1000,m=Math.min(1,Math.hypot(k.vx||0,k.vy||0)/80),hov=Math.sin(T*2.3)*(1-m)*1.1;const th=((ka==null?0:ka)/KANG)*Math.PI*2,f=((k.ph||0)/Math.PI/2*8)|0;
+  const A=x19anchors(f),S=M3.S(th,0,0,SBK_SC);X.save();X.translate(k.x,k.y+hov);X.rotate(k._tl||0);L.forEach((sl,i)=>{const a=A[sl];if(!a)return;const q=M3.P(S,a[0],a[1],a[2]);x1211spark(X,q[0],q[1],T,i*1.3,.55)});X.restore()}catch(e){}}}
+{const _ld=x19lootDraw;x19lootDraw=function(){_ld();try{const s=st;if(!s||!s.gLoot)return;const T=performance.now()/1000;for(const c of s.gLoot){if(!c.it||(c.it.r|0)!==5)continue;X.save();X.globalCompositeOperation='lighter';const h=(T*120)%360,gr=X.createLinearGradient(0,c.y-90,0,c.y);gr.addColorStop(0,'hsla('+h+',100%,70%,0)');gr.addColorStop(1,'hsla('+h+',100%,70%,.55)');X.fillStyle=gr;X.fillRect(c.x-4,c.y-90,8,90);X.restore();x1211spark(X,c.x,c.y-c.z*.4-4,T,c.f||0,.6)}}catch(e){}}}
+
+try{const z=document.createElement('style');z.textContent=`@keyframes mythB{0%{border-color:#ff1744;box-shadow:0 0 9px #ff174499}20%{border-color:#ffb300;box-shadow:0 0 9px #ffb30099}40%{border-color:#69f0ae;box-shadow:0 0 9px #69f0ae99}60%{border-color:#2f8dff;box-shadow:0 0 9px #2f8dff99}80%{border-color:#d24dff;box-shadow:0 0 9px #d24dff99}100%{border-color:#ff1744;box-shadow:0 0 9px #ff174499}}@keyframes mythT{0%{background-position:0% 50%}100%{background-position:200% 50%}}@keyframes mythS{0%,100%{opacity:.25;transform:scale(.7) rotate(0)}50%{opacity:1;transform:scale(1.15) rotate(45deg)}}
+.gcard.myth,.gslot.myth{position:relative;animation:mythB 2.4s linear infinite}.gcard.myth::after,.gslot.myth::after{content:'✦';position:absolute;top:2px;right:5px;font-size:11px;color:#fff;text-shadow:0 0 6px #ff6bff,0 0 10px #59e3ff;animation:mythS 1.6s ease-in-out infinite;pointer-events:none}
+.gnm.myth{background:linear-gradient(90deg,#ff1744,#ffb300,#69f0ae,#2f8dff,#d24dff,#ff1744);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent!important;animation:mythT 3s linear infinite}
+.gtup{position:absolute;inset:0;z-index:4;pointer-events:none;display:flex;align-items:center;justify-content:center;overflow:hidden}.gtupf{position:absolute;left:50%;top:50%;width:40px;height:40px;margin:-20px;border-radius:50%;background:radial-gradient(#fff,#ffe08a 40%,#ffe08a00 70%);animation:gtupF .9s ease-out forwards}.gtup.big .gtupf{background:radial-gradient(#fff,#ff6bff 30%,#59e3ff 55%,#59e3ff00 72%);animation-duration:1.4s}
+@keyframes gtupF{0%{transform:scale(.2);opacity:1}100%{transform:scale(9);opacity:0}}.gtup i{position:absolute;left:50%;top:50%;width:7px;height:7px;margin:-3.5px;background:#ffe08a;transform:rotate(45deg);box-shadow:0 0 8px #ffe08a;animation:gtupI .9s ease-out forwards}.gtup.big i{background:#fff;box-shadow:0 0 10px #ff6bff,0 0 14px #59e3ff;animation-duration:1.3s}
+@keyframes gtupI{0%{transform:translate(0,0) rotate(45deg) scale(1.3);opacity:1}100%{transform:translate(var(--dx),var(--dy)) rotate(225deg) scale(.3);opacity:0}}.gtupt{position:relative;padding:8px 14px;border-radius:12px;background:rgba(8,12,22,.82);border:2px solid #ffe08a;color:#ffe08a;font:900 18px/1.2 var(--f),serif;text-align:center;letter-spacing:.06em;box-shadow:0 0 18px #ffe08a66;animation:gtupT 1.6s ease-out forwards}.gtup.big .gtupt{font-size:20px;border-color:#ff6bff;color:#fff;box-shadow:0 0 22px #ff6bff88,0 0 30px #59e3ff55;animation-duration:2.5s}
+.gtupt small{display:block;font-size:12px;letter-spacing:0;color:#eef3fb;margin-top:2px}@keyframes gtupT{0%{transform:scale(.4);opacity:0}12%{transform:scale(1.12);opacity:1}22%{transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}.gtot .glegacy{color:#b9f6ca;opacity:.95}`;document.head.appendChild(z)}catch(e){}
+
 {const _bk=bKH;bKH=function(e,d){return _bk(e,d*(typeof x121defMul==='function'?x121defMul():1))}} // v1.21 gear Defense% (all hits on the King)
 {const _ar=arrow;arrow=function(x,y,t,dmg,sp,cr,home){const r=_ar(x,y,t,dmg,sp,cr,home);try{const a=st&&st.ar&&st.ar[st.ar.length-1];const spl=typeof x19gAdd==='function'?x19gAdd('splash'):0;if(a&&spl>0&&!a._spl){a._spl=1;const prev=a.onHit;a.onHit=function(e){if(prev)prev(e);try{const R=16+36*spl,d0=a.dmg*Math.min(.4,spl);if(st&&st.en)for(const o of st.en){if(o!==e&&o.hp>0&&dist(o.x,o.y,e.x,e.y)<R){if(typeof hit==='function')hit(o,d0,0,1)}}}catch(x){}}}}catch(x){}return r}}
 {const _r=renderMenu;renderMenu=function(){const r=_r.apply(this,arguments);try{if(state==='pause'&&UI&&!UI.querySelector('[data-id="gear"]')){const b=document.createElement('button');b.className='b';b.dataset.id='gear';b.textContent='🛡️ King Gear';b.style.cssText='background:linear-gradient(#3a6ad9,#1a2a80);border-color:#b8d4ff';const rs=UI.querySelector('[data-id="resume"]');if(rs&&rs.parentNode)rs.after(b);else{const pn=UI.querySelector('.pn');if(pn)pn.appendChild(b)}}}catch(e){}return r}}
@@ -5958,7 +6006,7 @@ UI.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('butt
   kDashSet(b.dataset.mldash);try{if(state==='pause'){const sc=scr().scrollTop;renderMenu();(wrapUI(),scr()).scrollTop=sc}else{const sc=(wrapUI(),scr()).scrollTop;titleSettings();(wrapUI(),scr()).scrollTop=sc}}catch(_){}},true);
 
 // ---- v1.20.5 Camp sortie cap = the King's live gold pickup (magnet) radius, measured from the camp origin
-function kMagR(){const s=st;return(s&&s.mag||0)*(typeof x19g==='function'?x19g('mag'):1)}
+function kMagR(){const s=st;return(s&&s.mag||0)*(typeof x1211gfMul==='function'?x1211gfMul('mag'):1)}
 function kCampR(){return Math.max(kMagR(),54*(typeof x19g==='function'?x19g('kRng'):1))}
 function kCampO(k){return k._org||{x:k.x,y:k.y}}
 // valid Camp targets: alive and inside the cap around the origin; nearest to the King first
