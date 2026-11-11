@@ -86,7 +86,7 @@ table{color:#c7d3df}td:last-child{color:#bff1ff}
 </style></head><body>
 <canvas id="c"></canvas><div id="ui"></div>
 <script>
-const SKVER='v1.20.2';
+const SKVER='v1.20.3';
 const LSP='sbm_',LS={getItem:k=>localStorage.getItem(LSP+k),setItem:(k,v)=>localStorage.setItem(LSP+k,v),removeItem:k=>localStorage.removeItem(LSP+k),keys:()=>Object.keys(localStorage).filter(k=>k.startsWith(LSP)).map(k=>k.slice(LSP.length)),clear:()=>LS.keys().forEach(k=>localStorage.removeItem(LSP+k))};
 
 const C=document.getElementById('c');let X=C.getContext('2d');const UI=document.getElementById('ui');
@@ -5859,22 +5859,32 @@ function kMwShock(sl,T){const u=(T-sl.t)/.24,R0=(sl.r||54),col=kMwCol(),a=sl.a,w
 {const _f=x19fit;x19fit=function(W,H,f,ka){const F=_f(W,H,f,ka);try{if(kClass()==='ml'&&F&&F.S){const z=x19z(f),rz=11.6+z,P=kMwPose('pv',F.th,0),xf=kMwXf(P,rz);const q=M3.P(F.S,...xf(8.8,0,rz)),h=M3.P(F.S,...xf(3.4,0,rz));F.body.mw=[q[0],q[1]];F.body.ga=[h[0],h[1]]}}catch(e){}return F}}
 
 
-// ---- v1.20.2 Melee King: free chain dashing; at END OF WAVE (field clear) he dashes back to the DRAWBRIDGE
-// (where gold/gear gather) but only if he is past the road fork (farther from the castle than JUNC). Never mid-wave.
-const KDH_SPD=620;
-function kBridge(){return{x:CX,y:coinZY()}}
-function kCastleD(x,y){return Math.hypot(x-CX,y-ARK_Y)}
-function kPastFork(k){return kCastleD(k.x,k.y)>kCastleD(JUNC[0],JUNC[1])}
+// ---- v1.20.3 Melee King: free chain dashing; once everything is dead he dashes back to where the chain began
+// origin = his position right before the first auto dash/lunge of a chain (where the player had him standing).
+// Chained dashes keep the origin; joystick/keys cancel a return and clear it (next chain records a new one).
+const KDH_SPD=620,KDH_MIN=12;
 function kManual(){try{if(st&&st.ai)return Math.hypot(st.ai[0],st.ai[1])>.15;if(joy&&Math.hypot(joy.x-joy.bx,joy.y-joy.by)>JR*.15)return true;return!!(keys.w||keys.a||keys.s||keys.d||keys.arrowup||keys.arrowdown||keys.arrowleft||keys.arrowright)}catch(e){return false}}
 function kFieldClear(){return!st.en.some(e=>e.hp>0)}
-function kWaveEndDash(){const s=st,k=s&&s.k;if(!k||s.raid||kClass()!=='ml')return false;if(!kFieldClear()||!kPastFork(k)||kManual())return false;
-  const B=kBridge();k._dh={x0:k.x,y0:k.y,t:s.t||0,tx:B.x,ty:B.y};k._sw=null;try{kMeleeFlush(k)}catch(e){}return true}
-function kDhTick(k,dt){const s=st;if(!k._dh)return;if(kManual()){k._dh=null;return}
-  const D=k._dh,dx=D.tx-k.x,dy=D.ty-k.y,d=Math.hypot(dx,dy),mv=KDH_SPD*dt;
-  if(d<=mv+.5){k.x=D.tx;k.y=D.ty;k._dh=null;k._dhFx={x:k.x,y:k.y,t:s.t||0}}else{k.x+=dx/d*mv;k.y+=dy/d*mv}k.vx=k.vy=0}
-{const _wd=waveDone;waveDone=function(w){const r=_wd.apply(this,arguments);try{kWaveEndDash()}catch(e){}return r}}
-{const _u=upd;upd=function(dt){const r=_u(dt);try{const s=st,k=s&&s.k;if(k&&!s.raid){if(kClass()==='ml')kDhTick(k,dt);else k._dh=null}}catch(e){}return r}}
-// dash FX: afterimages + streak toward the drawbridge, arrival ring (world space, drawn with the body)
+function kAllDead(){const s=st;return kFieldClear()&&!(s.spawnLeft>0)&&!s.boss&&!(s.wp||[]).some(q=>q.n>0||q.bp)}
+// keep the origin on walkable ground (same bounds/wall rules as King movement)
+function kOrgClamp(x,y){y=Math.max(TOPY+40,Math.min(WH-6,y));x=Math.max(SIDE+6,Math.min(WW-SIDE-6,x));
+  if(Math.abs(x-CX)>=GW-3&&Math.abs(y-WALLY)<6)y=y>WALLY?WALLY+6:WALLY-6;return{x,y}}
+function kOrgTick(k,dt,x0,y0){const s=st;
+  if(kManual()){k._org=null;k._dh=null;return}
+  if(k._dh){if(!kFieldClear()){k._dh=null;return}
+    const D=k._dh,dx=D.tx-k.x,dy=D.ty-k.y,d=Math.hypot(dx,dy),mv=KDH_SPD*dt;
+    if(d<=mv+.5){k.x=D.tx;k.y=D.ty;k._dh=null;k._org=null;k._dhFx={x:k.x,y:k.y,t:s.t||0}}else{k.x+=dx/d*mv;k.y+=dy/d*mv}k.vx=k.vy=0;return}
+  // auto move this tick (lunge / auto-chase): start a chain if none is open
+  if(!k._org&&Math.hypot(k.x-x0,k.y-y0)>Math.hypot(k.vx||0,k.vy||0)*dt+.2)k._org=kOrgClamp(x0,y0);
+  if(!k._org)return;
+  const sw=k._sw;if(k._mwP||(sw&&(s.t||0)-sw.t0<sw.dur))return;
+  if(!kAllDead())return;
+  if(Math.hypot(k.x-k._org.x,k.y-k._org.y)<KDH_MIN){k._org=null;return}
+  k._dh={x0:k.x,y0:k.y,t:s.t||0,tx:k._org.x,ty:k._org.y}}
+{const _ms=kMeleeSlash;kMeleeSlash=function(k){const x0=k&&k.x,y0=k&&k.y;const r=_ms.apply(this,arguments);try{if(k&&!st.raid&&!k._org&&!k._dh&&!kManual()&&Math.hypot(k.x-x0,k.y-y0)>.2)k._org=kOrgClamp(x0,y0)}catch(e){}return r}}
+{const _u=upd;upd=function(dt){const s=st,k=s&&s.k,x0=k?k.x:0,y0=k?k.y:0,man=kManual();const r=_u(dt);
+  try{if(k&&s===st&&!s.raid){if(kClass()==='ml'){if(man){k._org=null;k._dh=null}else kOrgTick(k,dt,x0,y0)}else{k._dh=null;k._org=null}}}catch(e){}return r}}
+// dash FX: afterimages + streak toward the return point, arrival ring (world space, drawn with the body)
 {const _d=sbHeroDraw;sbHeroDraw=function(k,sp,ka,sx,sy){const s=st;
   try{if(s&&k===s.k&&kClass()==='ml'&&(k._dh||k._dhFx)){const T=s.t||0;X.save();X.globalCompositeOperation='lighter';
     if(k._dh){const x0=k._dh.x0,y0=k._dh.y0;
