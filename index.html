@@ -86,7 +86,7 @@ table{color:#c7d3df}td:last-child{color:#bff1ff}
 </style></head><body>
 <canvas id="c"></canvas><div id="ui"></div>
 <script>
-const SKVER='v1.20.5';
+const SKVER='v1.20.6';
 const LSP='sbm_',LS={getItem:k=>localStorage.getItem(LSP+k),setItem:(k,v)=>localStorage.setItem(LSP+k,v),removeItem:k=>localStorage.removeItem(LSP+k),keys:()=>Object.keys(localStorage).filter(k=>k.startsWith(LSP)).map(k=>k.slice(LSP.length)),clear:()=>LS.keys().forEach(k=>localStorage.removeItem(LSP+k))};
 
 const C=document.getElementById('c');let X=C.getContext('2d');const UI=document.getElementById('ui');
@@ -5538,7 +5538,7 @@ function kClassChoose(n,id){kOpenSlot(n)}
 function kApplyClass(){const s=st,k=s&&s.k;if(!k)return;s.kClass=kClass();k.mana=k.mana==null?100:k.mana;k.mmana=100;if(s.kClass==='ml'&&!k.clsHP){const m=1.4;k.hp=Math.round(k.hp*m);k.mhp=Math.round(k.mhp*m);if(k.bhp)k.bhp=Math.round(k.bhp*m);else k.bhp=k.mhp;k.clsHP=1}}
 function kMeleeArm(){return kClass()==='ml'?0.82:1}
 function kKingDmg(cr){const s=st,base=cr?s.dmg*critMul(s.cm+CRD()+(typeof x181snCd==='function'?x181snCd():0)+(typeof x19gAdd==='function'?x19gAdd('kCD'):0),cr):s.dmg;return base*(s.rateX||1)*XK()}
-function kMeleeHitNow(k,fAng){const s=st;if(!s||!k)return false;const rng=54*(typeof x19g==='function'?x19g('kRng'):1),ag=92*(typeof x19g==='function'?x19g('kRng'):1);let ts=inRange(k.x,k.y,rng);if(fAng!=null&&!ts.length)return false;if(!ts.length&&kDashMode()==='off')return false;if(!ts.length){const far=kDashMode()==='camp'?kCampList(k):inRange(k.x,k.y,ag);if(!far.length)return false;const t=far[0],d=dist(k.x,k.y,t.x,t.y)||1,step=Math.min(22,d-40);k.x+=(t.x-k.x)/d*step;k.y+=(t.y-k.y)/d*step;ts=inRange(k.x,k.y,rng);if(!ts.length){k._slash={x:k.x,y:k.y,a:Math.atan2(t.y-k.y,t.x-k.x),t:s.t||0,r:rng};return true}}
+function kMeleeHitNow(k,fAng){const s=st;if(!s||!k)return false;const rng=54*(typeof x19g==='function'?x19g('kRng'):1),ag=92*(typeof x19g==='function'?x19g('kRng'):1);let ts=inRange(k.x,k.y,rng);if(fAng!=null&&!ts.length)return false;if(!ts.length&&(kDashMode()==='off'||kSteerHold(k)))return false;if(!ts.length){const far=kDashMode()==='camp'?kCampList(k):inRange(k.x,k.y,ag);if(!far.length)return false;const t=far[0],d=dist(k.x,k.y,t.x,t.y)||1,step=Math.min(22,d-40);k.x+=(t.x-k.x)/d*step;k.y+=(t.y-k.y)/d*step;ts=inRange(k.x,k.y,rng);if(!ts.length){k._slash={x:k.x,y:k.y,a:Math.atan2(t.y-k.y,t.x-k.x),t:s.t||0,r:rng};return true}}
   try{Snd.sfx('shot')}catch(e){}const aim=ts[0];let ang0=fAng!=null?fAng:Math.atan2(aim.y-k.y,aim.x-k.x);let dealt=0,nHit=0;const fa=aS('fire');if(fa){s.fac=(s.fac||0)+1}const doFire=fa&&s.fac>=AV.fireN[fa];if(doFire)s.fac=0;
   const rk=()=>ts.map(e=>{const ang=Math.atan2(e.y-k.y,e.x-k.x);let da=Math.abs(ang-ang0)%(Math.PI*2);if(da>Math.PI)da=Math.PI*2-da;return{e,da,d:dist(e.x,e.y,k.x,k.y)}}).filter(o=>o.e.hp>0&&(o.d<36||o.da<=1.22)).sort((a,b)=>a.d-b.d).slice(0,5);let ranked=rk();if(!ranked.length&&fAng!=null){ang0=Math.atan2(aim.y-k.y,aim.x-k.x);ranked=rk()}
   for(let i=0;i<ranked.length;i++){const e=ranked[i].e,cr=critRoll(s.crit+CRC()+(typeof x19gAdd==='function'?x19gAdd('kCC'):0)),dmg=kKingDmg(cr)*(i===0?1.08:0.34),h0=e.hp;hit(e,dmg,cr,1);dealt+=Math.max(0,h0-(e.hp||0));nHit++;if(doFire&&nHit===1)try{fireBlast(e.x,e.y-e.r,dmg)}catch(x){}}
@@ -5555,7 +5555,7 @@ function kSpellCast(k){const s=st;if(!s||!k)return false;const rng=118*(typeof x
 {const _ls=loadSlot;loadSlot=function(n){const r=_ls.apply(this,arguments);try{const I=sInfo(SLOT)||{};const cls=typeof kSlotCls==='function'?kSlotCls(SLOT):'rg';if(I.cls!==cls){I.cls=cls;I.created=I.created||Date.now();sSet(SLOT,I)}if(meta&&meta.cls!==cls){meta.cls=cls;saveMeta()}try{if(typeof petSync==='function')petSync(1)}catch(e){}}catch(e){}return r}}
 {const _plr=loadRun;loadRun=function(){const r=_plr.apply(this,arguments);try{if(st){st.kClass=kClass();const k=st.k;if(k){if(k.mana==null)k.mana=100;k.mmana=100}}}catch(e){}return r}}
 {const _bkh=bKH;bKH=function(e,d){try{if(e&&st&&!st.raid)d*=kMeleeArm()}catch(x){}return _bkh(e,d)}}
-{const _u=upd;upd=function(dt){const r=_u(dt);try{const s=st,k=s&&s.k;if(k&&kClass()==='sp'){k.mana=Math.min(k.mmana||100,(k.mana||100)+22*dt*(typeof x19g==='function'?x19g('kRate'):1))}if(k&&kClass()==='ml'&&s&&!s.raid){const joyOn=Math.hypot(k.vx||0,k.vy||0)>28;if(!joyOn&&kDashMode()!=='off'){const ag=92*(typeof x19g==='function'?x19g('kRng'):1),ts=kDashMode()==='camp'?kCampList(k):inRange(k.x,k.y,ag);if(ts[0]){const t=ts[0],d=dist(k.x,k.y,t.x,t.y);if(d>42){const sp=(s.spd||76)*0.8*dt,ux=(t.x-k.x)/d,uy=(t.y-k.y)/d;k.x+=ux*sp;k.y+=uy*sp}}}}}catch(e){}return r}}
+{const _u=upd;upd=function(dt){const r=_u(dt);try{const s=st,k=s&&s.k;if(k&&kClass()==='sp'){k.mana=Math.min(k.mmana||100,(k.mana||100)+22*dt*(typeof x19g==='function'?x19g('kRate'):1))}if(k&&kClass()==='ml'&&s&&!s.raid){const joyOn=Math.hypot(k.vx||0,k.vy||0)>28;if(!joyOn&&kDashMode()!=='off'&&!kSteerHold(k)){const ag=92*(typeof x19g==='function'?x19g('kRng'):1),ts=kDashMode()==='camp'?kCampList(k):inRange(k.x,k.y,ag);if(ts[0]){const t=ts[0],d=dist(k.x,k.y,t.x,t.y);if(d>42){const sp=(s.spd||76)*0.8*dt,ux=(t.x-k.x)/d,uy=(t.y-k.y)/d;k.x+=ux*sp;k.y+=uy*sp}}}}}catch(e){}return r}}
 {const _dw=draw;draw=function(){const r=_dw.apply(this,arguments);try{kClassDraw()}catch(e){}return r}}
 function kClassDraw(){const s=st,k=s&&s.k;if(!s||!k||state!=='play')return;const T=s.t||0;X.save();if(typeof WT!=='undefined'&&WT)X.setTransform(WT[0],0,0,WT[1],WT[2],WT[3]);
   if(k._slash&&!k._slash.wh&&T-(k._slash.t||0)<.24){try{kMwShock(k._slash,T)}catch(e){}}
@@ -5822,7 +5822,7 @@ function kMwCol(){const it=kMwIt();try{return it?x19rcol(it):'#ff6a2a'}catch(e){
 function kMeleeFlush(k){if(k&&k._mwP){const p=k._mwP;k._mwP=null;try{kMeleeHitNow(k,p.a)}catch(e){}}}
 function kMeleeSlash(k){const s=st;if(!s||!k)return false;kMeleeFlush(k);
   const R=(typeof x19g==='function'?x19g('kRng'):1),rng=54*R,ag=92*R;let ts=inRange(k.x,k.y,rng),whiff=false,a;
-  if(!ts.length&&kDashMode()==='off')return false;
+  if(!ts.length&&(kDashMode()==='off'||kSteerHold(k)))return false;
   if(!ts.length){const far=kDashMode()==='camp'?kCampList(k):inRange(k.x,k.y,ag);if(!far.length)return false;const t=far[0],d=dist(k.x,k.y,t.x,t.y)||1,step=Math.min(22,d-40);k.x+=(t.x-k.x)/d*step;k.y+=(t.y-k.y)/d*step;ts=inRange(k.x,k.y,rng);if(!ts.length){whiff=true;a=Math.atan2(t.y-k.y,t.x-k.x)}}
   if(!whiff)a=Math.atan2(ts[0].y-k.y,ts[0].x-k.x);
   const t0=s.t||0,dur=kMwDur();k._swN=(k._swN||0)+1;k._sw={t0,dur,dir:(k._swN%2)?1:-1,a};
@@ -5885,7 +5885,7 @@ function kOrgTick(k,dt,x0,y0){const s=st;
   if(Math.hypot(k.x-k._org.x,k.y-k._org.y)<KDH_MIN){k._org=null;return}
   k._dh={x0:k.x,y0:k.y,t:s.t||0,tx:k._org.x,ty:k._org.y}}
 {const _ms=kMeleeSlash;kMeleeSlash=function(k){const x0=k&&k.x,y0=k&&k.y;const r=_ms.apply(this,arguments);try{if(k&&!st.raid&&!k._org&&!k._dh&&!kManual()&&Math.hypot(k.x-x0,k.y-y0)>.2)k._org=kOrgClamp(x0,y0);if(k&&k._org&&kDashMode()==='camp')kCampClamp(k)}catch(e){}return r}}
-{const _u=upd;upd=function(dt){const s=st,k=s&&s.k,x0=k?k.x:0,y0=k?k.y:0,man=kManual();const r=_u(dt);
+{const _u=upd;upd=function(dt){const s=st,k=s&&s.k,x0=k?k.x:0,y0=k?k.y:0,man=kManual();if(k&&man){k._manT=s.t||0;k._dh=null;k._org=null}const r=_u(dt);
   try{if(k&&s===st&&!s.raid){if(kClass()==='ml'){if(man){k._org=null;k._dh=null}else kOrgTick(k,dt,x0,y0)}else{k._dh=null;k._org=null}}}catch(e){}return r}}
 // dash FX: afterimages + streak toward the return point, arrival ring (world space, drawn with the body)
 {const _d=sbHeroDraw;sbHeroDraw=function(k,sp,ka,sx,sy){const s=st;
@@ -5920,4 +5920,9 @@ function kCampList(k){const O=kCampO(k),R=kCampR(),a=[];for(const e of st.en){if
 function kCampClamp(k){if(!k._org)return;const O=k._org,R=kCampR(),d=Math.hypot(k.x-O.x,k.y-O.y);if(d>R){k.x=O.x+(k.x-O.x)/d*R;k.y=O.y+(k.y-O.y)/d*R}}
 // faint ring around the camp origin while he is out on a sortie (Camp only)
 {const _d=sbHeroDraw;sbHeroDraw=function(k,sp,ka,sx,sy){try{const s=st;if(s&&k===s.k&&kClass()==='ml'&&kDashMode()==='camp'&&k._org){const O=k._org,R=kCampR();X.save();X.globalAlpha=.22;X.strokeStyle='#ffd27f';X.lineWidth=1.2;X.setLineDash([2,5]);X.beginPath();X.ellipse(O.x,O.y,R,R*.92,0,0,TAU);X.stroke();X.setLineDash([]);X.globalAlpha=.4;X.beginPath();X.arc(O.x,O.y,3,0,TAU);X.stroke();X.restore()}}catch(e){try{X.restore()}catch(_){}}return _d.apply(this,arguments)}}
+
+// ---- v1.20.6 manual steering always wins: joystick/touch drag/keys cancel any dash/lunge/return and block
+// auto-dash/lunge/auto-walk while steering + KMAN_GRACE s after release (he still swings at enemies already in reach)
+const KMAN_GRACE=1.25;
+function kSteerHold(k){try{if(kManual()){if(k)k._manT=(st&&st.t)||0;return true}return!!(k&&k._manT!=null&&((st&&st.t)||0)-k._manT<KMAN_GRACE)}catch(e){return false}}
 </script></body></html>
