@@ -86,7 +86,7 @@ table{color:#c7d3df}td:last-child{color:#bff1ff}
 </style></head><body>
 <canvas id="c"></canvas><div id="ui"></div>
 <script>
-const SKVER='v1.20.1';
+const SKVER='v1.20.2';
 const LSP='sbm_',LS={getItem:k=>localStorage.getItem(LSP+k),setItem:(k,v)=>localStorage.setItem(LSP+k,v),removeItem:k=>localStorage.removeItem(LSP+k),keys:()=>Object.keys(localStorage).filter(k=>k.startsWith(LSP)).map(k=>k.slice(LSP.length)),clear:()=>LS.keys().forEach(k=>localStorage.removeItem(LSP+k))};
 
 const C=document.getElementById('c');let X=C.getContext('2d');const UI=document.getElementById('ui');
@@ -5858,4 +5858,31 @@ function kMwShock(sl,T){const u=(T-sl.t)/.24,R0=(sl.r||54),col=kMwCol(),a=sl.a,w
 // gear preview callouts point at the held weapon / gauntlet hand
 {const _f=x19fit;x19fit=function(W,H,f,ka){const F=_f(W,H,f,ka);try{if(kClass()==='ml'&&F&&F.S){const z=x19z(f),rz=11.6+z,P=kMwPose('pv',F.th,0),xf=kMwXf(P,rz);const q=M3.P(F.S,...xf(8.8,0,rz)),h=M3.P(F.S,...xf(3.4,0,rz));F.body.mw=[q[0],q[1]];F.body.ga=[h[0],h[1]]}}catch(e){}return F}}
 
+
+// ---- v1.20.2 Melee King: free chain dashing; at END OF WAVE (field clear) he dashes back to the DRAWBRIDGE
+// (where gold/gear gather) but only if he is past the road fork (farther from the castle than JUNC). Never mid-wave.
+const KDH_SPD=620;
+function kBridge(){return{x:CX,y:coinZY()}}
+function kCastleD(x,y){return Math.hypot(x-CX,y-ARK_Y)}
+function kPastFork(k){return kCastleD(k.x,k.y)>kCastleD(JUNC[0],JUNC[1])}
+function kManual(){try{if(st&&st.ai)return Math.hypot(st.ai[0],st.ai[1])>.15;if(joy&&Math.hypot(joy.x-joy.bx,joy.y-joy.by)>JR*.15)return true;return!!(keys.w||keys.a||keys.s||keys.d||keys.arrowup||keys.arrowdown||keys.arrowleft||keys.arrowright)}catch(e){return false}}
+function kFieldClear(){return!st.en.some(e=>e.hp>0)}
+function kWaveEndDash(){const s=st,k=s&&s.k;if(!k||s.raid||kClass()!=='ml')return false;if(!kFieldClear()||!kPastFork(k)||kManual())return false;
+  const B=kBridge();k._dh={x0:k.x,y0:k.y,t:s.t||0,tx:B.x,ty:B.y};k._sw=null;try{kMeleeFlush(k)}catch(e){}return true}
+function kDhTick(k,dt){const s=st;if(!k._dh)return;if(kManual()){k._dh=null;return}
+  const D=k._dh,dx=D.tx-k.x,dy=D.ty-k.y,d=Math.hypot(dx,dy),mv=KDH_SPD*dt;
+  if(d<=mv+.5){k.x=D.tx;k.y=D.ty;k._dh=null;k._dhFx={x:k.x,y:k.y,t:s.t||0}}else{k.x+=dx/d*mv;k.y+=dy/d*mv}k.vx=k.vy=0}
+{const _wd=waveDone;waveDone=function(w){const r=_wd.apply(this,arguments);try{kWaveEndDash()}catch(e){}return r}}
+{const _u=upd;upd=function(dt){const r=_u(dt);try{const s=st,k=s&&s.k;if(k&&!s.raid){if(kClass()==='ml')kDhTick(k,dt);else k._dh=null}}catch(e){}return r}}
+// dash FX: afterimages + streak toward the drawbridge, arrival ring (world space, drawn with the body)
+{const _d=sbHeroDraw;sbHeroDraw=function(k,sp,ka,sx,sy){const s=st;
+  try{if(s&&k===s.k&&kClass()==='ml'&&(k._dh||k._dhFx)){const T=s.t||0;X.save();X.globalCompositeOperation='lighter';
+    if(k._dh){const x0=k._dh.x0,y0=k._dh.y0;
+      for(let i=1;i<=4;i++){const u=i/5,gx=k.x+(x0-k.x)*Math.min(1,u*.35),gy=k.y+(y0-k.y)*Math.min(1,u*.35);X.globalAlpha=.32*(1-u);try{blit(sp,gx,gy,false)}catch(e){}}
+      const sx0=k.x+(x0-k.x)*Math.min(1,75/Math.max(1,Math.hypot(x0-k.x,y0-k.y))),sy0=k.y+(y0-k.y)*Math.min(1,75/Math.max(1,Math.hypot(x0-k.x,y0-k.y)));
+      X.lineCap='round';X.globalAlpha=.35;X.strokeStyle='#29b6f6';X.lineWidth=14;X.beginPath();X.moveTo(sx0,sy0-10);X.lineTo(k.x,k.y-10);X.stroke();X.globalAlpha=.8;X.strokeStyle='#b3f5ff';X.lineWidth=5;X.beginPath();X.moveTo(sx0,sy0-10);X.lineTo(k.x,k.y-10);X.stroke();for(let j=-1;j<=1;j+=2){X.globalAlpha=.5;X.strokeStyle='#7fe8ff';X.lineWidth=1.6;X.beginPath();X.moveTo(sx0+j*7,sy0-6);X.lineTo(k.x+j*5,k.y-6);X.stroke()}
+      X.globalAlpha=.35;X.lineWidth=2;X.setLineDash([4,5]);X.beginPath();X.ellipse(k._dh.tx,k._dh.ty,10,6,0,0,TAU);X.stroke();X.setLineDash([])}
+    const df=k._dhFx;if(df&&T-df.t<.3){const a=1-(T-df.t)/.3;X.globalAlpha=.6*a;X.strokeStyle='#7fe8ff';X.lineWidth=3;X.beginPath();X.ellipse(df.x,df.y,8+20*(1-a),(8+20*(1-a))*.6,0,0,TAU);X.stroke()}
+    X.restore()}}catch(e){try{X.restore()}catch(_){}}
+  return _d.apply(this,arguments)}}
 </script></body></html>
