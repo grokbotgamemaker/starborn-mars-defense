@@ -86,7 +86,7 @@ table{color:#c7d3df}td:last-child{color:#bff1ff}
 </style></head><body>
 <canvas id="c"></canvas><div id="ui"></div>
 <script>
-const SKVER='v1.21.1';
+const SKVER='v1.21.2';
 const LSP='sbm_',LS={getItem:k=>localStorage.getItem(LSP+k),setItem:(k,v)=>localStorage.setItem(LSP+k,v),removeItem:k=>localStorage.removeItem(LSP+k),keys:()=>Object.keys(localStorage).filter(k=>k.startsWith(LSP)).map(k=>k.slice(LSP.length)),clear:()=>LS.keys().forEach(k=>localStorage.removeItem(LSP+k))};
 
 const C=document.getElementById('c');let X=C.getContext('2d');const UI=document.getElementById('ui');
@@ -6019,4 +6019,15 @@ function kCampClamp(k){if(!k._org)return;const O=k._org,R=kCampR(),d=Math.hypot(
 // auto-dash/lunge/auto-walk while steering + KMAN_GRACE s after release (he still swings at enemies already in reach)
 const KMAN_GRACE=1.25;
 function kSteerHold(k){try{if(kManual()){if(k)k._manT=(st&&st.t)||0;return true}return!!(k&&k._manT!=null&&((st&&st.t)||0)-k._manT<KMAN_GRACE)}catch(e){return false}}
+
+// ---- v1.21.2 Melee King: no auto dash/lunge/auto-walk/Camp return while he is inside the gate (castle side of the wall line,
+// where the upgrade pads are). He stands where you walk him; plain-reach swings still land in place. Outside the gate the
+// selected mode resumes; any open chain/origin is dropped on entry, so Camp's next origin is where he is parked outside.
+function kInGate(k){try{const s=st;return!!(k&&s&&!s.raid&&kClass()==='ml'&&k.y>WALLY)}catch(e){return false}}
+{const _sh=kSteerHold;kSteerHold=function(k){if(kInGate(k))return true;return _sh.apply(this,arguments)}}
+{const _ot=kOrgTick;kOrgTick=function(k,dt,x0,y0){if(kInGate(k)){k._org=null;k._dh=null;return}return _ot.apply(this,arguments)}}
+{const _ms=kMeleeSlash;kMeleeSlash=function(k){try{if(kInGate(k)){k._org=null;k._dh=null}}catch(e){}const r=_ms.apply(this,arguments);try{if(kInGate(k)){k._org=null;k._dh=null}}catch(e){}return r}}
+{const _cc=kCampClamp;kCampClamp=function(k){if(kInGate(k)){k._org=null;k._dh=null;return}return _cc.apply(this,arguments)}}
+{const _u=upd;upd=function(dt){try{const k=st&&st.k;if(kInGate(k)){k._org=null;k._dh=null}}catch(e){}return _u.apply(this,arguments)}}
+{const _du=kDashUI;kDashUI=function(){const h=_du.apply(this,arguments);if(!h)return h;return h.replace(/<\/div>$/,'<small style="display:block;font-size:11.5px;opacity:.8;margin:2px 2px 0">🏰 Auto dash pauses while he is inside the gate, so you can walk him around the upgrade pads.</small></div>')}}
 </script></body></html>
