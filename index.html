@@ -86,7 +86,7 @@ table{color:#c7d3df}td:last-child{color:#bff1ff}
 </style></head><body>
 <canvas id="c"></canvas><div id="ui"></div>
 <script>
-const SKVER='v1.21.3';
+const SKVER='v1.22';
 const LSP='sbm_',LS={getItem:k=>localStorage.getItem(LSP+k),setItem:(k,v)=>localStorage.setItem(LSP+k,v),removeItem:k=>localStorage.removeItem(LSP+k),keys:()=>Object.keys(localStorage).filter(k=>k.startsWith(LSP)).map(k=>k.slice(LSP.length)),clear:()=>LS.keys().forEach(k=>localStorage.removeItem(LSP+k))};
 
 const C=document.getElementById('c');let X=C.getContext('2d');const UI=document.getElementById('ui');
@@ -6061,4 +6061,93 @@ function x1213lootRows(s,row){const L=x1213runLoot(s);let h=row('🛸','Artifact
   const row=(ic,k,v)=>`<tr><td>${ic} ${k}</td><td>${v}</td></tr>`;const d=document.createElement('div');d.className='x1213loot';d.innerHTML=`<h2>🛸 Also Earned</h2><table>${x1213lootRows(s,row)}</table>`;if(t)t.after(d);else pn.appendChild(d)}catch(e){console.error(e)}}}
 {const _rm=renderMenu;renderMenu=function(){const r=_rm.apply(this,arguments);try{const s=st;if(!s||state!=='pause')return r;const d=UI.querySelector('#runGems');if(!d||d.querySelector('.x1213loot'))return r;const L=x1213runLoot(s),e=document.createElement('div');e.className='x1213loot';e.style.cssText='font-size:12px;line-height:1.5;margin-top:2px;display:flex;flex-wrap:wrap;gap:2px 12px';
   e.innerHTML=`<span data-x1213="ap">🛸 Artifact points <b style="color:#ffb74d">+${fN(L.ap)}</b></span>`+(L.gn||L.sc?`<span data-x1213="gear">🎒 Gear <b style="color:#ffe066">${L.gn} piece${L.gn===1?'':'s'}${L.gm?' ('+L.gm+' Mythic)':''}${L.sc?' · +'+fN(L.sc)+' scrap':''}</b></span>`:'');d.appendChild(e)}catch(e){console.error(e)}return r}}
+
+// ===== v1.22 MENU CLEANUP (layout only: every button keeps its data-id/handler; no feature, upgrade, currency, progress or save key removed) =====
+// Title = one big Play + a HUD strip (slot / crystals / best) + a 2-column hub grid (Armory, King Gear, Artifacts, Wall Heroes, Progress, Pet Bay once found).
+// Pause = sticky action bar (Resume / Gear / Pets) + tab body; quick audio/graphics live in the Settings tab only; run controls in one compact box;
+// upgrade trees + Repair on the Stats tab only. Settings = collapsible groups, dense toggles in a 2-column grid. Sort chips fold to the active one.
+const X122={set:{'Display':1,'Performance':1,'Save Transfer':1},sort:{},art:{},how:0};
+(function(){const c=document.createElement('style');c.id='x122css';c.textContent=`
+.x122home>p.x122tut{display:none}.x122home.x122howon>p.x122tut{display:block}
+.x122hud{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:6px 0 10px}
+.x122hud .gem,.x122hud button.gem{margin:0!important;font-size:13px!important;padding:5px 10px!important;line-height:1.2}
+.x122hud button.gem{cursor:pointer;border-style:solid}
+.x122home .b[data-id=cont],.x122home .b.x122p{font-size:21px;padding:15px 10px;margin:4px 0}
+.x122home .b.x122s{font-size:15px;padding:9px 10px;margin:4px 0 2px}
+.x122grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 6px}
+.x122grid .b{margin:0!important;min-height:58px;font-size:14px!important;padding:8px 6px!important;line-height:1.2;white-space:normal;background:linear-gradient(#2c3e57,#131b27)!important;border-color:#5fd4ff!important;box-shadow:0 3px 0 #06101a!important}
+.x122grid .b[data-id=arm]{border-color:#7dffa8!important}.x122grid .b[data-id=petBay]{border-color:#ffd25e!important}
+.x122foot{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:6px}.x122foot .b{margin:0;flex:1;font-size:14px;padding:8px}
+.x122how{background:none;border:0;color:#9fd8ff;font:800 12px var(--f),sans-serif;text-decoration:underline;margin:0 auto 4px;display:block;cursor:pointer}
+.x122act{display:flex;gap:6px;position:sticky;top:-18px;z-index:6;margin:0 -6px 8px;padding:6px;background:linear-gradient(#1a212b,#0e1218);border-bottom:2px solid #5fd4ff;border-radius:0 0 10px 10px}
+.x122act .b{margin:0!important;padding:10px 6px!important;font-size:14px!important;flex:1;min-width:0}.x122act .b[data-id=resume]{flex:1.6}
+.x122run{border:2px solid #35506a;border-radius:10px;padding:6px 6px 8px;margin:12px 0 6px;background:#0c121a}
+.x122run>div{display:flex;gap:6px}.x122run>.x122r1{margin-bottom:6px}.x122run .x122r1 .b{font-size:14px!important}.x122run .b{margin:0!important;font-size:12px!important;padding:9px 4px!important;flex:1;line-height:1.2}
+.x122run h3,.x122g h3{margin:2px 0 6px}
+.x122g{border:1.5px solid #2a3a4e;border-radius:10px;margin:8px 0;padding:0 8px 6px;background:#0c121a;text-align:left}
+.x122h{width:100%;text-align:left;background:none;border:0;color:#e8f4ff;font:900 15px var(--f),sans-serif;padding:10px 2px 8px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}
+.x122h small{font-size:11px;opacity:.7;font-weight:700}
+.x122g.x122closed>.x122b{display:none}.x122g.x122closed{padding-bottom:0}
+.x122b.x122tg{display:grid;grid-template-columns:1fr 1fr;gap:6px}.x122b.x122tg>.b{margin:0!important;font-size:12px!important;padding:9px 4px!important;line-height:1.2}
+.x122b.x122tg>:not(.b){grid-column:1/-1}
+.sortbar.x122col .sb:not(.on):not(.x122sx){display:none}
+.sortbar .sb.x122sx{color:#9fd8ff}
+.x122how{min-height:44px;padding:12px 16px!important}.x122hud>*{min-height:44px;display:inline-flex!important;align-items:center}.x122home .b.x122s{min-height:46px}.x122foot .b{min-height:46px}.x122act .b{min-height:46px}.x122run .b{min-height:46px}.x122h{min-height:44px}
+h3.x17h.x122ah{cursor:pointer}h3.x17h.x122ah:after{content:' ▼';font-size:11px;opacity:.7}h3.x17h.x122ah.x122closed:after{content:' ▶'}
+`;document.head.appendChild(c)})();
+function x122home(){try{if(state!=='menu')return;const pn=UI.querySelector('.pn');if(!pn||!pn.querySelector('[data-id="newrun"],[data-id="start"]')||!pn.querySelector('[data-id="arm"]')||pn.classList.contains('x122home'))return;
+  try{if(typeof petInjectBtn==='function')petInjectBtn()}catch(e){}
+  pn.classList.add('x122home');const q=s=>pn.querySelector(s);
+  // first-run tips: shown until the first run, then behind "How to play"
+  const tips=[...pn.children].filter(c=>c.tagName==='P'&&!c.closest('.x122grid'));const vet=((meta&&meta.runs)|0)>0||(+best||0)>0;
+  tips.forEach(p=>p.classList.add('x122tut'));if(!vet||X122.how)pn.classList.add('x122howon');
+  if(vet&&tips.length){const h=document.createElement('button');h.className='x122how';h.dataset.x122how='1';h.textContent=X122.how?'Hide tips':'❔ How to play';tips[tips.length-1].after(h)}
+  // HUD strip: slot (tap = switch slot) · crystals · best
+  const nr=q('[data-id="newrun"]')||q('[data-id="start"]'),cont=q('[data-id="cont"]'),chips=[...pn.querySelectorAll(':scope>div')].find(d=>d.querySelector('span.gem')&&/Slot/.test(d.textContent));
+  if(chips){chips.className='x122hud';const sl=[...chips.children].find(s=>/Slot/.test(s.textContent));if(sl){const b=document.createElement('button');b.className='gem';b.dataset.id='switch';b.title='Switch save slot';b.innerHTML=sl.innerHTML+' ▾';sl.replaceWith(b)}
+    const bw=[...chips.children].find(s=>/Highest Wave/.test(s.textContent));if(bw)bw.textContent=bw.textContent.replace('Highest Wave Completed','Best');
+    (cont||nr).before(chips)}
+  if(cont){nr.classList.add('x122s');cont.after(nr)}else nr.classList.add('x122p');
+  const grid=document.createElement('div');grid.className='x122grid';
+  for(const s of ['[data-id="arm"]','[data-id="gear"]','[data-id="arts"]','[data-whhero]','[data-id="pgHub"]','[data-id="petBay"]']){const b=q(s);if(b)grid.appendChild(b)}
+  nr.after(grid);
+  const ts=q('[data-id="tset"]'),ver=q('.verlbl');if(ts){const f=document.createElement('div');f.className='x122foot';grid.after(f);f.appendChild(ts);ts.textContent='⚙️ Settings'}
+}catch(e){console.error(e)}}
+{const _mn=menu;menu=function(){const r=_mn.apply(this,arguments);x122home();return r}}
+// ---- collapsible groups for any h3-headed list (Settings, pause Settings tab)
+function x122groups(root){try{if(!root)return;const hs=[...root.querySelectorAll('h3')].filter(h=>!h.closest('.x122g')&&!h.closest('.x122run')&&!h.closest('[data-x17m]')&&!h.classList.contains('x17h'));
+  for(const h of hs){const P=h.parentNode;if(!P)continue;const key=h.textContent.replace(/^[^A-Za-z]+/,'').trim();const sib=[];let n=h.nextSibling;while(n&&!(n.nodeType===1&&n.tagName==='H3')){sib.push(n);n=n.nextSibling}
+    if(!sib.some(x=>x.nodeType===1))continue;const g=document.createElement('div');g.className='x122g'+(X122.set[key]?' x122closed':'');const hb=document.createElement('button');hb.className='x122h';hb.dataset.x122sec=key;
+    const nb=sib.filter(x=>x.nodeType===1&&x.matches&&x.matches('button.b')).length;hb.innerHTML=`<span>${h.innerHTML}</span><small>${X122.set[key]?(nb?nb+' options ▶':'▶'):'▼'}</small>`;
+    const body=document.createElement('div');body.className='x122b'+(sib.filter(x=>x.nodeType===1&&x.matches&&x.matches('button.b[data-opt],button.b[data-id="wake"],button.b[data-id="gfx"]')).length>=3?' x122tg':'');
+    P.insertBefore(g,h);g.appendChild(hb);g.appendChild(body);h.remove();sib.forEach(x=>body.appendChild(x))}}catch(e){console.error(e)}}
+{const _ts=titleSettings;titleSettings=function(){const r=_ts.apply(this,arguments);try{x122groups(UI.querySelector('.pn'))}catch(e){}return r}}
+// ---- sort chips fold to the active choice (tap "Sort" to see all)
+function x122sort(root){try{(root||UI).querySelectorAll('.sortbar').forEach(sb=>{if(sb.dataset.x122)return;const first=sb.firstChild;if(!(first&&first.nodeType===3&&/Sort/.test(first.textContent)))return;sb.dataset.x122='1';
+  const key=sb.dataset.sortfor||(sb.querySelector('[data-gsort]')?'gear':'x');const open=!!X122.sort[key];first.textContent='';const t=document.createElement('button');t.className='sb x122sx';t.dataset.x122sort=key;t.textContent=open?'Sort ▴':'⇅ Sort ▾';sb.insertBefore(t,sb.firstChild);if(!open)sb.classList.add('x122col')})}catch(e){}}
+// ---- artifacts: section headers fold (first section open)
+function x122art(){try{const hs=[...UI.querySelectorAll('h3.x17h')];hs.forEach((h,i)=>{const key=h.textContent.trim();if(X122.art[key]==null)X122.art[key]=i>0?1:0;h.classList.add('x122ah');h.dataset.x122art=key;const closed=!!X122.art[key];h.classList.toggle('x122closed',closed);
+  let n=h.nextElementSibling;while(n&&!(n.tagName==='H3'&&n.classList.contains('x17h'))){if(n.tagName==='H3')break;n.style.display=closed?'none':'';n=n.nextElementSibling}})}catch(e){}}
+for(const nm of ['armory','artifacts']){try{const f=window[nm];if(typeof f!=='function')continue;window[nm]=function(){const r=f.apply(this,arguments);try{x122sort();if(nm==='artifacts')x122art()}catch(e){}return r}}catch(e){}}
+{const _x=x19open;x19open=function(){const r=_x.apply(this,arguments);try{x122sort()}catch(e){}return r}}
+// ---- pause
+function x122pause(){try{if(state!=='pause')return;const pn=UI.querySelector('.pn');if(!pn||pn.dataset.x122)return;pn.dataset.x122='1';const tabs=pn.querySelector('.tabs');if(!tabs)return;const tb=pn.querySelector('.tbody');
+  const act=document.createElement('div');act.className='x122act';for(const s of ['[data-id="resume"]','[data-id="gear"]','[data-id="petBay"]']){const b=pn.querySelector(s);if(b)act.appendChild(b)}tabs.after(act);
+  const pb=act.querySelector('[data-id="petBay"]');if(pb)pb.textContent='🐾 Pets';const gb=act.querySelector('[data-id="gear"]');if(gb)gb.textContent='🛡️ Gear';
+  const top=[...pn.children];const ot=tabs.querySelector('.tab.on');const on=(ot&&ot.dataset.tab)||'stats';
+  const rg=pn.querySelector('#runGems');if(rg){if(on==='stats'){if(tb)tb.prepend(rg)}else rg.remove()}
+  if(on!=='set'){for(const c of top){if(c===tb||c===tabs||c===act)continue;if(c.matches&&(c.matches('.vol')||c.matches('[data-id="wake"],[data-id="gfx"]')||(c.tagName==='DIV'&&c.querySelector('[data-id="mus"],[data-id="sfx"]')&&!c.querySelector('[data-id="saveexit"]')))){const nx=c.matches('[data-id="gfx"]')?c.nextElementSibling:null;c.remove();if(nx&&nx.tagName==='DIV'&&!nx.children.length&&!nx.querySelector('button'))nx.remove()}}}
+  const se=pn.querySelector('[data-id="saveexit"]'),er=pn.querySelector('[data-id="endrun"]'),qu=pn.querySelector('[data-id="quit"]');
+  if(se||er||qu){const box=document.createElement('div');box.className='x122run';box.innerHTML='<h3>🏁 This run</h3><div class="x122r1"></div><div></div>';const r1=box.children[1],row=box.lastChild;if(se)r1.appendChild(se);for(const b of [er,qu])if(b)row.appendChild(b);pn.appendChild(box)}
+  for(const c of [...pn.children]){if(c===tb)continue;const isTree=c.tagName==='DIV'&&(c.querySelector('[data-tro]')||c.matches('[data-x17m]'));if(isTree){if(on==='stats'){if(tb)tb.appendChild(c)}else c.remove()}}
+  if(on==='set')x122groups(tb||pn);if(on==='life')x122sort(pn)}catch(e){console.error(e)}}
+{const _rm=renderMenu;renderMenu=function(){const r=_rm.apply(this,arguments);x122pause();return r}}
+// ---- Pet Bay: same ✕ header close as every other screen
+{const _pb=petBay;petBay=function(){const r=_pb.apply(this,arguments);try{const pn=UI.querySelector('.pn');if(pn&&!pn.querySelector('.xb')){const bk=[...pn.querySelectorAll('button')].find(b=>/^\s*back\s*$/i.test(b.textContent));if(bk){const x=document.createElement('button');x.className='xb';x.dataset.id=bk.dataset.id;x.setAttribute('aria-label','Close');x.textContent='✕';x.style.cssText='position:absolute;top:12px;right:12px';pn.style.position=pn.style.position||'relative';pn.prepend(x)}}}catch(e){}return r}}
+// ---- clicks for the new folds (capture, before other handlers)
+UI.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-x122sec],[data-x122sort],[data-x122how],h3[data-x122art]');if(!t)return;e.stopPropagation();e.preventDefault();try{Snd.init();Snd.ui()}catch(_){}
+  if(t.dataset.x122how){X122.how=X122.how?0:1;const pn=UI.querySelector('.pn');if(pn){pn.classList.toggle('x122howon',!!X122.how);t.textContent=X122.how?'Hide tips':'❔ How to play'}return}
+  if(t.dataset.x122sec){const k=t.dataset.x122sec;X122.set[k]=X122.set[k]?0:1;const g=t.closest('.x122g');if(g){g.classList.toggle('x122closed',!!X122.set[k]);const nb=g.querySelectorAll('.x122b>button.b').length;t.querySelector('small').textContent=X122.set[k]?(nb?nb+' options ▶':'▶'):'▼'}return}
+  if(t.dataset.x122sort){const k=t.dataset.x122sort;X122.sort[k]=X122.sort[k]?0:1;const sb=t.closest('.sortbar');if(sb){sb.classList.toggle('x122col',!X122.sort[k]);t.textContent=X122.sort[k]?'Sort ▴':'⇅ Sort ▾'}return}
+  if(t.dataset.x122art){const k=t.dataset.x122art;X122.art[k]=X122.art[k]?0:1;x122art();return}},true);
 </script></body></html>
