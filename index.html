@@ -86,7 +86,7 @@ table{color:#c7d3df}td:last-child{color:#bff1ff}
 </style></head><body>
 <canvas id="c"></canvas><div id="ui"></div>
 <script>
-const SKVER='v1.23';
+const SKVER='v1.23.1';
 const LSP='sbm_',LS={getItem:k=>localStorage.getItem(LSP+k),setItem:(k,v)=>localStorage.setItem(LSP+k,v),removeItem:k=>localStorage.removeItem(LSP+k),keys:()=>Object.keys(localStorage).filter(k=>k.startsWith(LSP)).map(k=>k.slice(LSP.length)),clear:()=>LS.keys().forEach(k=>localStorage.removeItem(LSP+k))};
 
 const C=document.getElementById('c');let X=C.getContext('2d');const UI=document.getElementById('ui');
@@ -5742,24 +5742,24 @@ function petFollow(dt){const s=st,k=s&&s.k,P=petStore();if(!s||!k||!P.eq||s.raid
   o.x+=o.vx*dt*60*.016;o.y+=o.vy*dt*60*.016;o.ph=(o.ph||0)+dt;o.cd=(o.cd||0)-dt;s.pet=o;
   if(o.cd<=0)petAttack(o)}
 function petDmg(){const s=st,lv=petLv(petStore().eq||'');const tier=(s&&s.tier)||1;return (s&&s.dmg||8)*XK()*0.32*petLvM(lv)*(1+.12*(tier-1))}
-function petAttack(o){const s=st;if(!s||!s.en)return;const id=o.id,D=petDmg();
-  if(id==='sk'){const ts=inRange(o.x,o.y,130);if(!ts[0])return;o.cd=.85;const e=ts[0],cr=critRoll((s.crit||0)+CRC());hit(e,D*(cr?critMul((s.cm||1)+CRD()+petVexaCD(),cr):1),cr,2);try{ring(e.x,e.y-e.r,'#ffb020',14)}catch(e){}}
-  else if(id==='gl'){o.cd=2.1;const R0=70;for(const e of s.en){if(e.hp>0&&dist(e.x,e.y,o.x,o.y)<R0+e.r){e.slowT=Math.max(e.slowT||0,(s.t||0)+1.5);e.slow=Math.max(e.slow||0,.2)}}
-    const k=s.k;if(k)k.hp=Math.min(k.mhp,k.hp+k.mhp*.004*petLvM(petLv('gl')));try{ring(o.x,o.y,'#7fe3ff',R0)}catch(e){}}
-  else if(id==='vx'){const ts=inRange(o.x,o.y,160);if(!ts[0])return;o.cd=3.2;const t=ts[0],ang=Math.atan2(t.y-o.y,t.x-o.x);
+function petAttack(o){const s=st;if(!s||!s.en)return;const id=o.id,D=petDmg(),S=petS(id);
+  if(id==='sk'){const ts=inRange(o.x,o.y,S.rng);if(!ts[0])return;o.cd=S.cd;const e=ts[0],cr=critRoll((s.crit||0)+CRC());hit(e,D*(cr?critMul((s.cm||1)+CRD()+petVexaCD(),cr):1),cr,2);try{ring(e.x,e.y-e.r,'#ffb020',14)}catch(e){}}
+  else if(id==='gl'){o.cd=S.cd;const R0=S.rad;for(const e of s.en){if(e.hp>0&&dist(e.x,e.y,o.x,o.y)<R0+e.r){e.slowT=Math.max(e.slowT||0,(s.t||0)+S.slowT);e.slow=Math.max(e.slow||0,S.slow)}}
+    const k=s.k;if(k)k.hp=Math.min(k.mhp,k.hp+k.mhp*S.heal);try{ring(o.x,o.y,'#7fe3ff',R0)}catch(e){}}
+  else if(id==='vx'){const ts=inRange(o.x,o.y,S.rng);if(!ts[0])return;o.cd=S.cd;const t=ts[0],ang=Math.atan2(t.y-o.y,t.x-o.x);
     for(const e of s.en){if(e.hp<=0)continue;const d=dist(e.x,e.y,o.x,o.y);const u=((e.x-o.x)*Math.cos(ang)+(e.y-o.y)*Math.sin(ang));const v=Math.abs(-(e.x-o.x)*Math.sin(ang)+(e.y-o.y)*Math.cos(ang));
-      if(u>0&&u<170&&v<18){e.petMk=(s.t||0)+5;hit(e,D*.7,0,2)}}
+      if(u>0&&u<S.len&&v<S.wid){e.petMk=(s.t||0)+S.markT;hit(e,D*S.dm,0,2)}}
     o.x+=Math.cos(ang)*40;o.y+=Math.sin(ang)*40;try{ring(t.x,t.y-8,'#d24dff',16)}catch(e){}}
-  else if(id==='nw'){o.cd=1.9;const k=s.k,ang=k?Math.atan2((s.en[0]&&s.en[0].y||k.y-80)-o.y,(s.en[0]&&s.en[0].x||k.x)-o.x):-Math.PI/2;
-    for(const e of s.en){if(e.hp<=0)continue;const d=dist(e.x,e.y,o.x,o.y);if(d>110)continue;let da=Math.atan2(e.y-o.y,e.x-o.x)-ang;while(da>Math.PI)da-=Math.PI*2;while(da<-Math.PI)da+=Math.PI*2;
-      if(Math.abs(da)<.7)hit(e,D*1.1,0,2)}
+  else if(id==='nw'){o.cd=S.cd;const k=s.k,ang=k?Math.atan2((s.en[0]&&s.en[0].y||k.y-80)-o.y,(s.en[0]&&s.en[0].x||k.x)-o.x):-Math.PI/2;
+    for(const e of s.en){if(e.hp<=0)continue;const d=dist(e.x,e.y,o.x,o.y);if(d>S.rng)continue;let da=Math.atan2(e.y-o.y,e.x-o.x)-ang;while(da>Math.PI)da-=Math.PI*2;while(da<-Math.PI)da+=Math.PI*2;
+      if(Math.abs(da)<S.cone)hit(e,D*S.dm,0,2)}
     try{ring(o.x+Math.cos(ang)*30,o.y+Math.sin(ang)*30,'#ff6a2a',22)}catch(e){}}
-  else if(id==='os'){if(o.ult){o.cd=2.5;return}o.ult=1;o.cd=999;const k=s.k,cx=k.x,cy=k.y-20,R0=120;
-    for(const e of s.en){if(e.hp<=0)continue;const d=dist(e.x,e.y,cx,cy);if(d<R0+e.r){const pull=Math.min(d-8,40);if(d>8){e.x+=(cx-e.x)/d*pull;e.y+=(cy-e.y)/d*pull}hit(e,D*2.2,0,2)}}
+  else if(id==='os'){if(o.ult){o.cd=2.5;return}o.ult=1;o.cd=999;const k=s.k,cx=k.x,cy=k.y-20,R0=S.rad;
+    for(const e of s.en){if(e.hp<=0)continue;const d=dist(e.x,e.y,cx,cy);if(d<R0+e.r){const pull=Math.min(d-8,S.pull);if(d>8){e.x+=(cx-e.x)/d*pull;e.y+=(cy-e.y)/d*pull}hit(e,D*S.dm,0,2)}}
     try{ring(cx,cy,'#ffe066',R0)}catch(e){}}}
 function petTryRevive(){const s=st,k=s&&s.k,P=petStore();if(!s||!k||P.eq!=='os'||s.raid)return !1;
   const o=s.pet||{};if(o.rev||o.wave===undefined){/* allow if new */}if(o.rev)return !1;
-  o.rev=1;s.pet=o;k.hp=Math.max(1,Math.round(k.mhp*.4));k.fl=.4;try{ring(k.x,k.y,'#ffe066',40);toast('Oblivion Seraph revived the King!',1)}catch(e){}
+  o.rev=1;s.pet=o;k.hp=Math.max(1,Math.round(k.mhp*petS('os').rev));k.fl=.4;try{ring(k.x,k.y,'#ffe066',40);toast('Oblivion Seraph revived the King!',1)}catch(e){}
   if(state==='over'){state='play';s.ended=0}return !0}
 function petTryTreat(e){const s=st;if(!s||s.raid||!e||!isB(e.type))return;
   if(R()>.32)return;const P=petStore();P.treats=(P.treats|0)+1;petSave(P);
@@ -5796,7 +5796,7 @@ function petDraw(){const s=st,o=s&&s.pet,P=petStore();if(!s||!o||!P.eq||state!==
 {const _td=x19tryDrop;x19tryDrop=function(e){const r=_td.apply(this,arguments);try{petTryTreat(e)}catch(x){}return r}}
 {const _ov=over;over=function(){try{if(st&&st.k&&st.k.hp<=0&&petTryRevive())return}catch(e){}return _ov.apply(this,arguments)}}
 {const _u=upd;upd=function(dt){const r=_u(dt);try{const s=st,k=s&&s.k;if(k&&!s.raid){const reg=petRegen();if(reg>0)k.hp=Math.min(k.mhp,k.hp+k.mhp*reg*dt);const sm=petShMax(k);if(sm>0){k.sh=k.sh||0;if(k.sh<sm)k.sh=Math.min(sm,k.sh+sm*.15*dt)}
-   if(petActive('sk')&&s.mag)s.mag*=1.35;petFollow(dt)}}catch(e){}return r}}
+   if(petActive('sk')&&s.mag)s.mag*=petS('sk').mag;petFollow(dt)}}catch(e){}return r}}
 {const _dw=draw;draw=function(){const r=_dw.apply(this,arguments);try{petDraw()}catch(e){}return r}}
 {const _m=menu;menu=function(){const r=_m.apply(this,arguments);try{if(typeof petSync==='function')petSync(1);petInjectBtn()}catch(e){}return r}}
 {const _rm=renderMenu;renderMenu=function(){const r=_rm.apply(this,arguments);try{if(typeof petSync==='function')petSync(1);petInjectBtn()}catch(e){}return r}}
@@ -6406,13 +6406,13 @@ function petFxDraw(s){const now=s.t||0,L=s._pfx||[];s._pfx=L.filter(f=>now-f.t0<
   X.globalAlpha=k;X.fillStyle=g;X.beginPath();X.moveTo(0,0);X.arc(0,0,r,-.7,.7);X.closePath();X.fill();X.restore()}
  else if(f.k==='hole'){const r=f.r*(p<.3?p/.3:1);X.save();X.translate(f.x,f.y);X.globalAlpha=.85*k;const g=X.createRadialGradient(0,0,0,0,0,r);g.addColorStop(0,'#000');g.addColorStop(.35,'rgba(20,8,40,.95)');g.addColorStop(.8,'rgba(106,76,255,.35)');g.addColorStop(1,'rgba(255,224,102,0)');X.fillStyle=g;X.beginPath();X.arc(0,0,r,0,TAU);X.fill();
   X.rotate(now*5);X.strokeStyle='#ffe066';X.lineWidth=2;for(let a=0;a<4;a++){X.rotate(TAU/4);X.beginPath();for(let i=0;i<=20;i++){const u=i/20,rr=r*(1-u),th=u*3.2;X.lineTo(Math.cos(th)*rr,Math.sin(th)*rr)}X.stroke()}X.restore()}}X.globalAlpha=1}
-{const _pa=petAttack;petAttack=function(o){const s=st;const c0=o.cd,x0=o.x,y0=o.y;let tg=null;try{tg=inRange(o.x,o.y,o.id==='vx'?160:130)[0]||(s.en||[]).find(e=>e.hp>0)}catch(e){}
+{const _pa=petAttack;petAttack=function(o){const s=st;const c0=o.cd,x0=o.x,y0=o.y;let tg=null;try{tg=inRange(o.x,o.y,petS(o.id).rng||130)[0]||(s.en||[]).find(e=>e.hp>0)}catch(e){}
   const r=_pa.apply(this,arguments);try{if(o.cd>c0+.05&&o.cd<900||(o.id==='os'&&o.cd===999)){const id=o.id;
    if(id==='sk'&&tg)petFx(s,{k:'zap',x:x0,y:y0-10,tx:tg.x,ty:tg.y-(tg.r||6),d:.28});
-   else if(id==='gl')petFx(s,{k:'pulse',x:x0,y:y0-8,r:70,d:.7});
+   else if(id==='gl')petFx(s,{k:'pulse',x:x0,y:y0-8,r:petS('gl').rad,d:.7});
    else if(id==='vx'&&tg)petFx(s,{k:'dash',x:x0,y:y0-8,tx:o.x,ty:o.y-8,a:Math.atan2(tg.y-y0,tg.x-x0),d:.4});
    else if(id==='nw'){const e=(s.en||[])[0],k=s.k;const a=Math.atan2(((e&&e.y)||(k?k.y-80:y0-80))-y0,((e&&e.x)||(k?k.x:x0))-x0);petFx(s,{k:'cone',x:x0,y:y0-8,a,d:.45})}
-   else if(id==='os'&&s.k)petFx(s,{k:'hole',x:s.k.x,y:s.k.y-20,r:120,d:1.3})}}catch(e){}return r}}
+   else if(id==='os'&&s.k)petFx(s,{k:'hole',x:s.k.x,y:s.k.y-20,r:petS('os').rad,d:1.3})}}catch(e){}return r}}
 petDraw=function(){const s=st,o=s&&s.pet,P=petStore();if(!s||!o||!P.eq||state!=='play')return;const t=s.t||0,dt=Math.min(.05,Math.max(0,t-(s._pt0==null?t:s._pt0)));s._pt0=t;
  X.save();if(typeof WT!=='undefined'&&WT)X.setTransform(WT[0],0,0,WT[1],WT[2],WT[3]);try{petTrail(s,o,dt);petTrailDraw(s);petFxDraw(s)}catch(e){}
  o.fx=(o.fx||1)+((Math.abs(o.vx||0)>.4?Math.sign(o.vx):(o.fx||1)>0?1:-1)-(o.fx||1))*Math.min(1,dt*8);
@@ -6439,5 +6439,85 @@ function petPortHTML(id,lv,lk,px){const d=window.devicePixelRatio||2,n=Math.roun
 .x123pc.lk .x123pi{border-color:#222;background:radial-gradient(circle,#141a24,#05070a)}
 .x123pp{position:static!important;inset:auto!important;transform:none!important;z-index:auto!important;display:block;pointer-events:none}
 .x123ms{display:block;font-size:11px;font-weight:800;color:var(--pc);letter-spacing:.03em;margin:1px 0}`;document.head.appendChild(c)}
+
+// ===== v1.23.1 PET STATS: every pet stat grows a little every level (plus bigger jumps at milestones), and an ⓘ panel with exact numbers.
+// Nothing gets lower: at Lv 1 every value equals v1.23, and every formula only adds on top of the old one.
+{const _lvm=petLvM;petLvM=function(lv){const b=_lvm(lv);return b?b*(1+.04*petTier(lv)):0}}
+function petS(id,lv){if(lv==null)lv=petLv(id);lv=Math.max(1,Math.min(PETMAX,lv|0));const L=lv-1,T=petTier(lv),M=petLvM(lv),g=(a,b)=>1+a*L+b*T;
+  if(id==='sk')return{lv,T,M,cd:Math.max(.4,.85/g(.0008,.03)),rng:130*g(.0003,.02),dm:1,mag:1.35+.0005*L+.02*T,cred:.08*M};
+  if(id==='gl')return{lv,T,M,cd:Math.max(.9,2.1/g(.0006,.03)),rad:70*g(.0003,.02),slow:Math.min(.45,.2+.0001*L+.01*T),slowT:1.5+.001*L+.1*T,heal:.004*M,reg:.0015*M,sh:.08*M};
+  if(id==='vx')return{lv,T,M,cd:Math.max(1.4,3.2/g(.0006,.03)),rng:160*g(.0003,.02),len:170*g(.0003,.02),wid:18*g(.0003,.02),dm:.7,markT:5+.003*L+.2*T,mark:.2*M,cdm:.12*M};
+  if(id==='nw')return{lv,T,M,cd:Math.max(.8,1.9/g(.0006,.03)),rng:110*g(.0003,.02),cone:Math.min(1.05,.7*g(.0002,.01)),dm:1.1,boss:.12*M};
+  if(id==='os')return{lv,T,M,rad:120*g(.0003,.02),pull:40*g(.0005,.03),dm:2.2,rev:Math.min(.6,.4+.0001*L+.01*T),all:.07*M,boss:.04*M,cdm:.03*M,reg:.0004*M,sh:.03*M};
+  return{lv,T,M}}
+// ---- info panel
+function x1231pc(x,d){const v=x*100;return(Math.abs(v)>=1e5?fN(Math.round(v)):v.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}))+'%'}
+function x1231n(x,d){return x>=1000?fN(Math.round(x)):x.toFixed(d==null?1:d)}
+function x1231row(lbl,now,nxt,how){return`<div class="x1231r"><div class="x1231l">${lbl}</div><div class="x1231v"><b class="x1231now">${now}</b>${nxt==null||nxt===''?'':`<span class="x1231ar">→</span><span class="${nxt===now?'x1231same':'x1231up'} x1231nx">${nxt}</span>`}</div>${how?`<div class="x1231how">${how}</div>`:''}</div>`}
+function petInfoHTML(id){const d=petBy(id),P=petStore(),own=!!P.u[id];
+  if(!own)return`<div class="x1231hd"><div class="x1231ic">${typeof petPortHTML==='function'?petPortHTML(id,1,1,56):'?'}</div><div><b>??? · Mystery pet</b><small>Locked</small></div></div>
+   <p><b>How to unlock:</b> get the <b>Tier 1</b> best wave of <b>all three slots</b> (Ranged, Melee and Psionic) to <b>wave ${fN(d.w)}</b> or higher.</p>
+   <p>Your lowest Tier 1 best right now: <b>wave ${fN(petMinT1())}</b>${petMinT1()<d.w?' (needs '+fN(d.w-petMinT1())+' more)':''}.</p>`;
+  const lv=petLv(id),mx=lv>=PETMAX,a=petS(id,lv),b=mx?null:petS(id,lv+1),on=P.eq===id,sh=on?1:.25,R=(l,f,dd,how)=>x1231row(l,f(a),b?f(b):null,how);
+  const tier=(st&&st.tier)||1,tm=1+.12*(tier-1),kd=st&&st.k?(st.dmg||8)*XK():0,dmgP=s=>.32*s.M*tm*s.dm;
+  const hit=s=>x1231pc(dmgP(s))+(kd?' ≈ '+fN(Math.round(kd*dmgP(s))):'');
+  const ms=x=>(x*1000).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})+' ms',cdF=s=>ms(s.cd),dps=s=>x1231pc(dmgP(s)/s.cd)+'/s';
+  let rows='';const aT=a.T,nxA=PTIER.find(m=>lv<m),nx36=Math.min(PETMAX,(Math.floor(lv/36)+1)*36);
+  const st1='<div class="x1231sec">',st2='</div>';
+  if(id==='sk'){rows+=st1+'⚡ Attack: zap the nearest alien'+st2+R('Damage per zap (% of King damage)',hit)+R('Time between zaps',cdF,0,'850 ms at Lv 1, about 0.08% faster per level and 3% faster per aura stage (fastest 400 ms)')+R('Damage per second (% of King damage)',dps)+R('Range',s=>x1231n(s.rng,2)+' px',0,'130 px at Lv 1, +0.03% per level, +2% per aura stage')+'<div class="x1231how x1231note">Zaps can crit with the King\'s crit chance and crit damage.</div>'
+     +st1+'💰 Passives'+st2+R('Kill credits (walking)',s=>'+'+x1231pc(s.cred),0,'+8% × power')+R('Kill credits (resting, 25%)',s=>'+'+x1231pc(s.cred*.25))+R('Pickup radius (walking)',s=>'+'+x1231pc(s.mag-1,2),0,'+35% at Lv 1, +0.05% per level, +2% per aura stage')}
+  if(id==='gl'){rows+=st1+'🪼 Attack: slowing pulse around Glim'+st2+R('Time between pulses',cdF,0,'2,100 ms at Lv 1, ~0.06% faster per level, 3% faster per aura stage (fastest 900 ms)')+R('Pulse radius',s=>x1231n(s.rad,2)+' px',0,'70 px at Lv 1, +0.03% per level, +2% per aura stage')+R('Slow',s=>x1231pc(s.slow,2),0,'20% at Lv 1, +0.01% per level, +1% per aura stage (max 45%)')+R('Slow lasts',s=>ms(s.slowT),0,'1,500 ms at Lv 1, +1 ms per level, +100 ms per aura stage')+R('King heal per pulse',s=>x1231pc(s.heal)+' max HP',0,'0.4% × power')
+     +st1+'💚 Passives'+st2+R('King regen (walking)',s=>x1231pc(s.reg*60)+' max HP/min',0,'0.15% of max HP per second × power (9% per minute at power 1)')+R('Shield (walking)',s=>x1231pc(s.sh)+' max HP',0,'8% × power; refills 15% of its size per second')+R('Regen / shield (resting, 25%)',s=>x1231pc(s.reg*15)+'/min · '+x1231pc(s.sh*.25))}
+  if(id==='vx'){rows+=st1+'🦊 Attack: crystal dash through a line of aliens'+st2+R('Damage per alien hit (% of King damage)',hit,0,'70% of a normal pet hit')+R('Time between dashes',cdF,0,'3,200 ms at Lv 1, ~0.06% faster per level, 3% faster per aura stage (fastest 1,400 ms)')+R('Damage per second, one target (% of King damage)',dps)+R('Lock-on range',s=>x1231n(s.rng,2)+' px')+R('Dash length × width',s=>x1231n(s.len,2)+' × '+x1231n(s.wid*2,2)+' px',0,'+0.03% per level, +2% per aura stage')+R('Mark: hit aliens take extra damage',s=>'+'+x1231pc(s.mark),0,'+20% × power, from every source, while marked')+R('Mark lasts',s=>ms(s.markT),0,'5,000 ms at Lv 1, +3 ms per level, +200 ms per aura stage')
+     +st1+'💎 Passives'+st2+R('King crit damage (walking)',s=>'+'+x1231pc(s.cdm),0,'+12% × power, added to the crit multiplier')+R('Crit damage (resting, 25%)',s=>'+'+x1231pc(s.cdm*.25))}
+  if(id==='nw'){rows+=st1+'🐉 Attack: plasma cone at the lead alien'+st2+R('Damage per alien in the cone (% of King damage)',hit,0,'110% of a normal pet hit')+R('Time between breaths',cdF,0,'1,900 ms at Lv 1, ~0.06% faster per level, 3% faster per aura stage (fastest 800 ms)')+R('Damage per second, one target (% of King damage)',dps)+R('Cone reach',s=>x1231n(s.rng,2)+' px',0,'110 px at Lv 1, +0.03% per level, +2% per aura stage')+R('Cone width',s=>x1231n(s.cone*2*180/Math.PI,2)+'°',0,'80° at Lv 1, +0.02% per level, +1% per aura stage (max 120°)')
+     +st1+'👹 Passives'+st2+R('Boss damage, all sources (walking)',s=>'+'+x1231pc(s.boss),0,'+12% × power')+R('Boss damage (resting, 25%)',s=>'+'+x1231pc(s.boss*.25))}
+  if(id==='os'){rows+=st1+'🪽 Ultimate: black hole, once per wave'+st2+R('Damage to each alien pulled in (% of King damage)',hit,0,'220% of a normal pet hit')+R('Black-hole radius',s=>x1231n(s.rad,2)+' px',0,'120 px at Lv 1, +0.03% per level, +2% per aura stage')+R('Pull strength',s=>x1231n(s.pull,2)+' px',0,'40 px at Lv 1, +0.05% per level, +3% per aura stage')+R('King revive (once per wave)',s=>x1231pc(s.rev,2)+' max HP',0,'Revives the King at 40% HP at Lv 1, +0.01% per level, +1% per aura stage (max 60%)')
+     +st1+'✨ Passives (walking; resting gives 25%)'+st2+R('All damage',s=>'+'+x1231pc(s.all),0,'+7% × power')+R('Boss damage',s=>'+'+x1231pc(s.boss),0,'+4% × power')+R('Crit damage',s=>'+'+x1231pc(s.cdm),0,'+3% × power')+R('King regen',s=>x1231pc(s.reg*60)+' max HP/min',0,'0.04% of max HP per second × power')+R('Shield',s=>x1231pc(s.sh)+' max HP',0,'3% × power')}
+  const pw=x1231row('Power ×',a.M.toFixed(2),b?b.M.toFixed(2):null,'Power = (1 + 3% per level above 1) × (1 + 15% every 36 levels) × (1 + 4% per aura stage). Every damage and perk number below is multiplied by it.');
+  return`<div class="x1231hd"><div class="x1231ic">${typeof petPortHTML==='function'?petPortHTML(id,lv,0,56):d.ic}</div><div><b>${d.nm}${on?' · walking':''}</b><small>${d.kind} · Lv ${lv}/${PETMAX}${on?'':' · resting: gives 25% of its passives and does not attack'}</small></div></div>
+   <div class="x1231t"><div class="x1231cols"><span>Now · Lv ${lv}</span><span class="x1231ar">→</span><span class="x1231up">${mx?'MAX':'Next · Lv '+(lv+1)}</span></div>${pw}
+   <div class="x1231sec">🏅 Milestones</div>
+   ${x1231row('Aura stage',aT?['','I','II','III','IV','V','VI','VII'][aT]+' · '+PTNM[aT]:'none yet',nxA?'next at Lv '+nxA:'all 7 reached','Aura stages at Lv 10, 25, 50, 100, 250, 500 and 1000. Each one is +4% power and a bigger jump in speed, range and effect values.')}
+   ${x1231row('36-level milestones',Math.floor(lv/36)+' reached (×'+(1+.15*Math.floor(lv/36)).toFixed(2)+')',Math.floor(lv/36)>=Math.floor(PETMAX/36)?'all reached':'next at Lv '+nx36,'+15% power every 36 levels.')}
+   <div class="x1231sec">🎚️ Tier bonus</div>
+   ${x1231row('Run tier '+tier+(st&&st.k?'':' (outside a run)'),'×'+tm.toFixed(2),'','Pet attack damage gets +12% for each tier above Tier 1.')}
+   ${rows}</div>
+   <p class="x1231ft">Attack damage is a share of the King's damage per bolt (with gear and relics), so it grows with the King too.${kd?'':' Open this during a run (pause → ⓘ) to see the exact hit numbers.'}${on?'':' Only the walking pet attacks.'}</p>`}
+function petInfo(id){try{document.querySelectorAll('.x1231ov').forEach(e=>e.remove())}catch(e){}
+  const el=document.createElement('div');el.className='x1231ov';el.innerHTML=`<div class="pn x1231pn"><button class="x1231x" data-x1231x="1" aria-label="Close">✕</button>${petInfoHTML(id)}<button class="b n" data-x1231x="1">Close</button></div>`;
+  document.body.appendChild(el);try{if(typeof petPortStart==='function')petPortStart()}catch(e){}
+  el.addEventListener('click',e=>{if(e.target===el||(e.target.closest&&e.target.closest('[data-x1231x]'))){e.stopPropagation();el.remove()}});return el}
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('[data-x1231inf]');if(!b)return;e.stopPropagation();e.preventDefault();try{Snd.ui()}catch(x){}petInfo(b.dataset.x1231inf)},true);
+// ---- ⓘ on every Pet Bay card, clearer card line
+{const _pb=petBay;petBay=function(){const r=_pb.apply(this,arguments);try{const pn=UI.querySelector('.pn');if(!pn||!/Pet Bay/i.test((pn.querySelector('h1')||{}).textContent||''))return r;const P=petStore();
+  const rows=[...pn.querySelectorAll('.row')].filter(x=>x.querySelector('.ic')).slice(0,PETDEF.length);
+  rows.forEach((row,i)=>{const d=PETDEF[i],own=!!P.u[d.id],b=row.querySelector('.tx b');if(!b||row.querySelector('[data-x1231inf]'))return;
+   b.insertAdjacentHTML('beforeend',` <button class="x1231i" data-x1231inf="${d.id}" aria-label="${own?d.nm:'Locked pet'} stats">ⓘ</button>`);
+   if(own){const lv=petLv(d.id);row.querySelectorAll('.tx small').forEach(sm=>{if(/milestone ×/.test(sm.textContent))sm.textContent=`${d.kind} · Lv ${lv}/${PETMAX} · power ×${petLvM(lv).toFixed(2)} · grows every level`})}})}catch(e){console.error(e)}return r}}
+// ---- pause menu: ⓘ for the walking pet next to the Pet Bay button
+function x1231pauseBtn(){try{if(state!=='pause'||!UI)return;const P=petStore();if(!P.eq||UI.querySelector('[data-x1231inf]'))return;const pb=UI.querySelector('[data-id="petBay"]');if(!pb)return;const d=petBy(P.eq);
+  const b=document.createElement('button');b.className='b x1231pb';b.dataset.x1231inf=P.eq;b.innerHTML='<span class="x1231i" style="pointer-events:none">i</span> '+d.nm+' · Lv '+petLv(P.eq)+' · exact pet stats';const par=pb.parentNode,grid=par&&par!==UI&&!par.classList.contains('pn')&&par.querySelectorAll(':scope>button').length>1;if(grid)par.after(b);else pb.after(b)}catch(e){}}
+{const _rm=renderMenu;renderMenu=function(){const r=_rm.apply(this,arguments);x1231pauseBtn();return r}}
+{const c=document.createElement('style');c.id='x1231css';c.textContent=`
+.x1231i{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;margin-left:6px;padding:0;border-radius:50%;border:1px solid color-mix(in srgb,var(--pc,#9cf) 70%,#fff);background:#0b1220;color:#dff;font-size:14px;line-height:1;vertical-align:middle;cursor:pointer;box-shadow:0 0 8px color-mix(in srgb,var(--pc,#9cf) 45%,transparent)}
+.x1231ov{position:fixed;inset:0;z-index:95;display:flex;align-items:center;justify-content:center;background:rgba(3,6,12,.78);padding:12px;box-sizing:border-box}
+.x1231pn{position:relative;max-width:420px;width:100%;max-height:92vh;overflow-y:auto;text-align:left;-webkit-overflow-scrolling:touch}
+.x1231x{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:50%;border:1px solid #567;background:#0b1220;color:#fff;font-size:16px}
+.x1231hd{display:flex;gap:10px;align-items:center;margin:2px 40px 8px 0}.x1231hd b{font-size:19px;display:block}.x1231hd small{opacity:.8;font-size:12px;display:block}
+.x1231ic{width:60px;height:60px;min-width:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,#1a2433,#05070b 72%);border:1px solid #456}
+.x1231ic canvas{position:static!important;inset:auto!important;transform:none!important}
+.x1231t{font-size:13px;text-align:left}
+.x1231cols{display:flex;justify-content:flex-end;gap:6px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;opacity:.8;margin:0 0 4px}
+.x1231r{padding:6px 2px;border-bottom:1px solid #ffffff14;text-align:left}
+.x1231l{font-size:13px;color:#cfe3f5}
+.x1231v{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:baseline;gap:2px 6px;margin-top:1px}
+.x1231now{color:#fff;font-size:15px}.x1231nx{font-weight:700;font-size:14px}.x1231ar{color:#8fa6bd;opacity:1}
+.x1231how{font-size:11.5px;color:#9fb6cc;opacity:1;margin-top:2px;line-height:1.3}.x1231note{padding:4px 2px;border-bottom:1px solid #ffffff14}
+.x1231sec{margin:12px 0 2px;padding-bottom:3px;font-weight:700;color:#ffd25e;border-bottom:1px solid #ffd25e55;text-align:left}
+.x1231hd b{color:#fff}.x1231hd small{color:#9fb6cc!important;opacity:1!important}.x1231cols{color:#cfe3f5;opacity:1}.x1231ft{color:#9fb6cc;opacity:1!important}.x1231pn p{color:#dbe8f5}
+.x1231up{color:#7dff9a}.x1231same{opacity:.6}.x1231ft{font-size:12px;opacity:.75;margin:10px 0}
+.x1231pb{display:flex!important;align-items:center;justify-content:center;gap:6px;width:100%!important;min-height:0!important;height:auto!important;padding:9px 12px!important;margin:8px 0!important;font-size:14px!important;letter-spacing:.02em;text-transform:none!important;background:linear-gradient(#1b2b44,#0d1626)!important;border:1px solid #7fe3ff!important;border-radius:12px!important}
+.x1231pb .x1231i{margin:0;width:20px;height:20px;font-size:12px;font-style:italic;font-weight:800;font-family:Georgia,serif}`;document.head.appendChild(c)}
 
 </script></body></html>
