@@ -86,7 +86,7 @@ table{color:#c7d3df}td:last-child{color:#bff1ff}
 </style></head><body>
 <canvas id="c"></canvas><div id="ui"></div>
 <script>
-const SKVER='v1.23.1';
+const SKVER='v1.23.2';
 const LSP='sbm_',LS={getItem:k=>localStorage.getItem(LSP+k),setItem:(k,v)=>localStorage.setItem(LSP+k,v),removeItem:k=>localStorage.removeItem(LSP+k),keys:()=>Object.keys(localStorage).filter(k=>k.startsWith(LSP)).map(k=>k.slice(LSP.length)),clear:()=>LS.keys().forEach(k=>localStorage.removeItem(LSP+k))};
 
 const C=document.getElementById('c');let X=C.getContext('2d');const UI=document.getElementById('ui');
@@ -107,7 +107,7 @@ gr=g.createLinearGradient(0,0,W,H);gr.addColorStop(0,'rgba(255,150,100,.10)');gr
 let _lw=0,_lh=0,_rsT=0;function rsChk(){vvSet();const vv=window.visualViewport,de=document.documentElement;const w=Math.round(Math.max(innerWidth||0,de.clientWidth||0)),h=Math.round(Math.max(innerHeight||0,de.clientHeight||0,vv?vv.height:0));if(w!==_lw||h!==_lh||C.width!==Math.round(w*D))rs()}
 function rsKick(){clearTimeout(_rsT);_rsT=setTimeout(rsChk,60);[100,500,1000].forEach(t=>setTimeout(rsChk,t))}
 ['resize','orientationchange','pageshow','focus'].forEach(ev=>addEventListener(ev,rsKick));document.addEventListener('visibilitychange',()=>{if(!document.hidden)rsKick()});if(window.visualViewport){visualViewport.addEventListener('resize',()=>{vvSet();rsKick()});visualViewport.addEventListener('scroll',vvSet)}setInterval(()=>{if(!document.hidden)rsChk()},1500);rs();
-document.addEventListener('touchmove',e=>{if(!e.target.closest('#ui'))e.preventDefault()},{passive:false});
+document.addEventListener('touchmove',e=>x1232tm(e),{passive:false});
 ['gesturestart','dblclick'].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
 // ---------- meta
 const ARM=[['sg','💰','Seed Funding',l=>'+'+(l*5)+' starting credits, +'+(l*.5).toFixed(1)+'% head-start credits',100,8],['gm','🚀','Crystal Refinery',l=>'+'+l+'% crystals earned',100,30],['hd','🚀','Launch Boost',l=>'Start at '+(+(herPct(l)*100).toFixed(1))+'% of best wave (Launch Boost +'+(+(herLB(l)*100).toFixed(1))+'%'+(herDil()?' + Time Dilator +'+(+(herDil()*100).toFixed(1))+'%':'')+') · wave '+herMax(l)+' of '+herBase()+' (Lv 100 = 95%)',100,25],['hp','❤️','Life Support',l=>'+'+(l*5)+'% Star King HP (scales with waves)',100,8],['dmg','🎯','Hotter Plasma',l=>'+'+fN((ARMD(l)-1)*100)+'% bolt damage (×'+ARMD(l).toFixed(2)+', stacks with Damage pad)',100,10],['crit','💥','Full Self-Aiming',l=>(l*.5).toFixed(1)+'% crit chance',100,10],
@@ -6519,5 +6519,67 @@ function x1231pauseBtn(){try{if(state!=='pause'||!UI)return;const P=petStore();i
 .x1231up{color:#7dff9a}.x1231same{opacity:.6}.x1231ft{font-size:12px;opacity:.75;margin:10px 0}
 .x1231pb{display:flex!important;align-items:center;justify-content:center;gap:6px;width:100%!important;min-height:0!important;height:auto!important;padding:9px 12px!important;margin:8px 0!important;font-size:14px!important;letter-spacing:.02em;text-transform:none!important;background:linear-gradient(#1b2b44,#0d1626)!important;border:1px solid #7fe3ff!important;border-radius:12px!important}
 .x1231pb .x1231i{margin:0;width:20px;height:20px;font-size:12px;font-style:italic;font-weight:800;font-family:Georgia,serif}`;document.head.appendChild(c)}
+
+// ===== v1.23.2 FIXES: body-level popups fit the visible screen and scroll on iOS; pets follow, unstick and fight in raids.
+// ---- 1) modals. Root cause: the page blocks every touchmove outside #ui (to stop iOS page bounce), and these popups live on
+// <body>, so they could never scroll. Their .pn panel also used 94vh (iOS "large" viewport, taller than the visible area under
+// Brave's bars), so the bottom (and the Close button) was off-screen. Now: sized to the visual viewport, scroll inside, and
+// every one closes with ✕ / tap outside / Escape / Back.
+const X1232M='.x1231ov,.x123pop,#hd1213pop,.petrev,.whpop,.ainf';
+function x1232tm(e){const t=e.target;if(!t||!t.closest)return e.preventDefault();if(t.closest('#ui'))return;const ov=t.closest(X1232M);
+  if(ov){for(let n=t;n&&n!==ov.parentNode;n=n.parentNode){if(n.nodeType===1&&n.scrollHeight>n.clientHeight+1){const oy=getComputedStyle(n).overflowY;if(oy==='auto'||oy==='scroll')return}}}
+  e.preventDefault()}
+function x1232top(){const L=[...document.querySelectorAll(X1232M)].filter(e=>e.isConnected&&getComputedStyle(e).display!=='none');if(!L.length)return null;
+  return L.sort((a,b)=>(+getComputedStyle(a).zIndex||0)-(+getComputedStyle(b).zIndex||0)).pop()}
+// close one popup the same way its own button would (so its "seen" flags still get saved)
+function x1232close(ov){if(!ov)return false;try{
+  if(ov.classList.contains('x123pop')){const b=ov.querySelector('[data-x123pop="ok"]');if(b){b.click();return true}}
+  if(ov.id==='hd1213pop'){const b=ov.querySelector('#hd1213ok');if(b){b.click();return true}}
+  if(ov.classList.contains('petrev')){const b=ov.querySelector('[data-id="petBack"]');if(b){b.click();return true}}
+  if(ov.classList.contains('ainf')||ov.classList.contains('whpop')){const b=ov.querySelector('[data-whclose],.x,button[aria-label*="lose"]');if(b){b.click();if(!ov.isConnected)return true}}}catch(e){}
+  ov.remove();return true}
+document.addEventListener('keydown',e=>{if(e.key!=='Escape'&&e.key!=='Esc')return;const ov=x1232top();if(!ov)return;e.preventDefault();e.stopImmediatePropagation();try{keys.escape=0}catch(x){}x1232close(ov)},true);
+// tap the dark backdrop to close (Trinity popup / Launch Boost refund had no outside-tap close)
+document.addEventListener('click',e=>{const t=e.target;if(!t||!t.matches||!t.matches('.x123pop,#hd1213pop'))return;e.stopPropagation();x1232close(t)},true);
+// Back button / swipe-back closes the ⓘ panel instead of leaving the page
+let X1232H=0;addEventListener('popstate',()=>{if(!X1232H)return;X1232H=0;const ov=document.querySelector('.x1231ov');if(ov)ov.remove()});
+function x1232histClose(){if(X1232H){X1232H=0;try{if(history.state&&history.state.x1232)history.back()}catch(e){}}}
+petInfo=function(id){try{document.querySelectorAll('.x1231ov').forEach(e=>e.remove())}catch(e){}
+  const d=petBy(id),own=petOwned(id);const el=document.createElement('div');el.className='x1231ov';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');
+  el.innerHTML=`<div class="pn x1231pn x1232pn"><div class="x1232bar"><span>ⓘ ${own?d.nm+' stats':'Locked pet'}</span><button class="x1232x" data-x1231x="1" aria-label="Close">✕ Close</button></div><div class="x1232sc">${petInfoHTML(id)}<button class="b n" data-x1231x="1">Close</button></div></div>`;
+  document.body.appendChild(el);try{if(typeof petPortStart==='function')petPortStart()}catch(e){}
+  try{if(!X1232H){history.pushState(Object.assign({},history.state||{},{x1232:1}),'');X1232H=1}}catch(e){}
+  el.addEventListener('click',e=>{if(e.target===el||(e.target.closest&&e.target.closest('[data-x1231x]'))){e.stopPropagation();e.preventDefault();el.remove();x1232histClose()}});
+  const b=el.querySelector('.x1232x');try{b.focus({preventScroll:true})}catch(e){}return el};
+// any other way the panel goes away (Escape) also unwinds the history entry
+{const mo=new MutationObserver(()=>{if(X1232H&&!document.querySelector('.x1231ov'))x1232histClose()});mo.observe(document.body,{childList:true})}
+{const c=document.createElement('style');c.id='x1232css';c.textContent=`
+.x1231ov,.x123pop,#hd1213pop,.petrev{inset:auto!important;left:0!important;right:0!important;top:var(--vvt,0px)!important;height:var(--vvh,100dvh)!important;
+ padding:max(10px,env(safe-area-inset-top)) max(10px,env(safe-area-inset-right)) max(10px,env(safe-area-inset-bottom)) max(10px,env(safe-area-inset-left))!important;box-sizing:border-box!important;overscroll-behavior:contain}
+.x123pop>.pn,#hd1213pop>.pn,.petrev>.pn,.whpop>div,.ainf>div{max-height:min(85dvh,calc(var(--vvh,100dvh) - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom)))!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain}
+.x1232pn{display:flex!important;flex-direction:column;padding:0!important;overflow:hidden!important;max-height:min(85dvh,calc(var(--vvh,100dvh) - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom)))!important}
+.x1232bar{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 10px 10px 16px;border-bottom:1px solid #ffffff1c;background:linear-gradient(#18212d,#10161f);border-radius:16px 16px 0 0}
+.x1232bar span{font-weight:800;font-size:15px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.x1232x{flex:0 0 auto;min-width:96px;height:44px;border-radius:12px;border:1px solid #ff8a8a;background:linear-gradient(#5a1d24,#33101a);color:#fff;font-size:15px;font-weight:800;letter-spacing:.02em}
+.x1232sc{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain;padding:10px 14px 14px}
+.x123pop .x123pl{max-height:calc(var(--vvh,100dvh)*.3);overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain}.x123pop .x123pl>div{color:#dbe8f5}
+.x1232pn .x1231x{display:none}.x1232pn .x1231hd{margin-right:0}`;document.head.appendChild(c)}
+// ---- 2) raid pets. Root cause: the pet update only ran when !st.raid, so on entering a raid the pet froze at its home-map
+// spot while the King was moved to the raid map, and it was still drawn there ("stuck"). Now the pet updates inside the raid
+// step (so it targets raid aliens), teleports to the King whenever it changes map or is left far behind / trapped.
+function x1232tele(o,k){o.x=k.x-18;o.y=k.y+4;o.vx=0;o.vy=0;o.far=0;try{if(st&&st._ptr)st._ptr.length=0}catch(e){}}
+petFollow=function(dt){const s=st,k=s&&s.k,P=petStore();if(!s||!k||!P.eq){if(s)s.pet=null;return}
+  let o=s.pet;if(!o||o.id!==P.eq){o=s.pet={id:P.eq,x:k.x-16,y:k.y+6,vx:0,vy:0,cd:0,ph:0,wave:s.wave}}
+  const zone=s.raid?'r'+(s.raid.w|0)+':'+(s.raid.rs|0):'h';if(o.zone!==zone){o.zone=zone;x1232tele(o,k)}
+  if(!isFinite(o.x)||!isFinite(o.y)||!isFinite(o.vx)||!isFinite(o.vy))x1232tele(o,k);
+  const dk=dist(o.x,o.y,k.x,k.y);if(dk>160)x1232tele(o,k);else{o.far=dk>70?(o.far||0)+dt:0;if(o.far>1.2)x1232tele(o,k)}
+  if(o.wave!==s.wave){o.wave=s.wave;o.ult=0;o.rev=0}
+  const wantX=k.x-18+(P.eq==='nw'?Math.cos((s.t||0)*1.6)*22:0),wantY=k.y+4+Math.sin((s.t||0)*2.2)*3+(P.eq==='nw'?Math.sin((s.t||0)*1.6)*10:0);
+  o.vx+=(wantX-o.x)*6*dt;o.vy+=(wantY-o.y)*6*dt;o.vx*=Math.max(0,1-5*dt);o.vy*=Math.max(0,1-5*dt);
+  o.x+=o.vx*dt*60*.016;o.y+=o.vy*dt*60*.016;o.ph=(o.ph||0)+dt;o.cd=(o.cd||0)-dt;s.pet=o;
+  if(o.cd<=0&&state==='play')petAttack(o)};
+{const _rs=raidStep;raidStep=function(dt){const r=_rs.apply(this,arguments);try{const s=st,k=s&&s.k;if(s&&s.raid&&k&&state==='play'){
+  const reg=petRegen();if(reg>0)k.hp=Math.min(k.mhp,k.hp+k.mhp*reg*dt);const sm=petShMax(k);if(sm>0){k.sh=k.sh||0;if(k.sh<sm)k.sh=Math.min(sm,k.sh+sm*.15*dt)}
+  petFollow(dt)}}catch(e){console.error(e)}return r}}
 
 </script></body></html>
