@@ -86,7 +86,7 @@ table{color:#c7d3df}td:last-child{color:#bff1ff}
 </style></head><body>
 <canvas id="c"></canvas><div id="ui"></div>
 <script>
-const SKVER='v1.23.2';
+const SKVER='v1.23.3';
 const LSP='sbm_',LS={getItem:k=>localStorage.getItem(LSP+k),setItem:(k,v)=>localStorage.setItem(LSP+k,v),removeItem:k=>localStorage.removeItem(LSP+k),keys:()=>Object.keys(localStorage).filter(k=>k.startsWith(LSP)).map(k=>k.slice(LSP.length)),clear:()=>LS.keys().forEach(k=>localStorage.removeItem(LSP+k))};
 
 const C=document.getElementById('c');let X=C.getContext('2d');const UI=document.getElementById('ui');
@@ -1678,7 +1678,7 @@ function fortArt(r){if(RFC[r])return RFC[r];const T=RTH[r].f,c=document.createEl
 // trophy relics (per race), medallion by tier
 const TRC={};
 function troArt(r,t,sz=96){const key=r+'_'+t+'_'+sz;if(TRC[key])return TRC[key];const c=document.createElement('canvas');c.width=c.height=sz;const g=c.getContext('2d');g.scale(sz/96,sz/96);g.translate(48,48);g.lineJoin='round';g.lineCap='round';
- const M=TTC[t],lock=!t;const rg=g.createRadialGradient(-10,-12,4,0,0,46);rg.addColorStop(0,lock?'#3a3a3a':mixC(M,'#ffffff',.45));rg.addColorStop(.7,lock?'#222':M);rg.addColorStop(1,lock?'#111':mixC(M,'#000000',.45));g.fillStyle=rg;g.beginPath();g.arc(0,0,44,0,TAU);g.fill();g.strokeStyle=lock?'#444':mixC(M,'#000000',.55);g.lineWidth=3;g.stroke();g.fillStyle=lock?'#1a1a1a':'rgba(20,14,8,.78)';g.beginPath();g.arc(0,0,36,0,TAU);g.fill();
+ const M=TTC[t],lock=!t||t===100;const rg=g.createRadialGradient(-10,-12,4,0,0,46);rg.addColorStop(0,lock?'#3a3a3a':mixC(M,'#ffffff',.45));rg.addColorStop(.7,lock?'#222':M);rg.addColorStop(1,lock?'#111':mixC(M,'#000000',.45));g.fillStyle=rg;g.beginPath();g.arc(0,0,44,0,TAU);g.fill();g.strokeStyle=lock?'#444':mixC(M,'#000000',.55);g.lineWidth=3;g.stroke();g.fillStyle=lock?'#1a1a1a':'rgba(20,14,8,.78)';g.beginPath();g.arc(0,0,36,0,TAU);g.fill();
  if(lock)g.globalAlpha=.35;const T=RTH[r],P=RPAL[r]||{body:'#7a7',dark:'#353',cloth:'#a53',eye:'#ff0'};
  const S=(c)=>{g.strokeStyle=c||'#140e08';g.lineWidth=2;g.stroke()};
  switch(r){
@@ -1692,7 +1692,7 @@ function troArt(r,t,sz=96){const key=r+'_'+t+'_'+sz;if(TRC[key])return TRC[key];
  case 7:g.fillStyle='#cc3a36';g.beginPath();g.moveTo(-18,20);g.quadraticCurveTo(-22,-10,-4,-26);g.quadraticCurveTo(14,-34,22,-26);g.quadraticCurveTo(6,-22,0,-8);g.quadraticCurveTo(-6,6,-6,22);g.closePath();g.fill();S();g.fillStyle='#ffd740';g.fillRect(-20,18,16,6);S();g.strokeStyle='rgba(255,215,64,.6)';g.lineWidth=1.2;for(let i=0;i<4;i++){g.beginPath();g.moveTo(-14+i*3,12-i*8);g.lineTo(-8+i*4,10-i*8);g.stroke()}break;
  case 8:g.fillStyle='#2a1e4a';g.beginPath();g.moveTo(-24,10);g.lineTo(-20,-10);g.lineTo(-10,0);g.lineTo(0,-22);g.lineTo(10,0);g.lineTo(20,-10);g.lineTo(24,10);g.closePath();g.fill();S();g.fillStyle='#8a7ab8';g.fillRect(-24,8,48,6);S();g.fillStyle='#e040fb';g.beginPath();g.moveTo(0,-14);g.lineTo(4,-6);g.lineTo(0,2);g.lineTo(-4,-6);g.fill();g.beginPath();g.arc(-14,0,2,0,TAU);g.arc(14,0,2,0,TAU);g.fill();break;
  case 9:g.fillStyle='#7a5634';g.fillRect(-6,-6,12,34);S();g.fillStyle='#e8dcc0';g.beginPath();g.ellipse(0,-10,10,9,0,0,TAU);g.fill();S();g.strokeStyle='#e8dcc0';g.lineWidth=4;g.beginPath();g.moveTo(-8,-14);g.quadraticCurveTo(-24,-18,-20,-32);g.moveTo(8,-14);g.quadraticCurveTo(24,-18,20,-32);g.stroke();g.fillStyle='#222';g.fillRect(-5,-12,3,3);g.fillRect(2,-12,3,3);g.fillStyle='#7a2a1a';g.fillRect(-6,8,12,4);break}
- g.globalAlpha=1;if(t>=2){g.fillStyle=mixC(M,'#ffffff',.3);for(let i=0;i<t;i++){g.beginPath();const sx=(i-(t-1)/2)*12,sy=34;g.moveTo(sx,sy-4);g.lineTo(sx+1.5,sy-1);g.lineTo(sx+4.5,sy-1);g.lineTo(sx+2,sy+1);g.lineTo(sx+3,sy+4.5);g.lineTo(sx,sy+2.5);g.lineTo(sx-3,sy+4.5);g.lineTo(sx-2,sy+1);g.lineTo(sx-4.5,sy-1);g.lineTo(sx-1.5,sy-1);g.fill()}}
+ g.globalAlpha=1;const tp=t>=100?t-100:t;if(tp>=2){g.fillStyle=mixC(M,'#ffffff',.3);for(let i=0;i<tp;i++){g.beginPath();const sx=(i-(tp-1)/2)*12,sy=34;g.moveTo(sx,sy-4);g.lineTo(sx+1.5,sy-1);g.lineTo(sx+4.5,sy-1);g.lineTo(sx+2,sy+1);g.lineTo(sx+3,sy+4.5);g.lineTo(sx,sy+2.5);g.lineTo(sx-3,sy+4.5);g.lineTo(sx-2,sy+1);g.lineTo(sx-4.5,sy-1);g.lineTo(sx-1.5,sy-1);g.fill()}}
  return TRC[key]=c}
 const troURL=(r,t,sz)=>{const k='u'+r+'_'+t+'_'+sz;return TRC[k]||(TRC[k]=troArt(r,t,sz).toDataURL())};
 function portalFX(x,y,q,screen){const t=performance.now()/1000,c=st&&st.raid?(RTH[st.raid.race]||RTH[0]).orb:'#b388ff';if(screen){(UPR=0,X.setTransform(D,0,0,D,0,0));const a=Math.max(0,Math.min(1,q));X.fillStyle='rgba(10,0,20,'+(a*.85)+')';X.fillRect(0,0,W,H);X.save();X.translate(x==null?W/2:x,y==null?H*.55:y);for(let i=0;i<5;i++){X.rotate(t*1.5+i);X.strokeStyle=i%2?c:'#ffffff';X.globalAlpha=.25+.15*i*a;X.lineWidth=3+i;X.beginPath();X.ellipse(0,0,(40+i*18)*(.3+a),(24+i*11)*(.3+a),0,0,TAU*.8);X.stroke()}X.restore();X.globalAlpha=1;if(a>.85){X.fillStyle='rgba(255,255,255,'+((a-.85)/.15)+')';X.fillRect(0,0,W,H)}return}
@@ -6581,5 +6581,61 @@ petFollow=function(dt){const s=st,k=s&&s.k,P=petStore();if(!s||!k||!P.eq){if(s)s
 {const _rs=raidStep;raidStep=function(dt){const r=_rs.apply(this,arguments);try{const s=st,k=s&&s.k;if(s&&s.raid&&k&&state==='play'){
   const reg=petRegen();if(reg>0)k.hp=Math.min(k.mhp,k.hp+k.mhp*reg*dt);const sm=petShMax(k);if(sm>0){k.sh=k.sh||0;if(k.sh<sm)k.sh=Math.min(sm,k.sh+sm*.15*dt)}
   petFollow(dt)}}catch(e){console.error(e)}return r}}
+
+// ===== v1.23.3 TROPHY STARS: every raid trophy levels to 100 ★. Small bonus per star (old Gold value / 9, so Wyrm Scale Plating
+// is exactly +1% Star King damage per ★), big cap. Later stars need deeper rifts, so the last ones take real effort.
+// Migration: Bronze/Silver/Gold become 3/6/9 ★ = exactly the old bonus (or 1 ★ per past win, up to 10, if that is more). No losses.
+const TSB=[[0,'—','#555'],[1,'Bronze','#cd7f32'],[6,'Silver','#dfe5ea'],[9,'Gold','#ffd54f'],[25,'Platinum','#e8f4ff'],[50,'Diamond','#7fe3ff'],[75,'Cosmic','#c07dff'],[100,'Ascended','#ff7ad9']];
+TSB.forEach((b,i)=>{TTN[i+100]=b[1];TTC[i+100]=b[2]}); // band art keys live at 100+ so the old tier indices (Bane, art) are untouched
+const TSMAX=100;let X1233={pend:null,last:null,min:1,busy:0};
+function tsPer(i){return TRO[i][3][2]/9} // % per star
+function tsBand(n){let b=0;for(let j=0;j<TSB.length;j++)if(n>=TSB[j][0])b=j;return n>0?b:0}
+function tsReq(n){return n<=10?50:50*Math.ceil(Math.pow((n-10)/90,1.5)*60)+50} // effective rift wave needed for star n
+function tsEff(w,tier){return Math.round((w|0)*(1+.25*((tier||1)-1)))}
+function tsS(){if(!meta)return{s:{},c:{},d:{}};let S=meta.trs;if(!S||S.v!==1){const T=meta.tro||{};S={v:1,s:{},c:{},d:{},mig:{}};
+  for(let i=0;i<TRO.length;i++){const c=T[i]|0;if(c>0){const n=Math.min(TSMAX,Math.max(3*troTc(c),Math.min(c,10)));S.s[i]=n;S.mig[i]=n}S.c[i]=c}
+  meta.trs=S;try{saveMeta()}catch(e){}}
+  if(!X1233.busy){const T=meta.tro||{};for(let i=0;i<TRO.length;i++)if((T[i]|0)!==(S.c[i]|0)){tsSync();break}}return S}
+function tsN(i){return Math.min(TSMAX,(tsS().s[i]|0))}
+TRB=function(key){try{let v=0;for(let i=0;i<TRO.length;i++){if(TRO[i][1]!==key)continue;const n=tsN(i);if(n)v+=n*tsPer(i)/100}return v}catch(e){return 0}};
+// give stars for conquests the star ledger hasn't seen yet (raids, Head Start spoils, Jump Drive)
+function tsSync(){if(!meta||X1233.busy)return;X1233.busy=1;try{tsSync0()}finally{X1233.busy=0}}
+function tsSync0(){const S=tsS(),T=meta.tro||{};let ch=0;
+  for(let i=0;i<TRO.length;i++){let nc=(T[i]|0)-(S.c[i]|0);if(nc<=0){if((T[i]|0)<(S.c[i]|0)){S.c[i]=T[i]|0;ch=1}continue}S.c[i]=T[i]|0;ch=1;
+   const P=X1233.pend,raid=P&&P.race===i;const w=raid?P.w:((st&&(st.wave|0))||50),tier=(st&&st.tier)||1,eD=tsEff(w,tier);
+   const why=[];if(raid){why.push('conquest');if(eD>(S.d[i]|0))why.push('record');if(P.min>=.5)why.push('unbroken');for(let x=1;x<nc;x++)why.push('war')}else for(let x=0;x<nc;x++)why.push('conquest');
+   const got=[],miss=[];for(const r of why){const n=S.s[i]|0;if(n>=TSMAX)break;if(eD>=tsReq(n+1)){S.s[i]=n+1;got.push(r)}else miss.push(r)}
+   if(raid)S.d[i]=Math.max(S.d[i]|0,eD);
+   if(raid)X1233.last={race:i,got,miss,eD,w,tier,n:S.s[i]|0,min:P.min}}
+  if(ch)try{saveMeta()}catch(e){}}
+{const _ta=troApplyDelta;troApplyDelta=function(b0){try{tsSync()}catch(e){console.error(e)}return _ta.apply(this,arguments)}}
+// lowest King HP during the raid (for the Unbroken star)
+{const _rs=raidStep;raidStep=function(dt){const r=_rs.apply(this,arguments);try{const k=st&&st.k,D_=RDS;if(D_&&k&&k.mhp){if(D_.x1233m==null)D_.x1233m=1;if(D_.ph==='go')D_.x1233m=Math.min(D_.x1233m,Math.max(0,k.hp/k.mhp))}}catch(e){}return r}}
+{const _rf=raidFinish;raidFinish=function(){const s=st;try{X1233.last=null;X1233.pend=s&&s.raid?{race:s.raid.race,w:s.raid.w,min:RDS&&RDS.x1233m!=null?RDS.x1233m:1}:null}catch(e){}
+  try{return _rf.apply(this,arguments)}finally{X1233.pend=null}}}
+// ---- text helpers
+function tsPct(x){return(+x).toLocaleString('en-US',{maximumFractionDigits:2})}
+function tsBon(i,n){return'+'+tsPct(n*tsPer(i))+'% '+TRO[i][2]}
+function tsNext(i){const n=tsN(i);if(n>=TSMAX)return'All 100 ★ earned — maxed!';const q=tsReq(n+1);return`Next ★ (${n+1}): destroy a ${RACES[i][0]} hive at rift wave ${fN(q)}+`+(q>50?' (effective: each run tier above 1 counts +25%)':'')}
+const TSWHY={conquest:'⚔️ Hive destroyed',record:'🌊 Depth record',unbroken:'🛡️ Unbroken (King stayed above 50% HP)',war:'🚩 War Banner'};
+function tsHow(){return`<b>How stars are earned</b> (each trophy, max 100 ★): every hive you destroy gives ⚔️ +1 ★. Bonus stars: 🌊 +1 ★ for a new depth record on that species, 🛡️ +1 ★ if the King never drops below 50% HP in the raid, 🚩 +1 ★ from the War Banner lab. Stars 1–10 only need a rift; later stars need deeper rifts (star 25 → wave ${tsReq(25)}, star 50 → wave ${fN(tsReq(50))}, star 75 → wave ${fN(tsReq(75))}, star 100 → wave ${fN(tsReq(100))}; each run tier above 1 counts as +25% depth). Medals: Bronze 1 ★, Silver 6, Gold 9, Platinum 25, Diamond 50, Cosmic 75, Ascended 100.`}
+// ---- hive destroyed screen
+{const _w=raidWinUI;raidWinUI=function(race,t0,t1,rew,rv,dup,D_){const r=_w.apply(this,arguments);try{const pn=UI.querySelector('.pn');if(!pn)return r;const n=tsN(race),b=tsBand(n),L=X1233.last&&X1233.last.race===race?X1233.last:null;
+  const img=pn.querySelector('img');if(img)img.src=troURL(race,100+b,192);const h2=pn.querySelector('h2');if(h2)h2.style.color=TSB[b][2];
+  const p=h2&&h2.nextElementSibling;if(p&&p.tagName==='P'){p.style.color=TSB[b][2];p.innerHTML=`<span class="x1233st">${n}/100 ★</span> · ${TSB[b][1]} trophy${L&&L.got.length?` <span class="x1233up">+${L.got.length} ★</span>`:''}`;
+   const ex=document.createElement('div');ex.className='x1233box';
+   ex.innerHTML=(L?(L.got.length?L.got.map(g=>`<div class="x1233g">${TSWHY[g]} <b>+1 ★</b></div>`).join(''):'')+(L.miss.length?`<div class="x1233m">${L.miss.length} more ★ needs a deeper rift (this one counted as wave ${fN(L.eD)}).</div>`:''):(dup?'<div class="x1233m">Already claimed at this rift — no new stars.</div>':''))+`<div class="x1233bar"><i style="width:${n}%;background:${TSB[b][2]}"></i></div><div class="x1233nx">${tsNext(race)}</div>`;p.after(ex)}
+  const td=[...pn.querySelectorAll('td')].find(x=>/Lifetime bonus/.test(x.textContent));if(td&&td.nextElementSibling)td.nextElementSibling.innerHTML=`${tsBon(race,n)} <small>(${tsPct(tsPer(race))}%/★ · max ${tsPct(100*tsPer(race))}%)</small>`}catch(e){console.error(e)}return r}}
+// ---- trophy hall + stats rows
+troHall=function(){const nx=RREW[rrNext()];let h=`<p style="font-size:13px">Conquer an alien hive at every 50-wave rift to claim its trophy. Each trophy gives a lifetime bonus that grows with its ★ stars and a <b>Bane</b> (bonus damage against that species: +10% / +15% / +20% after 1 / 3 / 6 wins).</p><p class="x1233how">${tsHow()}</p><p style="font-size:13px">Raids won: <b>${(meta.rdN||0)}</b> · Next raid reward: <b>${nx[0]} ${nx[1]}</b><br><small>${nx[2]}</small></p><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">`;
+  TRO.forEach((t,i)=>{const T=troT(i),n=tsN(i),b=tsBand(n),c=(meta.tro||{})[i]||0;h+=`<div class="row x1233card" style="flex-direction:column;align-items:center;text-align:center;padding:6px;${n?'':'opacity:.75'}"><img src="${troURL(i,100+b,128)}" style="width:72px;height:72px"><b style="font-size:13px;color:${TSB[b][2]}">${n?t[0]:'??? — '+RACES[i][0]}</b><small class="x1233st" style="color:${TSB[b][2]}">${n}/100 ★${n?' · '+TSB[b][1]:''}</small><div class="x1233bar"><i style="width:${n}%;background:${TSB[b][2]}"></i></div><small>🏆 ${n?tsBon(i,n):'+'+tsPct(tsPer(i))+'% '+t[2]+' per ★'}</small><small>${tsPct(tsPer(i))}%/★ · max +${tsPct(100*tsPer(i))}%</small><small>⚡ Bane +${BANE[Math.max(1,T)]}%${T?' · won ×'+c:''}</small><small class="x1233nx">${tsNext(i)}</small></div>`});
+  return h+'</div>'};
+troStats=function(row){const L=TRO.map((t,i)=>[t,i,tsN(i)]).filter(x=>x[2]);if(!L.length)return'<div style="font-size:13px;opacity:.8;padding:4px 8px">No trophies yet — destroy the raid hive at wave 50</div>';return L.map(([t,i,n])=>row('🏆',RACES[i][0]+' · '+n+'/100 ★ '+TSB[tsBand(n)][1],tsBon(i,n)+' · Bane +'+BANE[troT(i)]+'%')).join('')};
+// keep the ledger in step when a save loads (Head Start / Jump Drive conquests credited while away)
+{const _l=loadSlot;loadSlot=function(){const r=_l.apply(this,arguments);try{tsS()}catch(e){}return r}}
+{const c=document.createElement('style');c.id='x1233css';c.textContent=`.x1233st{font-weight:900;letter-spacing:.02em}.x1233up{color:#7dff9a;font-weight:900}
+.x1233box{margin:0 auto 8px;max-width:330px;text-align:left;font-size:13px}.x1233g{padding:2px 0;color:#e8f0f8}.x1233g b{color:#7dff9a}.x1233m{color:#ffb38a;font-size:12px;padding:2px 0}
+.x1233bar{height:6px;border-radius:3px;background:#ffffff1a;overflow:hidden;margin:5px 0 4px;width:100%}.x1233bar i{display:block;height:100%;border-radius:3px}
+.x1233nx{font-size:12px;color:#bcd0e4}.x1233how{font-size:12px;color:#c6d6e6;background:#ffffff0d;border:1px solid #ffffff1a;border-radius:10px;padding:8px}.x1233card small{line-height:1.25}`;document.head.appendChild(c)}
 
 </script></body></html>
