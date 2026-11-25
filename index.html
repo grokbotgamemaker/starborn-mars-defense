@@ -86,7 +86,7 @@ table{color:#c7d3df}td:last-child{color:#bff1ff}
 </style></head><body>
 <canvas id="c"></canvas><div id="ui"></div>
 <script>
-const SKVER='v1.23.3';
+const SKVER='v1.23.4';
 const LSP='sbm_',LS={getItem:k=>localStorage.getItem(LSP+k),setItem:(k,v)=>localStorage.setItem(LSP+k,v),removeItem:k=>localStorage.removeItem(LSP+k),keys:()=>Object.keys(localStorage).filter(k=>k.startsWith(LSP)).map(k=>k.slice(LSP.length)),clear:()=>LS.keys().forEach(k=>localStorage.removeItem(LSP+k))};
 
 const C=document.getElementById('c');let X=C.getContext('2d');const UI=document.getElementById('ui');
@@ -6637,5 +6637,77 @@ troStats=function(row){const L=TRO.map((t,i)=>[t,i,tsN(i)]).filter(x=>x[2]);if(!
 .x1233box{margin:0 auto 8px;max-width:330px;text-align:left;font-size:13px}.x1233g{padding:2px 0;color:#e8f0f8}.x1233g b{color:#7dff9a}.x1233m{color:#ffb38a;font-size:12px;padding:2px 0}
 .x1233bar{height:6px;border-radius:3px;background:#ffffff1a;overflow:hidden;margin:5px 0 4px;width:100%}.x1233bar i{display:block;height:100%;border-radius:3px}
 .x1233nx{font-size:12px;color:#bcd0e4}.x1233how{font-size:12px;color:#c6d6e6;background:#ffffff0d;border:1px solid #ffffff1a;border-radius:10px;padding:8px}.x1233card small{line-height:1.25}`;document.head.appendChild(c)}
+
+// ===== v1.23.4: Artifact favorites — mirrors the Armory (Lifetime upgrades) ⭐ favorites + Buy ×1/×10/Max
+// Keys (all new, nothing existing is touched):
+//   sbm_sN_kaArtFav  per-slot list of favorited artifact ids (like sbm_sN_kaFav for the Armory)
+//   sbm_kaTriFav     account-wide list of favorited Trinity relic ids (Trinity is account-wide)
+//   sbm_kaArtQ       artifact/Trinity buy quantity: '1' | '10' | 'max'
+//   sbm_kaArtFavO    '0' when the ⭐ Favorites group is collapsed
+let AFAV=[],TFAV=[];
+function afLoad(){try{const v=JSON.parse(LS.getItem(SK('kaArtFav'))||'[]');AFAV=Array.isArray(v)?v.filter((k,i)=>typeof k==='string'&&v.indexOf(k)===i&&ARTS.some(a=>a[0]===k)):[]}catch(e){AFAV=[]}
+ try{const v=JSON.parse(LS.getItem('kaTriFav')||'[]');TFAV=Array.isArray(v)?v.filter((k,i)=>v.indexOf(k)===i&&TRI.some(d=>d.id===k)):[]}catch(e){TFAV=[]}}
+function afSave(){try{LS.setItem(SK('kaArtFav'),JSON.stringify(AFAV));LS.setItem('kaTriFav',JSON.stringify(TFAV))}catch(e){}}
+let ARTQ=(()=>{try{const v=LS.getItem('kaArtQ');return['1','10','max'].includes(v)?v:'1'}catch(e){return'1'}})();
+let AFO=(()=>{try{return LS.getItem('kaArtFavO')!=='0'}catch(e){return true}})();
+afLoad();
+{const _l=loadSlot;loadSlot=function(){const r=_l.apply(this,arguments);afLoad();return r}}
+// How many stars a tap buys at the current quantity. ×10 = ten stars (or up to the cap) and must be fully affordable,
+// Max = as many as the points cover (same rules as the Armory's quick-buy).
+function artQty(id,mode){mode=mode||ARTQ;const s0=aS(id),mx=artMax(id);if(s0>=mx)return{n:0,c:0};const av=artAvail(),k=mode==='max'?1e9:(+mode||1);let n=0,c=0;
+ for(let s=s0;s<mx&&n<k&&n<500;s++){const x=artNext(s,id);if(mode==='max'&&c+x>av)break;c+=x;n++}if(!n)return{n:1,c:artNext(s0,id)};return{n,c}}
+function triQty(id,mode){mode=mode||ARTQ;const d=TRI.find(x=>x.id===id),s=triStore();if(!d)return{n:0,c:0};const L0=s.a[id]|0;if(L0>=d.mx)return{n:0,c:0};const k=mode==='max'?1e9:(+mode||1);let n=0,c=0;
+ for(let L=L0;L<d.mx&&n<k&&n<500;L++){const x=triCost(id,L);if(mode==='max'&&c+x>s.sh)break;c+=x;n++}if(!n)return{n:1,c:triCost(id,L0)};return{n,c}}
+function afMute(fn){const sf=Snd.sfx;try{return fn(()=>{Snd.sfx=function(){}})}finally{Snd.sfx=sf}}
+{const _ab=artBuy;artBuy=function(id){if(state!=='menu')return;const q=artQty(id);if(q.n<=1)return _ab(id);if(artAvail()<q.c)return;
+  afMute(mute=>{for(let i=0;i<q.n;i++){const b=aS(id);_ab(id);if(!i)mute();if(aS(id)===b)break}})}}
+{const _tb=triBuy;triBuy=function(id){const q=triQty(id);if(q.n<=1)return _tb(id);if(triStore().sh<q.c)return 0;let got=0;
+  afMute(mute=>{for(let i=0;i<q.n;i++){if(!_tb(id))break;got++;if(!i)mute()}});return got?1:0}}
+function afQBar(){return`<div class="sortbar afq" data-afq="1">Buy: ${[['1','×1'],['10','×10'],['max','Max']].map(([q,l])=>`<button class="sb ${ARTQ===q?'on':''}" data-artq="${q}" aria-label="Buy ${q==='max'?'max':'×'+q}">${l}</button>`).join('')}</div>`}
+function afStar(on,attr,id,nm){return`<button class="afav ${on?'':'off'}" ${attr}="${id}" aria-label="${on?'Unfavorite':'Favorite'} ${String(nm).replace(/"/g,'')}" aria-pressed="${on?'true':'false'}">⭐</button>`}
+function afHead(n,extra){return`<button class="tab afhd" data-artfavsec="1" aria-expanded="${AFO}">${AFO?'▾':'▸'} ⭐ Favorites <span style="opacity:.75">(${n})</span>${extra?` <small class="afx">${extra}</small>`:''}</button>`}
+// Regular artifacts: ⭐ toggle on every card, favorites pinned in a ⭐ Favorites group at the top
+// (respecting the Active/Maxed tab and the current sort), quick-buy labels on every buy button.
+function afArt(html){const T=document.createElement('template');T.innerHTML=html;const R=T.content,av=artAvail(),byId={};
+ R.querySelectorAll('.acard').forEach(cd=>{const b=cd.querySelector('[data-art]');if(!b)return;const id=b.dataset.art,a=ARTS.find(x=>x[0]===id);byId[id]=cd;cd.dataset.artid=id;
+  b.insertAdjacentHTML('beforebegin',afStar(AFAV.includes(id),'data-artfav',id,a?a[2]:id));if(AFAV.includes(id))cd.classList.add('isfav');
+  if(ARTQ!=='1'){const q=artQty(id);if(q.n>1){const s=aS(id);b.innerHTML=`🛸 ${fN(q.c)}<br><small>×${q.n} → ${s+q.n}/${artMax(id)}★</small>`;b.disabled=av<q.c}}});
+ if(AFAV.length){const shown=artSrt(AFAV.map(k=>ARTS.find(a=>a[0]===k)).filter(Boolean)).filter(a=>byId[a[0]]),act=X123T.art!=='max',hid=act?AFAV.filter(k=>artMaxed(k)).length:0;
+  const first=R.querySelector('h3.x17h')||R.querySelector('.acard');
+  if(shown.length&&first){const box=document.createElement('div');box.className='afsec';if(!AFO)box.style.display='none';shown.forEach(a=>box.appendChild(byId[a[0]]));
+   const tmp=document.createElement('template');tmp.innerHTML=afHead(shown.length,hid?`+${hid} maxed in ✅ Maxed`:'');first.before(tmp.content,box)}
+  else if(act&&hid&&first){const tmp=document.createElement('template');tmp.innerHTML=`<p class="afhint">⭐ ${hid===1?'Your favorite is':'All '+hid+' favorites are'} maxed — find ${hid===1?'it':'them'} under ✅ Maxed.</p>`;first.before(tmp.content)}}
+ // drop relic headers left with no cards (all their cards are favorites, or filtered out by the tab)
+ R.querySelectorAll('h3.x17h').forEach(h=>{if(!/relics/.test(h.textContent))return;const n=h.nextElementSibling;if(!n||!n.classList.contains('acard'))h.remove()});
+ return T.innerHTML}
+// Trinity relics: same ⭐ toggle; favorites pinned above the gate list so they are one tap from the top.
+function afTri(html){const T=document.createElement('template');T.innerHTML=html;const R=T.content,cards=[...R.querySelectorAll('.x123r')],s=triStore();
+ cards.forEach((cd,i)=>{const d=TRI[i];if(!d)return;cd.dataset.triid=d.id;const on=TFAV.includes(d.id),b=cd.querySelector('[data-x123buy]'),mx=cd.querySelector('.x123max');
+  (b||mx).insertAdjacentHTML('beforebegin',afStar(on,'data-trifav',d.id,d.nm));if(on)cd.classList.add('isfav');
+  if(b&&ARTQ!=='1'){const q=triQty(d.id);if(q.n>1){b.innerHTML=`🔱 ${fN(q.c)}<br><small>×${q.n}</small>`;b.disabled=s.sh<q.c}}});
+ const fav=TFAV.map(k=>cards[TRI.findIndex(d=>d.id===k)]).filter(Boolean),p=R.querySelector('.x123p');
+ if(fav.length&&p){const box=document.createElement('div');box.className='afsec';if(!AFO)box.style.display='none';fav.forEach(c=>box.appendChild(c));const tmp=document.createElement('template');tmp.innerHTML=afHead(fav.length);p.after(tmp.content,box)}
+ return T.innerHTML}
+{const _c=artCards;artCards=function(){const h=_c.apply(this,arguments);if(!X123.inArt)return h;try{afLoad();return X123T.art==='tri'?afTri(h):afArt(h)}catch(e){console.error(e);return h}}}
+{const _a=artifacts;artifacts=function(){const r=_a.apply(this,arguments);try{const pn=UI.querySelector('.pn');if(pn&&!pn.querySelector('[data-afq]')){const sb=pn.querySelector('.sortbar[data-sortfor="art"]');if(sb)sb.insertAdjacentHTML('afterend',afQBar())}}catch(e){console.error(e)}return r}}
+// Pause → 💎 Lifetime: the Armory list already pins ⭐ favorites; add a read-only ⭐ Favorite artifacts group under it
+// (artifacts can only be bought between runs, same as the Armory rows there).
+{const _r=renderMenu;renderMenu=function(){try{if(!('afav' in ASEC))ASEC.afav=1}catch(e){}const r=_r.apply(this,arguments);try{if(state==='pause'&&mtab==='life'){afLoad();const tb=UI.querySelector('.tbody');const L=AFAV.map(k=>ARTS.find(a=>a[0]===k)).filter(Boolean);
+  if(tb&&L.length&&!tb.querySelector('[data-asec="afav"]')){const rows=L.map(a=>{const s=aS(a[0]),mx=artMax(a[0]);return`<div class="row afrow"><div class="ic">${a[1]}</div><div class="tx"><b>${a[2]}</b><small>${s?'Now: '+a[4](s):'Locked'}</small><div class="pbar"><i style="width:${Math.min(100,s/mx*100)}%"></i></div></div><div style="font-weight:900;color:#ffd25e">${s>=mx?'MAX':s+'/'+mx+'★'}</div></div>`}).join('');
+   const h=`<button class="tab" data-asec="afav" style="display:block;width:100%;margin:8px 0 4px;text-align:left;font-size:16px">${ASEC.afav?'▾':'▸'} ⭐ Favorite artifacts <span style="opacity:.75">(${L.length})</span></button>`+(ASEC.afav?rows+'<p class="afhint" style="margin:2px 0 6px">🛸 Upgrade these between runs in Artifacts.</p>':'');
+   const nx=[...tb.querySelectorAll('[data-asec]')].find(b=>b.dataset.asec!=='fav');if(nx)nx.insertAdjacentHTML('beforebegin',h);else tb.insertAdjacentHTML('afterbegin',h)}}}catch(e){console.error(e)}return r}}
+UI.addEventListener('click',e=>{const t=e.target.closest&&e.target.closest('[data-artfav],[data-trifav],[data-artq],[data-artfavsec]');if(!t)return;e.stopImmediatePropagation();e.preventDefault();
+ try{Snd.init();Snd.ui()}catch(x){}const sc=(wrapUI(),scr()).scrollTop;afLoad();
+ if(t.dataset.artfav){const k=t.dataset.artfav;AFAV=AFAV.includes(k)?AFAV.filter(x=>x!==k):[...AFAV,k];afSave()}
+ else if(t.dataset.trifav){const k=t.dataset.trifav;TFAV=TFAV.includes(k)?TFAV.filter(x=>x!==k):[...TFAV,k];afSave()}
+ else if(t.dataset.artq){ARTQ=['1','10','max'].includes(t.dataset.artq)?t.dataset.artq:'1';try{LS.setItem('kaArtQ',ARTQ)}catch(x){}}
+ else if(t.dataset.artfavsec){AFO=!AFO;try{LS.setItem('kaArtFavO',AFO?'1':'0')}catch(x){}}
+ artifacts();(wrapUI(),scr()).scrollTop=sc},true);
+{const c=document.createElement('style');c.id='x1234css';c.textContent=`
+.acard,.x123r{position:relative}.acard>.afav,.x123r>.afav{position:absolute;top:2px;right:2px;min-height:36px;z-index:2}
+.afav{background:none;border:0;font-size:22px;padding:0 4px;min-width:36px;min-height:44px;flex:none;cursor:pointer}.afav.off{filter:grayscale(1) opacity(.45)}
+.afhd{display:block;width:100%;margin:8px 0 4px;text-align:left;font-size:16px}.afhd .afx{font-size:11px;opacity:.7;font-weight:600}
+.afsec{border-left:3px solid #ffd25e;padding-left:6px;margin:0 0 8px}.afsec .acard,.afsec .x123r{box-shadow:0 0 10px #ffd25e33}
+.afhint{text-align:center;font-size:13px;opacity:.8;margin:6px 0}.afq{margin-top:4px}`;document.head.appendChild(c)}
 
 </script></body></html>
